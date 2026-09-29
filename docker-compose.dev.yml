@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: carsoplac-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD es obligatorio, definelo en .env}
+      POSTGRES_DB: ${POSTGRES_DB:-carsoplac}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+    networks:
+      - carsoplac-network-dev
+
+  backend:
+    build:
+      context: ./carsoplac-back
+      dockerfile: Dockerfile.dev
+    container_name: carsoplac-backend-dev
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: development
+      PORT: ${PORT:-3000}
+      # JWT_SECRET y demás secretos vienen de .env (env_file)
+      # DATABASE_URL se construye con POSTGRES_USER/POSTGRES_PASSWORD/POSTGRES_DB
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-carsoplac}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET es obligatorio, ejecutá scripts/generate-secrets.js}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    volumes:
+      - ./carsoplac-back:/app
+      - /app/node_modules
+      - backend_logs_dev:/app/logs
+    networks:
+      - carsoplac-network-dev
+
+  admin:
+    build:
+      context: ./carsoplac-admin
+      dockerfile: Dockerfile.dev
+    container_name: carsoplac-admin-dev
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    volumes:
+      - ./carsoplac-admin:/app
+      - /app/node_modules
+    networks:
+      - carsoplac-network-dev
+
+  principal:
+    build:
+      context: ./carsoplac-back/carsoplac-principal
+      dockerfile: Dockerfile.dev
+    container_name: carsoplac-principal-dev
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "5174:5174"
+    depends_on:
+      - backend
+    volumes:
+      - ./carsoplac-back/carsoplac-principal:/app
+      - /app/node_modules
+    networks:
+      - carsoplac-network-dev
+
+volumes:
+  postgres_data_dev:
+  backend_logs_dev:
+
+networks:
+  carsoplac-network-dev:
+    driver: bridge

@@ -1,0 +1,19 @@
+{
+  "name": "carsoplac",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev:admin": "npm run dev --prefix carsoplac-admin",
+    "dev:principal": "npm run dev --prefix carsoplac-back/carsoplac-principal",
+    "dev:back": "npm run start:dev --prefix carsoplac-back"
+  },
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  },
+  "dependencies": {
+    "@nestjs/mapped-types": "^2.1.1",
+    "@nestjs/throttler": "^6.5.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.15.1"
+  }
+}

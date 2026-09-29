@@ -1,0 +1,26 @@
+# ============================================
+# BACKEND - DESARROLLO
+# ============================================
+
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Instalar herramientas
+RUN apk add --no-cache curl git
+
+# Instalar dependencias
+COPY package*.json ./
+RUN npm install && npm cache clean --force
+
+# Copiar código fuente
+COPY . .
+
+# Generar Prisma Client
+RUN npx prisma generate
+
+# Exponer puerto
+EXPOSE 3000
+
+# Comando de desarrollo con hot-reload
+CMD ["npm", "run", "start:dev"]
