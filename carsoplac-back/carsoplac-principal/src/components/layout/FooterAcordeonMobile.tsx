@@ -158,8 +158,8 @@ export default function FooterAcordeonMobile() {
             aria-describedby={showError ? "newsletter-email-error" : undefined}
             className={`flex-1 h-11 rounded-full bg-white/10 border px-4 text-sm placeholder-white/50 text-white focus:outline-none transition ${
               showError
-                ? "border-[rgb(var(--accent))] focus:border-[rgb(var(--accent))] bg-white/15"
-                : "border-white/15 focus:border-white/40 focus:bg-white/15"
+                ? "border-[rgb(var(--color-danger-border))] focus:border-[rgb(var(--color-danger-border))] bg-white/15"
+                : "border-[rgb(var(--color-accent-brand))] focus:border-[rgb(var(--color-accent-brand))] focus:bg-white/15"
             }`}
           />
           <button
