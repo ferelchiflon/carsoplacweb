@@ -133,7 +133,7 @@ export default function SearchDrawer({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="¿Qué estás buscando?"
-              className="w-full h-11 pl-11 pr-4 rounded-full bg-[rgb(var(--neutral))] border border-transparent focus:bg-white focus:border-[rgb(var(--primary))] text-base outline-none transition"
+              className="w-full h-11 pl-11 pr-4 rounded-full bg-[rgb(var(--neutral))] border border-transparent focus:bg-deep-lichen focus:border-accent-brand text-white text-base outline-none transition"
             />
           </form>
           <button
