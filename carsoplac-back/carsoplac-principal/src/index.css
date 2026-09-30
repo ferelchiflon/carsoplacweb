@@ -203,21 +203,23 @@
     @apply mx-auto w-full max-w-[1120px] px-4 sm:px-6 lg:px-8;
   }
 
-  /* Botones */
+  /* Botones — Primary = pill blanca con texto oscuro; Secondary/Outline = ghost
+     (scripts/desing.md: la única acción primaria es la pill blanca sobre oscuro,
+     la secundaria es ghost con borde claro; el mint NUNCA rellena botones). */
   .btn {
     @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-bold tracking-wide transition-all duration-200 select-none disabled:opacity-50 disabled:cursor-not-allowed;
   }
   .btn-primary {
-    @apply bg-[rgb(var(--primary))] text-white hover:bg-[rgb(15,15,15)] active:scale-[0.98] shadow-[0_4px_14px_rgba(26,26,26,0.18)];
+    @apply bg-pure-white text-midnight-forest hover:bg-pure-white/90 active:scale-[0.98] shadow-subtle;
   }
   .btn-secondary {
-    @apply bg-[rgb(var(--secondary))] text-[rgb(var(--primary))] hover:brightness-95 active:scale-[0.98];
+    @apply border border-white/30 text-white hover:bg-white/10 active:scale-[0.98];
   }
   .btn-outline {
-    @apply border border-[rgb(var(--primary))] text-[rgb(var(--primary))] hover:bg-[rgb(var(--primary))] hover:text-white;
+    @apply border border-spruce-border text-white hover:border-white/40 hover:bg-white/10 active:scale-[0.98];
   }
   .btn-ghost {
-    @apply text-[rgb(var(--primary))] hover:bg-[rgb(var(--neutral))];
+    @apply text-white hover:bg-white/10;
   }
 
   /* Tipografía display */
@@ -231,36 +233,36 @@
     @apply text-2xl sm:text-3xl lg:text-4xl font-bold leading-[1.1] tracking-tight;
   }
   .eyebrow {
-    @apply inline-block text-[11px] uppercase tracking-[0.22em] font-bold text-[rgb(var(--muted))];
+    @apply inline-block text-[11px] uppercase tracking-[0.22em] font-bold text-sage-gray;
   }
 
   /* Tarjetas */
   .card {
-    @apply bg-white rounded-2xl border border-[rgb(var(--line))] overflow-hidden transition-shadow;
+    @apply bg-deep-lichen rounded-2xl border border-spruce-border overflow-hidden transition-shadow;
   }
   .card-hover {
-    @apply hover:shadow-[0_18px_50px_rgba(26,26,26,0.10)] hover:-translate-y-0.5 transition-all duration-300;
+    @apply hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300;
   }
 
   /* Chips / tags */
   .chip {
-    @apply inline-flex items-center gap-1 rounded-full bg-[rgb(var(--neutral))] text-[rgb(var(--primary))] px-3 py-1 text-xs font-semibold;
+    @apply inline-flex items-center gap-1 rounded-full bg-shaded-fern text-white px-3 py-1 text-xs font-semibold;
   }
   .chip-discount {
-    @apply bg-[rgb(var(--accent))] text-white;
+    @apply bg-[rgb(var(--color-sale))] text-white;
   }
   .chip-new {
-    @apply bg-[rgb(var(--secondary))] text-[rgb(var(--primary))];
+    @apply bg-accent-brand text-midnight-forest;
   }
 
   /* Inputs */
   .input-base {
-    @apply w-full h-12 rounded-full bg-[rgb(var(--neutral))] px-5 text-sm placeholder:text-[rgb(var(--muted))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))] transition;
+    @apply w-full h-12 rounded-full bg-shaded-fern text-white border border-spruce-border px-5 text-sm placeholder:text-sage-gray focus:outline-none focus:border-accent-brand focus:ring-2 focus:ring-accent-brand transition;
   }
 
   /* Skeleton */
   .skeleton {
-    @apply animate-pulse bg-gradient-to-r from-[rgb(var(--neutral))] via-[rgb(var(--line))] to-[rgb(var(--neutral))] bg-[length:200%_100%];
+    @apply animate-pulse bg-gradient-to-r from-shaded-fern via-spruce-border to-shaded-fern bg-[length:200%_100%];
     animation: shimmer 1.4s ease-in-out infinite;
   }
 
