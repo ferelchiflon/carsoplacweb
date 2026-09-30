@@ -179,20 +179,20 @@ export default function ProductsPage() {
             placeholder="Buscar producto..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 px-4 py-2 rounded-full border border-[rgb(var(--line))] bg-white text-[rgb(var(--primary))] placeholder:text-[rgb(var(--muted))] text-sm focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))] transition"
+            className="flex-1 px-4 py-2 rounded-full border border-spruce-border bg-shaded-fern text-white placeholder:text-sage-gray text-sm focus:outline-none focus:border-accent-brand focus:ring-2 focus:ring-accent-brand transition"
             aria-label="Buscar productos"
           />
           <button
             type="button"
             onClick={() => setFiltersOpen((prev) => !prev)}
-            className="px-4 py-2 rounded-full bg-[rgb(var(--primary))] text-white text-sm font-bold relative hover:bg-[rgb(15,15,15)] active:scale-95 transition-all"
+            className="px-4 py-2 rounded-full bg-pure-white text-midnight-forest text-sm font-bold relative hover:bg-pure-white/90 active:scale-95 transition-all"
             aria-label={filtersOpen ? "Cerrar filtros" : "Abrir filtros"}
             aria-expanded={filtersOpen}
           >
             Filtros
             {activeFiltersCount > 0 && (
               <span 
-                className="absolute -top-1 -right-1 bg-[rgb(var(--accent))] text-white text-[10px] font-extrabold rounded-full w-5 h-5 flex items-center justify-center"
+                className="absolute -top-1 -right-1 bg-accent-brand text-midnight-forest text-[10px] font-extrabold rounded-full w-5 h-5 flex items-center justify-center"
                 aria-label={`${activeFiltersCount} filtros activos`}
               >
                 {activeFiltersCount}
@@ -204,17 +204,17 @@ export default function ProductsPage() {
         {/* Panel de filtros */}
         {filtersOpen && (
           <div 
-            className="bg-white rounded-2xl shadow-[0_10px_30px_rgba(26,26,26,0.08)] p-4 mb-4 border border-[rgb(var(--line))] animate-fadeIn"
+            className="bg-deep-lichen rounded-2xl shadow-xl p-4 mb-4 border border-spruce-border animate-fadeIn"
             role="region"
             aria-label="Filtros de productos"
           >
             <div className="flex justify-between items-center mb-3">
-              <h3 className="font-bold text-[rgb(var(--primary))] text-lg">Filtros</h3>
+              <h3 className="font-bold text-white text-lg">Filtros</h3>
               {activeFiltersCount > 0 && (
                 <button
                   type="button"
                   onClick={clearFilters}
-                  className="text-sm text-[rgb(var(--accent))] font-semibold underline underline-offset-2 hover:no-underline transition-colors"
+                  className="text-sm text-accent-brand font-semibold underline underline-offset-2 hover:no-underline transition-colors"
                 >
                   Limpiar todo
                 </button>
@@ -223,15 +223,15 @@ export default function ProductsPage() {
 
             {/* Categorías */}
             <div className="mb-4">
-              <p className="text-sm font-semibold text-[rgb(var(--primary))] mb-2">Categoría</p>
+              <p className="text-sm font-semibold text-white mb-2">Categoría</p>
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
                   onClick={() => setSelectedCategory("all")}
                   className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
                     selectedCategory === "all"
-                      ? "bg-white text-midnight-forest border-white"
-                      : "bg-transparent text-white border-spruce-border hover:bg-shaded-fern"
+                      ? "bg-accent-brand text-midnight-forest border-accent-brand"
+                      : "bg-transparent text-sage-gray border-spruce-border hover:bg-shaded-fern hover:text-white"
                   }`}
                 >
                   Todas
@@ -243,8 +243,8 @@ export default function ProductsPage() {
                     onClick={() => setSelectedCategory(category.id)}
                     className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
                       selectedCategory === category.id
-                        ? "bg-white text-midnight-forest border-white"
-                        : "bg-transparent text-white border-spruce-border hover:bg-shaded-fern"
+                        ? "bg-accent-brand text-midnight-forest border-accent-brand"
+                        : "bg-transparent text-sage-gray border-spruce-border hover:bg-shaded-fern hover:text-white"
                     }`}
                   >
                     {category.name}
@@ -255,24 +255,24 @@ export default function ProductsPage() {
 
             {/* Precio */}
             <div className="mb-4">
-              <p className="text-sm font-semibold text-[rgb(var(--primary))] mb-2">Precio</p>
+              <p className="text-sm font-semibold text-white mb-2">Precio</p>
               <div className="flex gap-2 items-center">
                 <input
                   type="number"
                   placeholder="Mín"
                   value={minPrice}
                   onChange={(e) => setMinPrice(e.target.value)}
-                  className="w-1/2 px-3 py-1.5 rounded-lg border border-[rgb(var(--line))] text-sm focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))] transition"
+                  className="w-1/2 px-3 py-1.5 rounded-lg border border-spruce-border bg-shaded-fern text-white placeholder:text-sage-gray text-sm focus:outline-none focus:border-accent-brand focus:ring-2 focus:ring-accent-brand transition"
                   aria-label="Precio mínimo"
                   min="0"
                 />
-                <span className="text-[rgb(var(--muted))]">-</span>
+                <span className="text-sage-gray">-</span>
                 <input
                   type="number"
                   placeholder="Máx"
                   value={maxPrice}
                   onChange={(e) => setMaxPrice(e.target.value)}
-                  className="w-1/2 px-3 py-1.5 rounded-lg border border-[rgb(var(--line))] text-sm focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))] transition"
+                  className="w-1/2 px-3 py-1.5 rounded-lg border border-spruce-border bg-shaded-fern text-white placeholder:text-sage-gray text-sm focus:outline-none focus:border-accent-brand focus:ring-2 focus:ring-accent-brand transition"
                   aria-label="Precio máximo"
                   min="0"
                 />
@@ -281,11 +281,11 @@ export default function ProductsPage() {
 
             {/* Ordenamiento */}
             <div>
-              <p className="text-sm font-semibold text-[rgb(var(--primary))] mb-2">Ordenar por</p>
+              <p className="text-sm font-semibold text-white mb-2">Ordenar por</p>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortOption)}
-                className="w-full px-3 py-1.5 rounded-lg border border-[rgb(var(--line))] text-sm focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))] transition"
+                className="w-full px-3 py-1.5 rounded-lg border border-spruce-border bg-shaded-fern text-white text-sm focus:outline-none focus:border-accent-brand focus:ring-2 focus:ring-accent-brand transition"
                 aria-label="Ordenar productos"
               >
                 <option value="recent">Más recientes</option>
@@ -303,14 +303,14 @@ export default function ProductsPage() {
             {Array.from({ length: 8 }).map((_, i) => (
               <div
                 key={i}
-                className="bg-white rounded-2xl border border-[rgb(var(--line))] overflow-hidden animate-pulse"
+                className="bg-deep-lichen rounded-2xl border border-spruce-border overflow-hidden animate-pulse"
               >
-                <div className="aspect-square bg-[rgb(var(--neutral))]" />
+                <div className="aspect-square bg-shaded-fern" />
                 <div className="p-3 flex flex-col gap-2">
-                  <div className="h-2.5 w-1/3 rounded-full bg-[rgb(var(--neutral))]" />
-                  <div className="h-3.5 w-full rounded-full bg-[rgb(var(--neutral))]" />
-                  <div className="h-3.5 w-2/3 rounded-full bg-[rgb(var(--neutral))]" />
-                  <div className="h-5 w-1/2 rounded-full bg-[rgb(var(--neutral))] mt-1" />
+                  <div className="h-2.5 w-1/3 rounded-full bg-shaded-fern" />
+                  <div className="h-3.5 w-full rounded-full bg-shaded-fern" />
+                  <div className="h-3.5 w-2/3 rounded-full bg-shaded-fern" />
+                  <div className="h-5 w-1/2 rounded-full bg-shaded-fern mt-1" />
                 </div>
               </div>
             ))}
@@ -338,7 +338,7 @@ export default function ProductsPage() {
         {/* Lista de productos */}
         {!loading && !error && (
           <>
-            <p className="text-sm text-[rgb(var(--muted))] mb-3">
+            <p className="text-sm text-sage-gray mb-3">
               {filteredProducts.length}{" "}
               {filteredProducts.length === 1 ? "producto" : "productos"}
               {activeFiltersCount > 0 && " encontrados"}
@@ -346,7 +346,7 @@ export default function ProductsPage() {
 
             {filteredProducts.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-[rgb(var(--muted))] mb-4">
+                <p className="text-sage-gray mb-4">
                   No encontramos productos con esos filtros.
                 </p>
                 <button
