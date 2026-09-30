@@ -162,7 +162,9 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
 
   const inputClass = (field: keyof CustomerForm) =>
     `input-base !h-11 !rounded-xl ${
-      showError(field) ? "border-[rgb(var(--accent))] focus:border-[rgb(var(--accent))]" : ""
+      showError(field)
+        ? "border-[rgb(var(--color-danger-border))] focus:border-[rgb(var(--color-danger-border))]"
+        : ""
     }`;
 
   return (
@@ -178,7 +180,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
 
       {/* Panel */}
       <aside
-        className={`fixed top-0 right-0 z-[70] h-full w-full sm:w-[440px] bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-out ${
+        className={`fixed top-0 right-0 z-[70] h-full w-full sm:w-[440px] bg-deep-lichen text-white border-l border-spruce-border shadow-xl flex flex-col transition-transform duration-300 ease-out ${
           open ? "translate-x-0" : "translate-x-full"
         }`}
         role="dialog"
@@ -186,10 +188,10 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
         aria-label="Carrito de compras"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 h-16 border-b border-[rgb(var(--line))]">
+        <div className="flex items-center justify-between px-6 h-16 border-b border-spruce-border">
           <div className="flex items-baseline gap-2">
             <h2 className="text-base font-extrabold tracking-tight">Tu carrito</h2>
-            <span className="text-xs text-[rgb(var(--muted))]">
+            <span className="text-xs text-sage-gray">
               ({totalItems} {totalItems === 1 ? "producto" : "productos"})
             </span>
           </div>
@@ -198,7 +200,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
               <button
                 onClick={clearCart}
                 aria-label="Vaciar carrito"
-                className="w-9 h-9 grid place-items-center rounded-full hover:bg-[rgb(var(--neutral))] text-[rgb(var(--primary))]"
+                className="w-9 h-9 grid place-items-center rounded-full hover:bg-white/10 text-white"
               >
                 <Trash2 size={18} />
               </button>
@@ -206,7 +208,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
             <button
               onClick={onClose}
               aria-label="Cerrar carrito"
-              className="w-9 h-9 grid place-items-center rounded-full hover:bg-[rgb(var(--neutral))] text-[rgb(var(--primary))]"
+              className="w-9 h-9 grid place-items-center rounded-full hover:bg-white/10 text-white"
             >
               <X size={20} />
             </button>
@@ -217,8 +219,8 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
         <div className="flex-1 overflow-y-auto px-6 py-4">
           {cart.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center px-4">
-              <div className="w-20 h-20 rounded-full bg-[rgb(var(--neutral))] grid place-items-center mb-4">
-                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-[rgb(var(--primary))]">
+              <div className="w-20 h-20 rounded-full bg-shaded-fern grid place-items-center mb-4">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-sage-gray">
                   <path d="M6 6h15l-1.5 9h-12z" />
                   <circle cx="9" cy="20" r="1.5" />
                   <circle cx="18" cy="20" r="1.5" />
@@ -226,7 +228,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                 </svg>
               </div>
               <h3 className="font-bold text-lg mb-1">Tu carrito está vacío</h3>
-              <p className="text-sm text-[rgb(var(--muted))] mb-5 max-w-[260px]">
+              <p className="text-sm text-sage-gray mb-5 max-w-[260px]">
                 Explorá nuestro catálogo y elegí las placas que mejor se adaptan a tu proyecto.
               </p>
               <button onClick={onClose} className="btn btn-primary">
@@ -234,10 +236,10 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
               </button>
             </div>
           ) : (
-            <ul className="divide-y divide-[rgb(var(--line))]">
+            <ul className="divide-y divide-spruce-border">
               {cart.map((item) => (
                 <li key={item.id} className="py-4 flex gap-4">
-                  <div className="w-20 h-20 rounded-xl bg-[rgb(var(--neutral))] overflow-hidden shrink-0">
+                  <div className="w-20 h-20 rounded-xl bg-shaded-fern overflow-hidden shrink-0">
                     {item.image ? (
                       <img
                         src={item.image}
@@ -245,7 +247,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                         className="h-full w-full object-contain"
                       />
                     ) : (
-                      <div className="h-full w-full grid place-items-center text-[10px] text-[rgb(var(--muted))]">
+                      <div className="h-full w-full grid place-items-center text-[10px] text-sage-gray">
                         Sin imagen
                       </div>
                     )}
@@ -259,7 +261,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                       <button
                         onClick={() => removeFromCart(item.id)}
                         aria-label="Eliminar producto"
-                        className="text-[rgb(var(--muted))] hover:text-[rgb(var(--accent))] shrink-0"
+                        className="text-sage-gray hover:text-white shrink-0"
                       >
                         <X size={16} />
                       </button>
@@ -268,10 +270,10 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                     <p className="text-sm font-bold mt-1">{formatPrice(item.price)}</p>
 
                     <div className="flex items-center justify-between mt-3">
-                      <div className="inline-flex items-center bg-[rgb(var(--neutral))] rounded-full">
+                      <div className="inline-flex items-center bg-shaded-fern text-white rounded-full">
                         <button
                           onClick={() => decreaseQuantity(item)}
-                          className="w-8 h-8 grid place-items-center rounded-full hover:bg-white"
+                          className="w-8 h-8 grid place-items-center rounded-full hover:bg-white/10"
                           aria-label="Restar"
                         >
                           <Minus size={14} />
@@ -281,7 +283,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                         </span>
                         <button
                           onClick={() => increaseQuantity(item)}
-                          className="w-8 h-8 grid place-items-center rounded-full hover:bg-white"
+                          className="w-8 h-8 grid place-items-center rounded-full hover:bg-white/10"
                           aria-label="Sumar"
                         >
                           <Plus size={14} />
@@ -300,7 +302,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
 
         {/* Trust strip */}
         {cart.length > 0 && (
-          <div className="px-6 py-3 border-t border-[rgb(var(--line))] bg-[rgb(var(--neutral))] flex items-center justify-between text-[11px] text-[rgb(var(--muted))]">
+          <div className="px-6 py-3 border-t border-spruce-border bg-shaded-fern flex items-center justify-between text-[11px] text-sage-gray">
             <span className="inline-flex items-center gap-1.5">
               <Truck size={14} /> Envío a todo el país
             </span>
@@ -315,7 +317,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
 
         {/* Footer */}
         {cart.length > 0 && (
-          <div className="px-6 py-5 border-t border-[rgb(var(--line))] space-y-3 bg-white">
+          <div className="px-6 py-5 border-t border-spruce-border space-y-3 bg-deep-lichen">
             <div className="space-y-2">
               <p className="eyebrow">Tus datos</p>
               <div className="grid grid-cols-2 gap-2">
@@ -336,7 +338,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                     className={inputClass("dni")}
                   />
                   {showError("dni") && (
-                    <p id="dni-error" className="text-[11px] text-[rgb(var(--accent))] mt-1">
+                    <p id="dni-error" className="text-[11px] text-[rgb(var(--color-danger-text))] mt-1">
                       {errors.dni}
                     </p>
                   )}
@@ -355,7 +357,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                     className={inputClass("name")}
                   />
                   {showError("name") && (
-                    <p id="name-error" className="text-[11px] text-[rgb(var(--accent))] mt-1">
+                    <p id="name-error" className="text-[11px] text-[rgb(var(--color-danger-text))] mt-1">
                       {errors.name}
                     </p>
                   )}
@@ -375,7 +377,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                   className={inputClass("surname")}
                 />
                 {showError("surname") && (
-                  <p id="surname-error" className="text-[11px] text-[rgb(var(--accent))] mt-1">
+                  <p id="surname-error" className="text-[11px] text-[rgb(var(--color-danger-text))] mt-1">
                     {errors.surname}
                   </p>
                 )}
@@ -383,7 +385,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
             </div>
 
             <div className="flex items-baseline justify-between pt-2">
-              <span className="text-sm text-[rgb(var(--muted))]">Subtotal</span>
+              <span className="text-sm text-sage-gray">Subtotal</span>
               <span className="text-xl font-extrabold">{formatPrice(total)}</span>
             </div>
 
@@ -398,14 +400,14 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
             )}
 
             {mpError && (
-              <p className="text-[rgb(var(--accent))] text-center text-sm">
+              <p className="text-[rgb(var(--color-danger-text))] text-center text-sm">
                 {mpError}
               </p>
             )}
 
             {preferenceId && <MercadoPagoButton preferenceId={preferenceId} />}
 
-            <p className="text-[11px] text-[rgb(var(--muted))] text-center">
+            <p className="text-[11px] text-sage-gray text-center">
               Al continuar aceptás nuestros términos y condiciones.
             </p>
           </div>
