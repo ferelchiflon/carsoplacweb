@@ -145,7 +145,7 @@ export default function ProductCard(props: ProductCardProps) {
         <div className="hidden md:flex absolute inset-x-3 bottom-3 translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
           <button
             onClick={handleAdd}
-            className="w-full h-10 rounded-full bg-[rgb(var(--color-sale))] text-white text-xs font-bold uppercase tracking-wide hover:brightness-110 active:scale-95 transition flex items-center justify-center gap-1.5"
+            className="w-full h-10 rounded-full bg-pure-white text-midnight-forest text-xs font-bold uppercase tracking-wide hover:bg-mist-gray active:scale-95 transition flex items-center justify-center gap-1.5"
           >
             <ShoppingBag size={14} />
             Agregar al carrito
@@ -192,7 +192,7 @@ export default function ProductCard(props: ProductCardProps) {
         {/* CTA móvil */}
         <button
           onClick={handleAdd}
-          className="md:hidden mt-3 w-full h-10 rounded-full bg-[rgb(var(--color-sale))] text-white text-xs font-bold uppercase tracking-wide active:scale-95 transition flex items-center justify-center gap-1.5"
+          className="md:hidden mt-3 w-full h-10 rounded-full bg-pure-white text-midnight-forest text-xs font-bold uppercase tracking-wide hover:bg-mist-gray active:scale-95 transition flex items-center justify-center gap-1.5"
         >
           <ShoppingBag size={14} />
           Agregar
