@@ -16,14 +16,14 @@ export default function SectionHeader({
       <h2 className="text-xl font-bold leading-tight">{title}</h2>
 
       {subtitle && (
-        <p className="text-2xl font-bold text-on-dark-300">{subtitle}</p>
+        <p className="text-2xl font-bold text-sage-gray">{subtitle}</p>
       )}
 
       {onViewAll && (
         <button
           type="button"
           onClick={onViewAll}
-          className="btn btn-outline border-white text-white hover:bg-white hover:text-[rgb(var(--primary))] mt-2 w-fit"
+          className="btn btn-outline mt-2 w-fit"
         >
           VER TODO
         </button>

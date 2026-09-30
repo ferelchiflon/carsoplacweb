@@ -115,7 +115,7 @@ export default function FooterAcordeonMobile() {
   const showError = touched && Boolean(emailError);
 
   return (
-    <footer className="w-full bg-[rgb(var(--primary))] text-white">
+    <footer className="w-full bg-shaded-fern text-white">
       {/* Trust strip */}
       <div className="border-b border-white/10">
         <div className="grid grid-cols-2 divide-x divide-white/10 sm:grid-cols-4">
@@ -165,7 +165,7 @@ export default function FooterAcordeonMobile() {
           <button
             type="submit"
             aria-label="Suscribirme"
-            className="h-11 w-11 grid place-items-center rounded-full bg-white text-[rgb(var(--primary))] hover:scale-105 active:scale-95 transition"
+            className="h-11 w-11 grid place-items-center rounded-full bg-pure-white text-midnight-forest hover:scale-105 active:scale-95 transition"
           >
             <Send size={16} />
           </button>
@@ -173,7 +173,7 @@ export default function FooterAcordeonMobile() {
         {showError && (
           <p
             id="newsletter-email-error"
-            className="text-xs text-[rgb(var(--accent))] mt-2"
+            className="text-xs text-[rgb(var(--color-danger-text))] mt-2"
             role="alert"
           >
             {emailError}
