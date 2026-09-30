@@ -91,7 +91,7 @@ export default function Home() {
           <button
             type="button"
             onClick={() => window.location.reload()}
-            className="btn btn-outline border-white text-white hover:bg-white hover:text-[rgb(var(--primary))] mt-2"
+            className="btn btn-outline mt-2"
           >
             Reintentar
           </button>
@@ -145,7 +145,7 @@ export default function Home() {
 
       <section
         aria-labelledby="products-heading"
-        className="px-4 bg-[rgb(var(--primary))]"
+        className="px-4 bg-midnight-forest"
       >
         <SectionHeader
           title="DIRECTO DE FÁBRICA"
