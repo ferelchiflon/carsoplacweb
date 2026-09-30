@@ -230,8 +230,8 @@ export default function ProductsPage() {
                   onClick={() => setSelectedCategory("all")}
                   className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
                     selectedCategory === "all"
-                      ? "bg-[rgb(var(--primary))] text-white border-[rgb(var(--primary))]"
-                      : "bg-white text-[rgb(var(--primary))] border-[rgb(var(--line))] hover:bg-[rgb(var(--neutral))]"
+                      ? "bg-white text-midnight-forest border-white"
+                      : "bg-transparent text-white border-spruce-border hover:bg-shaded-fern"
                   }`}
                 >
                   Todas
@@ -243,8 +243,8 @@ export default function ProductsPage() {
                     onClick={() => setSelectedCategory(category.id)}
                     className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
                       selectedCategory === category.id
-                        ? "bg-[rgb(var(--primary))] text-white border-[rgb(var(--primary))]"
-                        : "bg-white text-[rgb(var(--primary))] border-[rgb(var(--line))] hover:bg-[rgb(var(--neutral))]"
+                        ? "bg-white text-midnight-forest border-white"
+                        : "bg-transparent text-white border-spruce-border hover:bg-shaded-fern"
                     }`}
                   >
                     {category.name}
