@@ -34,6 +34,7 @@
   --color-slate: #71717a;
   --color-graphite: #333333;
   --color-shopify-mint: #36f4a4;
+  --color-accent-brand: #36f4a4;  /* Nuevo token: acento celebrativo (ex-disco) */
   --color-mossy-edge: #133b32;
 
   /* Typography */
@@ -95,32 +96,41 @@
        siempre ocupe exactamente el alto disponible. */
     --navbar-h: 130px;           /* mobile  : TopBanner (50) + Nav h-20 (80) */
 
-    /* Paleta principal */
-    --primary: 26 26 26;        /* grafito profundo */
-    --secondary: 245 215 110;   /* mostaza premium (acento) */
-    --accent: 220 38 38;        /* rojo señal (ofertas) */
-    --neutral: 245 245 244;     /* blanco hueso */
-    --line: 229 229 229;        /* gris claro */
-    --muted: 115 115 115;       /* gris texto */
+    /* Paleta principal - VALORES ORIGINALES */
+    --primary: 26 26 26;       /* grafito profundo */
+    --secondary: 245 215 110;  /* mostaza premium */
+    --accent: 220 38 38;       /* rojo señal */
+    --neutral: 245 245 244;    /* blanco hueso */
+    --line: 229 229 229;       /* gris claro */
+    --muted: 115 115 115;      /* gris texto */
     --success: 22 163 74;
     --bg: 255 255 255;
+
+    /* Nuevos tokens semánticos */
+    --color-sale: 180 50 55;           /* #b43237 */
+    --color-midnight-forest: 26 26 26; /* mismo que --primary para texto oscuro sobre fondo claro */
+    --color-spruce-border: 30 44 49;   /* mismo que --line */
+    --color-success-text: 134 239 172; /* verde-300 */
 
     /* Tokens semánticos (alias para utilidades Tailwind crudas) */
     --color-primary: rgb(var(--primary));
     --color-secondary: rgb(var(--secondary));
     --color-accent: rgb(var(--accent));
+    --color-accent-brand: rgb(var(--color-accent-brand)); /* definido en @theme */
     --color-muted: rgb(var(--muted));
     --color-line: rgb(var(--line));
     --color-neutral: rgb(var(--neutral));
     --color-success: rgb(var(--success));
+    --color-midnight-forest: rgb(var(--color-midnight-forest));
+    --color-spruce-border: rgb(var(--color-spruce-border));
 
-    /* Estados feedback (dark) */
+    /* Estados feedback (oscuro) */
     --color-danger-bg: 45 15 18;
     --color-danger-border: 110 40 45;
     --color-danger-text: 252 165 165;
     --color-success-bg: 10 40 28;
     --color-success-border: 20 83 45;
-    --color-success-text: 134 239 172;
+    --color-success-text: rgb(var(--color-success-text));
 
     /* Grises armónicos con la paleta */
     --gray-300: 209 213 219;
