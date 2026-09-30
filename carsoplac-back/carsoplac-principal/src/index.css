@@ -1,10 +1,93 @@
 @import "tailwindcss";
 
 /* =========================================================
-   CARSOPLAC — Design System (eCommerce profesional)
-   Paleta sobria: grafito + acento industrial
-   ========================================================= */
+   CARSOPLAC — Design System "Midnight Greenhouse" (Shopify-style)
+   Canvas #02090a · tarjetas #061a1c · navbar #072720 · acento mint #36f4a4
+   ---------------------------------------------------------
+   FASE 1 — tokens + base + utilidades. Fuente única de color del sitio.
 
+   • @theme registra los tokens del doc (scripts/desing.md) y genera
+     utilidades Tailwind v4 (bg-midnight-forest, text-sage-gray,
+     rounded-pills, shadow-xl, font-w330, text-display, ...).
+   • Los 8 tokens legacy (--primary, --neutral, --line, ...) se
+     RE-MAPEAN a la nueva paleta: los 311 usos de rgb(var(--x))
+     repartidos en 16 archivos se voltean a tema oscuro sin tocar
+     un solo componente.
+   • Desviaciones documentadas del doc:
+        - El bloque --spacing-* del doc NO entra a @theme: en Tailwind
+          v4 e@import "tailwindcss";
+/* ========================================================= */
+
+@theme {
+  /* Colors */
+  --color-midnight-forest: #02090a;
+  --color-deep-lichen: #061a1c;
+  --color-shaded-fern: #072720;
+  --color-spruce-border: #1e2c31;
+  --color-abyss-indigo: #000a1e;
+  --color-pure-white: #ffffff;
+  --color-mist-gray: #a1a1aa;
+  --color-sage-gray: #99b3ad;
+  --color-faded-steel: #9dabad;
+  --color-soft-pearl: #9797a2;
+  --color-carbon-black: #000000;
+  --color-slate: #71717a;
+  --color-graphite: #333333;
+  --color-shopify-mint: #36f4a4;
+  --color-mossy-edge: #133b32;
+
+  /* Typography */
+  --font-neue-haas-grotesk: 'Neue Haas Grotesk', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-inter-variable: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  /* Typography — Scale */
+  --text-caption: 12px;
+  --leading-caption: 1.2;
+  --tracking-caption: 0.72px;
+  --text-body-sm: 14px;
+  --leading-body-sm: 1.43;
+  --tracking-body-sm: 0.28px;
+  --text-body: 16px;
+  --leading-body: 1.5;
+  --tracking-body: 0.32px;
+  --text-subheading: 20px;
+  --leading-subheading: 1.4;
+  --tracking-subheading: 0.4px;
+  --text-heading-sm: 24px;
+  --leading-heading-sm: 1.25;
+  --tracking-heading-sm: 0.48px;
+  --text-heading: 28px;
+  --leading-heading: 1.16;
+  --tracking-heading: 0.56px;
+  --text-heading-lg: 48px;
+  --leading-heading-lg: 1.14;
+  --tracking-heading-lg: 1.92px;
+  --text-display: 70px;
+  --leading-display: 0.96;
+  --tracking-display: 2.8px;
+
+  /* Border Radius */
+  --radius-md: 4px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-2xl-2: 20px;
+  --radius-full: 48px;
+  --radius-full-2: 340px;
+  --radius-full-3: 405px;
+  --radius-full-4: 9999px;
+
+  /* Shadows */
+  --shadow-sm: rgba(0, 0, 0, 0.1) 0px 8px 8px 0px, rgba(0, 0, 0, 0.1) 0px 4px 4px 0px, rgba(0, 0, 0, 0.1) 0px 2px 2px 0px, rgba(0, 0, 0, 0.1) 0px 0px 0px 1px, rgba(255, 255, 255, 0.03) 0px 1px 0px 0px inset;
+  --shadow-md: rgba(0, 0, 0, 0.2) 10px 13px 12px 2px;
+  --shadow-subtle: rgba(255, 255, 255, 0.05) 0px 1px 2px 0px, rgba(255, 255, 255, 0.04) 0px 1px 0px 0px inset;
+  --shadow-subtle-2: rgba(64, 71, 77, 0.4) 0px 1px 0px 0px inset, rgba(255, 255, 255, 0.08) 0px 1px 0px 0px;
+  --shadow-xl: rgba(5, 24, 19, 0.05) 0px 20px 60px 0px, rgb(19, 59, 50) 0px 1px 0px 0px inset;
+}
+
+/* ========================================================= */
+/* Base styles */
+/* ========================================================= */
 @layer base {
   :root {
     /* Layout: altura reservada por navbar + banner.
@@ -31,13 +114,13 @@
     --color-neutral: rgb(var(--neutral));
     --color-success: rgb(var(--success));
 
-    /* Estados feedback */
-    --color-danger-bg: 254 242 242;   /* rojo-50 */
-    --color-danger-border: 254 202 202;/* rojo-200 */
-    --color-danger-text: 153 27 27;    /* rojo-800 */
-    --color-success-bg: 240 253 244;   /* green-50 */
-    --color-success-border: 187 247 208;/* green-200 */
-    --color-success-text: 22 101 52;   /* green-800 */
+    /* Estados feedback (dark) */
+    --color-danger-bg: 45 15 18;
+    --color-danger-border: 110 40 45;
+    --color-danger-text: 252 165 165;
+    --color-success-bg: 10 40 28;
+    --color-success-border: 20 83 45;
+    --color-success-text: 134 239 172;
 
     /* Grises armónicos con la paleta */
     --gray-300: 209 213 219;
