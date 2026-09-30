@@ -311,7 +311,7 @@ export default function ContactPage() {
                     aria-invalid={!!errors.name}
                     className={`input-base !h-12 ${
                       errors.name
-                        ? "!ring-2 !ring-[rgb(var(--accent))] !bg-red-50/40"
+                        ? "!ring-2 !ring-[rgb(var(--color-danger-border))] !bg-[rgb(var(--color-danger-bg))]"
                         : ""
                     }`}
                   />
@@ -342,7 +342,7 @@ export default function ContactPage() {
                       aria-invalid={!!errors.email}
                       className={`input-base !h-12 ${
                         errors.email
-                          ? "!ring-2 !ring-[rgb(var(--accent))] !bg-red-50/40"
+                          ? "!ring-2 !ring-[rgb(var(--color-danger-border))] !bg-[rgb(var(--color-danger-bg))]"
                           : ""
                       }`}
                     />
@@ -414,7 +414,7 @@ export default function ContactPage() {
                     aria-invalid={!!errors.message}
                     className={`w-full rounded-2xl bg-[rgb(var(--neutral))] px-5 py-3.5 text-sm placeholder:text-[rgb(var(--muted))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))] transition resize-y min-h-[140px] ${
                       errors.message
-                        ? "!ring-2 !ring-[rgb(var(--accent))] !bg-red-50/40"
+                        ? "!ring-2 !ring-[rgb(var(--color-danger-border))] !bg-[rgb(var(--color-danger-bg))]"
                         : ""
                     }`}
                   />
