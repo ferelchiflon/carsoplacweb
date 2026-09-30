@@ -113,7 +113,7 @@ export default function SearchDrawer({
       />
 
       <div
-        className={`fixed inset-x-0 top-0 z-[70] bg-white shadow-2xl transition-transform duration-300 ease-out ${
+        className={`fixed inset-x-0 top-0 z-[70] bg-deep-lichen text-white border-b border-spruce-border shadow-xl transition-transform duration-300 ease-out ${
           open ? "translate-y-0" : "-translate-y-full"
         }`}
         role="dialog"
@@ -121,11 +121,11 @@ export default function SearchDrawer({
         aria-label="Buscar productos"
       >
         {/* Search bar */}
-        <div className="flex items-center gap-3 px-5 h-16 border-b border-[rgb(var(--line))]">
+        <div className="flex items-center gap-3 px-5 h-16 border-b border-spruce-border">
           <form onSubmit={handleSubmit} className="flex-1 relative">
             <Search
               size={18}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-[rgb(var(--muted))]"
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-sage-gray"
             />
             <input
               autoFocus={open}
@@ -133,13 +133,13 @@ export default function SearchDrawer({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="¿Qué estás buscando?"
-              className="w-full h-11 pl-11 pr-4 rounded-full bg-[rgb(var(--neutral))] border border-transparent focus:bg-deep-lichen focus:border-accent-brand text-white text-base outline-none transition"
+              className="w-full h-11 pl-11 pr-4 rounded-full bg-shaded-fern border border-spruce-border focus:border-accent-brand text-white placeholder:text-sage-gray text-base outline-none transition"
             />
           </form>
           <button
             onClick={onClose}
             aria-label="Cerrar búsqueda"
-            className="text-sm font-semibold text-[rgb(var(--primary))]"
+            className="text-sm font-semibold text-sage-gray hover:text-white"
           >
             Cancelar
           </button>
@@ -156,10 +156,10 @@ export default function SearchDrawer({
                   key={c.name}
                   to={c.to}
                   onClick={onClose}
-                  className="flex items-center justify-between p-3 rounded-xl bg-[rgb(var(--neutral))] hover:bg-[rgb(var(--line))] transition"
+                  className="flex items-center justify-between p-3 rounded-xl bg-shaded-fern hover:bg-mossy-edge transition"
                 >
                   <span className="flex items-center gap-2">
-                    <Tag size={14} className="text-[rgb(var(--primary))]" />
+                    <Tag size={14} className="text-accent-brand" />
                     <span className="text-sm font-semibold">{c.name}</span>
                   </span>
                   <ArrowRight size={14} className="opacity-50" />
@@ -177,7 +177,7 @@ export default function SearchDrawer({
                 </p>
                 <button
                   onClick={clearRecent}
-                  className="text-[11px] text-[rgb(var(--muted))] hover:text-[rgb(var(--accent))]"
+                  className="text-[11px] text-sage-gray hover:text-white"
                 >
                   Borrar
                 </button>
@@ -187,7 +187,7 @@ export default function SearchDrawer({
                   <button
                     key={t}
                     onClick={() => handleSelect(t)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[rgb(var(--neutral))] hover:bg-[rgb(var(--line))] text-sm font-medium transition"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-shaded-fern hover:bg-mossy-edge text-sm font-medium transition"
                   >
                     {t}
                   </button>
@@ -202,20 +202,20 @@ export default function SearchDrawer({
               <TrendingUp size={12} /> Tendencias
             </p>
             {filteredTrending.length === 0 ? (
-              <p className="text-sm text-[rgb(var(--muted))]">
+              <p className="text-sm text-sage-gray">
                 Sin coincidencias para "{query}".
               </p>
             ) : (
-              <ul className="divide-y divide-[rgb(var(--line))]">
+              <ul className="divide-y divide-spruce-border">
                 {filteredTrending.map((t) => (
                   <li key={t}>
                     <button
                       onClick={() => handleSelect(t)}
                       aria-label={`Buscar tendencia: ${t}`}
-                      className="w-full flex items-center justify-between py-3 text-left hover:text-[rgb(var(--primary))] transition"
+                      className="w-full flex items-center justify-between py-3 text-left hover:text-accent-brand transition"
                     >
                       <span className="flex items-center gap-3">
-                        <Search size={14} className="text-[rgb(var(--muted))]" />
+                        <Search size={14} className="text-sage-gray" />
                         <span className="text-sm font-medium">{t}</span>
                       </span>
                       <ArrowRight size={14} className="opacity-40" />
@@ -227,13 +227,13 @@ export default function SearchDrawer({
           </section>
 
           {/* Tip */}
-          <section className="rounded-2xl bg-[rgb(var(--neutral))] p-4 flex items-start gap-3">
-            <div className="w-9 h-9 rounded-full bg-white grid place-items-center shrink-0">
-              <Tag size={16} className="text-[rgb(var(--primary))]" />
+          <section className="rounded-2xl bg-shaded-fern p-4 flex items-start gap-3">
+            <div className="w-9 h-9 rounded-full bg-white/10 grid place-items-center shrink-0">
+              <Tag size={16} className="text-accent-brand" />
             </div>
             <div>
               <p className="text-sm font-bold">Tip de búsqueda</p>
-              <p className="text-xs text-[rgb(var(--muted))] leading-snug mt-0.5">
+              <p className="text-xs text-sage-gray leading-snug mt-0.5">
                 Probá buscar por ambiente: "cocina", "living", "exterior".
               </p>
             </div>
