@@ -159,7 +159,7 @@ export default function FooterAcordeonMobile() {
             className={`flex-1 h-11 rounded-full bg-white/10 border px-4 text-sm placeholder-white/50 text-white focus:outline-none transition ${
               showError
                 ? "border-[rgb(var(--color-danger-border))] focus:border-[rgb(var(--color-danger-border))] bg-white/15"
-                : "border-[rgb(var(--color-accent-brand))] focus:border-[rgb(var(--color-accent-brand))] focus:bg-white/15"
+                : "border-accent-brand focus:border-accent-brand focus:bg-white/15"
             }`}
           />
           <button

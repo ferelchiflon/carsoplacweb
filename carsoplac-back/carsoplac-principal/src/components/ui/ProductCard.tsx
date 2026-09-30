@@ -74,7 +74,7 @@ export default function ProductCard(props: ProductCardProps) {
   };
 
   return (
-    <article className="group relative flex flex-col w-full bg-deep-lichen rounded-2xl overflow-hidden border-[rgb(var(--color-spruce-border))] hover:border-accent-brand/50 hover:shadow-xl transition-all duration-300">
+    <article className="group relative flex flex-col w-full bg-deep-lichen rounded-2xl overflow-hidden border-spruce-border hover:border-accent-brand/50 hover:shadow-xl transition-all duration-300">
       {/* Image */}
       <button
         onClick={props.onClick}
