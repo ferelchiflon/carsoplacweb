@@ -204,12 +204,12 @@ export default function ProductsPage() {
         {/* Panel de filtros */}
         {filtersOpen && (
           <div 
-            className="bg-deep-lichen rounded-xl shadow-subtle p-4 mb-4 border border-spruce-border animate-fadeIn"
+            className="bg-deep-lichen rounded-xl  p-4 mb-4 border border-spruce-border animate-fadeIn"
             role="region"
             aria-label="Filtros de productos"
           >
             <div className="flex justify-between items-center mb-3">
-              <h3 className="font-bold text-white text-lg">Filtros</h3>
+              <h3 className="h2 text-white text-lg">Filtros</h3>
               {activeFiltersCount > 0 && (
                 <button
                   type="button"
@@ -338,7 +338,7 @@ export default function ProductsPage() {
         {/* Lista de productos */}
         {!loading && !error && (
           <>
-            <p className="text-sm text-sage-gray mb-3">
+            <p className="mb-3 text-body">
               {filteredProducts.length}{" "}
               {filteredProducts.length === 1 ? "producto" : "productos"}
               {activeFiltersCount > 0 && " encontrados"}
@@ -346,7 +346,7 @@ export default function ProductsPage() {
 
             {filteredProducts.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-sage-gray mb-4">
+                <p className="mb-4 text-body">
                   No encontramos productos con esos filtros.
                 </p>
                 <button
