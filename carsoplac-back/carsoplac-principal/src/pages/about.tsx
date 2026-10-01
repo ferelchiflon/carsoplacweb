@@ -93,7 +93,7 @@ export default function AboutPage() {
 
       {/* ─────────────── STATS BAR ─────────────── */}
       <section className="container-x -mt-10 sm:-mt-14 relative z-10">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-spruce-border rounded-2xl overflow-hidden shadow-xl">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-spruce-border rounded-xl overflow-hidden shadow-subtle">
           {stats.map((s) => (
             <div
               key={s.label}
@@ -147,7 +147,7 @@ export default function AboutPage() {
 
           {/* Imagen fábrica */}
           <div className="relative">
-            <div className="aspect-[4/5] rounded-2xl overflow-hidden border border-spruce-border">
+            <div className="aspect-[4/5] rounded-xl overflow-hidden border border-spruce-border">
               <img
                 src={fotoFabrica}
                 alt="Planta de fabricación Carsoplac"
@@ -155,7 +155,7 @@ export default function AboutPage() {
                 loading="lazy"
               />
             </div>
-            <div className="absolute -bottom-5 -left-5 hidden sm:block bg-deep-lichen border border-spruce-border rounded-2xl shadow-xl p-4 max-w-[220px]">
+            <div className="absolute -bottom-5 -left-5 hidden sm:block bg-deep-lichen border border-spruce-border rounded-xl shadow-subtle p-4 max-w-[220px]">
               <div className="flex items-center gap-3">
                 <img
                   src={sello}
@@ -212,7 +212,7 @@ export default function AboutPage() {
       <section className="container-x py-16 sm:py-24">
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           <div className="order-2 lg:order-1">
-            <div className="aspect-square rounded-2xl overflow-hidden border border-spruce-border bg-shaded-fern">
+            <div className="aspect-square rounded-xl overflow-hidden border border-spruce-border bg-shaded-fern">
               <img
                 src={placa1}
                 alt="Placa decorativa Carsoplac"
@@ -260,7 +260,7 @@ export default function AboutPage() {
 
       {/* ─────────────── CTA FINAL ─────────────── */}
       <section className="container-x pb-16 sm:pb-24">
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-shaded-fern via-mossy-edge to-deep-lichen p-8 sm:p-14 text-white">
+        <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-shaded-fern via-mossy-edge to-deep-lichen p-8 sm:p-14 text-white">
           <div className="absolute -right-10 -bottom-10 opacity-10 hidden sm:block">
             <img
               src={logoCarso}
