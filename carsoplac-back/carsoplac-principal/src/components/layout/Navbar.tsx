@@ -82,7 +82,7 @@ export default function Navbar({ onOpenCart, onOpenSearch, onOpenMobileMenu }: P
             style={{ filter: logoFilter }}
           />
           <div className="hidden sm:flex flex-col leading-none text-white">
-            <span className="text-lg font-extrabold tracking-tight">CARSOPLAC</span>
+            <span className="text-lg font-medium tracking-tight">CARSOPLAC</span>
             <span className="text-[10px] uppercase tracking-[0.22em] text-sage-gray">Fabricación propia</span>
           </div>
         </Link>
@@ -136,7 +136,7 @@ export default function Navbar({ onOpenCart, onOpenSearch, onOpenMobileMenu }: P
             <ShoppingCart size={20} strokeWidth={1.8} className={`transition-colors ${iconColor}`} />
             {totalItems > 0 && (
               <span
-                className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full grid place-items-center text-[10px] font-bold bg-accent-brand text-midnight-forest ring-2 ring-shaded-fern"
+                className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full grid place-items-center text-[10px] font-medium bg-accent-brand text-midnight-forest ring-2 ring-shaded-fern"
               >
                 {totalItems > 99 ? "99+" : totalItems}
               </span>
