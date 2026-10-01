@@ -113,7 +113,7 @@ export default function SearchDrawer({
       />
 
       <div
-        className={`fixed inset-x-0 top-0 z-[70] bg-deep-lichen text-white border-b border-spruce-border shadow-xl transition-transform duration-300 ease-out ${
+        className={`fixed inset-x-0 top-0 z-[70] bg-deep-lichen text-white border-b border-spruce-border shadow-subtle transition-transform duration-300 ease-out ${
           open ? "translate-y-0" : "-translate-y-full"
         }`}
         role="dialog"
@@ -227,12 +227,12 @@ export default function SearchDrawer({
           </section>
 
           {/* Tip */}
-          <section className="rounded-2xl bg-shaded-fern p-4 flex items-start gap-3">
+          <section className="rounded-xl bg-shaded-fern p-4 flex items-start gap-3">
             <div className="w-9 h-9 rounded-full bg-white/10 grid place-items-center shrink-0">
               <Tag size={16} className="text-accent-brand" />
             </div>
             <div>
-              <p className="text-sm font-bold">Tip de búsqueda</p>
+              <p className="text-sm font-medium">Tip de búsqueda</p>
               <p className="text-xs text-sage-gray leading-snug mt-0.5">
                 Probá buscar por ambiente: "cocina", "living", "exterior".
               </p>
