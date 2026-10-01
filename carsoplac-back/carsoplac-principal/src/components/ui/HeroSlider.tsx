@@ -95,7 +95,7 @@ export default function HeroSlider({
         <h2 className="text-3xl sm:text-5xl display text-center drop-shadow-subtle">
           Carso Plac
         </h2>
-        <p className="text-base sm:text-lg mt-2 text-center font-display drop-shadow-md">
+        <p className="text-base sm:text-lg mt-2 text-center display drop-shadow-md">
           Calidad y diseño para tu hogar
         </p>
       </div>
