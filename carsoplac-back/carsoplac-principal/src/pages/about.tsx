@@ -199,7 +199,7 @@ export default function AboutPage() {
                 <h3 className="h2 tracking-tight">
                   {v.title}
                 </h3>
-                <p className="mt-2 text-body">
+                <p className="mt-2 copy">
                   {v.description}
                 </p>
               </div>
