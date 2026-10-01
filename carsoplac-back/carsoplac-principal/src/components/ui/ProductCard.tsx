@@ -74,7 +74,7 @@ export default function ProductCard(props: ProductCardProps) {
   };
 
   return (
-    <article className="group relative flex flex-col w-full bg-deep-lichen rounded-2xl overflow-hidden border border-spruce-border hover:border-accent-brand/50 hover:shadow-xl transition-all duration-300">
+    <article className="group relative flex flex-col w-full bg-deep-lichen rounded-xl overflow-hidden border border-spruce-border hover:border-accent-brand/50 hover:shadow-subtle transition-all duration-300">
       {/* Image */}
       <button
         onClick={props.onClick}
@@ -84,12 +84,12 @@ export default function ProductCard(props: ProductCardProps) {
         {/* Badges */}
         <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
           {props.badge && (
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-accent-brand text-midnight-forest text-[10px] font-extrabold uppercase tracking-wide shadow">
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-accent-brand text-midnight-forest text-[10px] font-medium uppercase tracking-wide shadow">
               {props.badge}
             </span>
           )}
           {discount > 0 && (
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-[rgb(var(--color-sale))] text-white text-[10px] font-extrabold uppercase tracking-wide shadow">
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-[rgb(var(--color-sale))] text-white text-[10px] font-medium uppercase tracking-wide shadow">
               -{discount}%
             </span>
           )}
@@ -145,7 +145,7 @@ export default function ProductCard(props: ProductCardProps) {
         <div className="hidden md:flex absolute inset-x-3 bottom-3 translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
           <button
             onClick={handleAdd}
-            className="w-full h-10 rounded-full bg-pure-white text-midnight-forest text-xs font-bold uppercase tracking-wide hover:bg-mist-gray active:scale-95 transition flex items-center justify-center gap-1.5"
+            className="w-full h-10 rounded-full bg-pure-white text-midnight-forest text-xs font-medium uppercase tracking-wide hover:bg-mist-gray active:scale-95 transition flex items-center justify-center gap-1.5"
           >
             <ShoppingBag size={14} />
             Agregar al carrito
@@ -202,7 +202,7 @@ export default function ProductCard(props: ProductCardProps) {
       {/* Toast confirmación */}
       {showToast && (
         <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:max-w-sm z-50 pointer-events-none">
-          <div className="pointer-events-auto bg-shaded-fern border border-spruce-border text-white rounded-2xl shadow-xl p-4 flex items-start gap-3">
+          <div className="pointer-events-auto bg-shaded-fern border border-spruce-border text-white rounded-xl shadow-subtle p-4 flex items-start gap-3">
             <span className="w-9 h-9 grid place-items-center rounded-full bg-white/15 shrink-0">
               <Check size={18} />
             </span>
