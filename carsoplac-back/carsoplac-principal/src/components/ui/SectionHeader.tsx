@@ -12,7 +12,7 @@ export default function SectionHeader({
   onViewAll,
 }: SectionHeaderProps) {
   return (
-    <div className="w-full text-white py-6 px-4 flex flex-col gap-2">
+    <div className="w-full text-white py-6 flex flex-col gap-2">
       <h1 className="h1">{title}</h1>
 
       {subtitle && (
