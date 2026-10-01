@@ -143,25 +143,27 @@ export default function Home() {
     <main>
       <HeroSlider slides={slides} intervalMs={5000} />
 
+      {/* Productos destacados */}
       <section
         aria-labelledby="products-heading"
-        className="px-4 bg-midnight-forest"
+        className="bg-midnight-forest py-12 md:py-20"
       >
-        <SectionHeader
-          title="DIRECTO DE FÁBRICA"
-          subtitle="CALIDAD EN TU HOGAR"
-          onViewAll={handleViewAll}
-        />
-        <h2 id="products-heading" className="sr-only">
-          Productos
-        </h2>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SectionHeader
+            title="DIRECTO DE FÁBRICA"
+            subtitle="CALIDAD EN TU HOGAR"
+            onViewAll={handleViewAll}
+          />
+          <h2 id="products-heading" className="sr-only">
+            Productos
+          </h2>
 
-        {renderProductsContent()}
+          {renderProductsContent()}
+        </div>
       </section>
 
-      <div className="w-full">
-        <FaqSection />
-      </div>
+      {/* Preguntas frecuentes */}
+      <FaqSection />
     </main>
   );
 }
