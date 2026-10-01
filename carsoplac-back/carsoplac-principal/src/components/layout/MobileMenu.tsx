@@ -105,13 +105,13 @@ export default function MobileMenu({
           className={
             layout === "row"
               ? `${baseRow} opacity-50 cursor-not-allowed`
-              : `${baseChip} bg-[rgb(var(--neutral))] opacity-50 cursor-not-allowed`
+              : `${baseChip} bg-shaded-fern opacity-50 cursor-not-allowed`
           }
         >
-          <span className="w-9 h-9 grid place-items-center rounded-full bg-[rgb(var(--neutral))]">
+          <span className="w-9 h-9 grid place-items-center rounded-full bg-shaded-fern">
             <item.Icon
               size={layout === "row" ? 16 : 15}
-              className="text-[rgb(var(--primary))]"
+              className="text-sage-gray"
             />
           </span>
           <span
@@ -123,7 +123,7 @@ export default function MobileMenu({
           >
             {item.label}
           </span>
-          <span className="text-[9px] font-extrabold uppercase tracking-wider bg-[rgb(var(--accent))] text-white px-1.5 py-0.5 rounded-full">
+          <span className="text-[9px] font-medium uppercase tracking-wider bg-accent-brand text-midnight-forest px-1.5 py-0.5 rounded-full">
             Pronto
           </span>
         </button>
@@ -138,8 +138,8 @@ export default function MobileMenu({
           onClick={close}
           className={baseRow}
         >
-          <span className="w-9 h-9 grid place-items-center rounded-full bg-[rgb(var(--neutral))]">
-            <item.Icon size={16} className="text-[rgb(var(--primary))]" />
+          <span className="w-9 h-9 grid place-items-center rounded-full bg-shaded-fern">
+            <item.Icon size={16} className="text-accent-brand" />
           </span>
           <span className="text-[15px] font-semibold flex-1">
             {item.label}
@@ -154,9 +154,9 @@ export default function MobileMenu({
         key={item.to}
         to={item.to}
         onClick={close}
-        className={`${baseChip} bg-[rgb(var(--neutral))] hover:bg-[rgb(var(--line))]`}
+        className={`${baseChip} bg-shaded-fern hover:bg-mossy-edge`}
       >
-        <item.Icon size={15} className="text-[rgb(var(--primary))]" />
+        <item.Icon size={15} className="text-accent-brand" />
         <span className="text-[13px] font-semibold">{item.label}</span>
       </Link>
     );
@@ -174,7 +174,7 @@ export default function MobileMenu({
       />
 
       <aside
-        className={`fixed top-0 left-0 z-[70] h-full w-[88%] max-w-[380px] bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-out ${
+        className={`fixed top-0 left-0 z-[70] h-full w-[88%] max-w-[380px] bg-deep-lichen text-white border-r border-spruce-border shadow-subtle flex flex-col transition-transform duration-300 ease-out ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
         role="dialog"
@@ -182,29 +182,29 @@ export default function MobileMenu({
         aria-label="Menú principal"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 h-16 border-b border-[rgb(var(--line))]">
+        <div className="flex items-center justify-between px-5 h-16 border-b border-spruce-border">
           <Link
             to="/"
             onClick={close}
-            className="font-extrabold tracking-tight text-lg"
+            className="font-medium tracking-tight text-lg"
           >
             CARSOPLAC
           </Link>
           <button
             onClick={onClose}
             aria-label="Cerrar menú"
-            className="w-9 h-9 grid place-items-center rounded-full hover:bg-[rgb(var(--neutral))] text-[rgb(var(--primary))] cursor-pointer"
+            className="w-9 h-9 grid place-items-center rounded-full hover:bg-white/10 text-white cursor-pointer"
           >
             <X size={20} />
           </button>
         </div>
 
         {/* Search */}
-        <div className="px-5 pt-4 pb-3 border-b border-[rgb(var(--line))]">
+        <div className="px-5 pt-4 pb-3 border-b border-spruce-border">
           <form onSubmit={handleSearch} className="relative">
             <Search
               size={16}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-[rgb(var(--muted))]"
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-sage-gray"
             />
             <input
               type="search"
@@ -227,13 +227,13 @@ export default function MobileMenu({
                   key={p.label}
                   to={p.to}
                   onClick={close}
-                  className="relative flex flex-col items-center justify-center py-3 px-2 rounded-xl bg-[rgb(var(--neutral))] hover:bg-[rgb(var(--line))] transition text-center"
+                  className="relative flex flex-col items-center justify-center py-3 px-2 rounded-xl bg-shaded-fern hover:bg-mossy-edge transition text-center"
                 >
-                  <span className="absolute top-1.5 right-1.5 text-[9px] font-extrabold bg-[rgb(var(--accent))] text-white px-1.5 py-0.5 rounded-full">
+                  <span className="absolute top-1.5 right-1.5 text-[9px] font-medium bg-accent-brand text-midnight-forest px-1.5 py-0.5 rounded-full">
                     {p.tag}
                   </span>
-                  <Sparkles size={16} className="text-[rgb(var(--primary))] mb-1" />
-                  <span className="text-[11px] font-bold uppercase tracking-wide">
+                  <Sparkles size={16} className="text-accent-brand mb-1" />
+                  <span className="text-[11px] font-medium uppercase tracking-wide">
                     {p.label}
                   </span>
                 </Link>
@@ -244,15 +244,15 @@ export default function MobileMenu({
           {/* Categorías */}
           <nav className="px-5 py-3">
             <p className="eyebrow mb-2">Categorías</p>
-            <div className="border-y border-[rgb(var(--line))] divide-y divide-[rgb(var(--line))]">
+            <div className="border-y border-spruce-border divide-y divide-spruce-border">
               {/* Inicio */}
               <Link
                 to="/"
                 onClick={close}
                 className="flex items-center gap-3 py-3.5 cursor-pointer"
               >
-                <span className="w-9 h-9 grid place-items-center rounded-full bg-[rgb(var(--neutral))]">
-                  <HomeIcon size={16} className="text-[rgb(var(--primary))]" />
+                <span className="w-9 h-9 grid place-items-center rounded-full bg-shaded-fern">
+                  <HomeIcon size={16} className="text-accent-brand" />
                 </span>
                 <span className="text-[15px] font-semibold flex-1">Inicio</span>
                 <ArrowRight size={16} className="opacity-50" />
@@ -265,8 +265,8 @@ export default function MobileMenu({
                   className="w-full flex items-center gap-3 py-3.5 cursor-pointer"
                   aria-expanded={openProducts}
                 >
-                  <span className="w-9 h-9 grid place-items-center rounded-full bg-[rgb(var(--neutral))]">
-                    <Tag size={16} className="text-[rgb(var(--primary))]" />
+                  <span className="w-9 h-9 grid place-items-center rounded-full bg-shaded-fern">
+                    <Tag size={16} className="text-accent-brand" />
                   </span>
                   <span className="text-[15px] font-semibold flex-1 text-left">
                     Productos
@@ -289,7 +289,7 @@ export default function MobileMenu({
                         <Link
                           to={c.to}
                           onClick={close}
-                          className="flex items-center gap-2 py-2 text-[14px] text-[rgb(var(--muted))] hover:text-[rgb(var(--primary))] transition"
+                          className="flex items-center gap-2 py-2 text-[14px] text-sage-gray hover:text-white transition"
                         >
                           <c.Icon size={14} />
                           {c.name}
@@ -300,7 +300,7 @@ export default function MobileMenu({
                       <Link
                         to="/productos"
                         onClick={close}
-                        className="flex items-center gap-2 py-2 text-[13px] font-bold text-[rgb(var(--primary))]"
+                        className="flex items-center gap-2 py-2 text-[13px] font-medium text-accent-brand"
                       >
                         Ver todo el catálogo
                         <ArrowRight size={13} />
@@ -318,7 +318,7 @@ export default function MobileMenu({
           </nav>
 
           {/* Mi cuenta (también con placeholders) */}
-          <div className="px-5 py-4 border-t border-[rgb(var(--line))]">
+          <div className="px-5 py-4 border-t border-spruce-border">
             <p className="eyebrow mb-2">Mi cuenta</p>
             <div className="grid grid-cols-2 gap-2">
               {accountLinks.map((it) => renderItem(it, "chip"))}
@@ -327,7 +327,7 @@ export default function MobileMenu({
         </div>
 
         {/* CTA WhatsApp */}
-        <div className="px-5 py-5 border-t border-[rgb(var(--line))] space-y-2 bg-[rgb(var(--neutral))]">
+        <div className="px-5 py-5 border-t border-spruce-border space-y-2 bg-shaded-fern">
           <p className="eyebrow">¿Necesitás asesoramiento?</p>
           <a
             href="https://wa.me/5491100000000"
@@ -337,7 +337,7 @@ export default function MobileMenu({
           >
             Hablar por WhatsApp
           </a>
-          <p className="text-[11px] text-[rgb(var(--muted))] text-center">
+          <p className="text-[11px] text-sage-gray text-center">
             Lun a Vie · 9 a 18 hs · Respuesta inmediata
           </p>
         </div>

@@ -90,15 +90,15 @@ export default function Login() {
 
   const inputWrap = "relative";
   const inputIcon =
-    "absolute left-4 top-1/2 -translate-y-1/2 text-[rgb(var(--muted))] pointer-events-none";
+    "absolute left-4 top-1/2 -translate-y-1/2 text-sage-gray pointer-events-none";
 
   return (
-    <section className="min-h-[calc(100vh-var(--navbar-h))] bg-[rgb(var(--primary))] flex items-center justify-center px-4 py-12">
+    <section className="min-h-[calc(100vh-var(--navbar-h))] bg-midnight-forest flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-sm">
-        <div className="bg-white rounded-2xl p-8 shadow-[0_24px_60px_rgba(0,0,0,0.35)]">
+        <div className="bg-deep-lichen border border-spruce-border text-white rounded-xl p-8 ">
           <span className="eyebrow">Acceso</span>
-          <h1 className="display-3 mt-1 text-[rgb(var(--primary))]">Iniciar sesión</h1>
-          <p className="text-sm text-[rgb(var(--muted))] mt-2">
+          <h1 className="h1 mt-1 text-white">Iniciar sesión</h1>
+          <p className="text-sm text-sage-gray mt-2">
             Ingresá con tu cuenta para gestionar el sitio.
           </p>
 
@@ -107,7 +107,7 @@ export default function Login() {
             <div>
               <label
                 htmlFor="username"
-                className="block text-xs font-bold uppercase tracking-wider text-[rgb(var(--muted))] mb-1.5"
+                className="block text-xs font-bold uppercase tracking-wider text-sage-gray mb-1.5"
               >
                 Usuario
               </label>
@@ -130,7 +130,7 @@ export default function Login() {
             <div>
               <label
                 htmlFor="password"
-                className="block text-xs font-bold uppercase tracking-wider text-[rgb(var(--muted))] mb-1.5"
+                className="block text-xs font-bold uppercase tracking-wider text-sage-gray mb-1.5"
               >
                 Contraseña
               </label>
@@ -150,7 +150,7 @@ export default function Login() {
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
                   aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 grid place-items-center rounded-full text-[rgb(var(--muted))] hover:bg-[rgb(var(--neutral))] hover:text-[rgb(var(--primary))] transition cursor-pointer"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 grid place-items-center rounded-full text-sage-gray hover:bg-white/10 hover:text-white transition cursor-pointer"
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
@@ -161,14 +161,14 @@ export default function Login() {
             {errorMsg && (
               <div
                 role="alert"
-                className="flex items-start gap-2 text-sm font-medium text-[rgb(var(--accent))]"
+                className="flex items-start gap-2 text-sm font-medium text-[rgb(var(--color-danger-text))]"
               >
                 <AlertCircle size={16} className="shrink-0 mt-0.5" />
                 {errorMsg}
               </div>
             )}
             {status === "success" && (
-              <div className="flex items-center gap-2 text-sm font-semibold text-[rgb(var(--success))]">
+              <div className="flex items-center gap-2 text-sm font-semibold text-[rgb(var(--color-success-text))]">
                 <ShieldCheck size={16} />
                 ¡Login exitoso! Redirigiendo…
               </div>

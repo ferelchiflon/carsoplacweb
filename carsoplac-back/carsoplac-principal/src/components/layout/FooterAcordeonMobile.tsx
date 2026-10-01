@@ -115,7 +115,7 @@ export default function FooterAcordeonMobile() {
   const showError = touched && Boolean(emailError);
 
   return (
-    <footer className="w-full bg-[rgb(var(--primary))] text-white">
+    <footer className="w-full bg-shaded-fern text-white">
       {/* Trust strip */}
       <div className="border-b border-white/10">
         <div className="grid grid-cols-2 divide-x divide-white/10 sm:grid-cols-4">
@@ -139,9 +139,9 @@ export default function FooterAcordeonMobile() {
           <Award size={18} className="text-white/80" />
           <p className="eyebrow text-white/70">Club CarsoPlac</p>
         </div>
-        <h3 className="text-xl font-extrabold leading-tight mb-1">
+        <h2 className="h2 leading-tight mb-1">
           Recibí ofertas exclusivas
-        </h3>
+        </h2>
         <p className="text-sm text-white/70 mb-4 leading-snug">
           Suscribite y enterate primero de lanzamientos, descuentos y novedades.
         </p>
@@ -158,14 +158,14 @@ export default function FooterAcordeonMobile() {
             aria-describedby={showError ? "newsletter-email-error" : undefined}
             className={`flex-1 h-11 rounded-full bg-white/10 border px-4 text-sm placeholder-white/50 text-white focus:outline-none transition ${
               showError
-                ? "border-[rgb(var(--accent))] focus:border-[rgb(var(--accent))] bg-white/15"
-                : "border-white/15 focus:border-white/40 focus:bg-white/15"
+                ? "border-[rgb(var(--color-danger-border))] focus:border-[rgb(var(--color-danger-border))] bg-white/15"
+                : "border-accent-brand focus:border-accent-brand focus:bg-white/15"
             }`}
           />
           <button
             type="submit"
             aria-label="Suscribirme"
-            className="h-11 w-11 grid place-items-center rounded-full bg-white text-[rgb(var(--primary))] hover:scale-105 active:scale-95 transition"
+            className="h-11 w-11 grid place-items-center rounded-full bg-pure-white text-midnight-forest hover:scale-105 active:scale-95 transition"
           >
             <Send size={16} />
           </button>
@@ -173,7 +173,7 @@ export default function FooterAcordeonMobile() {
         {showError && (
           <p
             id="newsletter-email-error"
-            className="text-xs text-[rgb(var(--accent))] mt-2"
+            className="text-xs text-[rgb(var(--color-danger-text))] mt-2"
             role="alert"
           >
             {emailError}
@@ -195,7 +195,7 @@ export default function FooterAcordeonMobile() {
               className="w-full flex justify-between items-center text-left py-4"
               aria-expanded={open === i}
             >
-              <span className="text-sm font-bold uppercase tracking-wider">
+              <span className="text-sm font-medium uppercase tracking-wider">
                 {item.title}
               </span>
               <ChevronDown

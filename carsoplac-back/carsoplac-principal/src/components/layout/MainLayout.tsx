@@ -13,7 +13,7 @@ export default function MainLayout() {
   const [openMobileMenu, setOpenMobileMenu] = useState(false);
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-midnight-forest flex flex-col">
       <TopBanner />
 
       {/* Navbar premium con búsqueda, cuenta y carrito */}

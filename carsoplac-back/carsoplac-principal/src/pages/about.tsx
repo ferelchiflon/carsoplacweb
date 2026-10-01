@@ -48,7 +48,7 @@ const categories = [
 
 export default function AboutPage() {
   return (
-    <div className="bg-white text-[rgb(var(--primary))]">
+    <div className="bg-midnight-forest text-white">
       {/* ─────────────── HERO ─────────────── */}
       <section className="relative isolate overflow-hidden">
         <div
@@ -56,22 +56,22 @@ export default function AboutPage() {
           style={{ backgroundImage: `url(${fotoFabrica})` }}
           aria-hidden
         />
-        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-[rgb(var(--primary))]/85 via-[rgb(var(--primary))]/70 to-[rgb(var(--primary))]/90" />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-midnight-forest/85 via-midnight-forest/70 to-midnight-forest/90" />
 
         <div className="container-x py-16 sm:py-24 lg:py-32 text-white">
           <div className="max-w-3xl">
-            <span className="eyebrow text-[rgb(var(--secondary))]">
+            <span className="eyebrow text-accent-brand">
               Sobre Carsoplac
             </span>
-            <h1 className="display-1 mt-4 text-white">
+            <h1 className="display mt-4 text-white">
               Fabricamos lo que tu hogar necesita,
               <br className="hidden sm:block" />
-              <span className="text-[rgb(var(--secondary))]">
+              <span className="text-accent-brand">
                 {" "}
                 directo de fábrica.
               </span>
             </h1>
-            <p className="mt-6 text-base sm:text-lg text-white/80 leading-relaxed max-w-2xl">
+            <p className="mt-6 text-base sm:text-lg text-sage-gray leading-relaxed max-w-2xl">
               Somos una fábrica argentina especializada en mesadas, revestimientos
               y muebles de diseño industrial. Producimos nosotros, vendemos
               nosotros y garantizamos cada pieza que sale de nuestra planta.
@@ -93,16 +93,16 @@ export default function AboutPage() {
 
       {/* ─────────────── STATS BAR ─────────────── */}
       <section className="container-x -mt-10 sm:-mt-14 relative z-10">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-[rgb(var(--line))] rounded-2xl overflow-hidden shadow-[0_18px_50px_rgba(26,26,26,0.10)]">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-spruce-border rounded-xl overflow-hidden ">
           {stats.map((s) => (
             <div
               key={s.label}
-              className="bg-white p-5 sm:p-7 text-center"
+              className="bg-deep-lichen p-5 sm:p-7 text-center"
             >
-              <div className="display-3 text-[rgb(var(--primary))]">
+              <div className="h2 text-white">
                 {s.number}
               </div>
-              <p className="mt-1 text-xs sm:text-sm uppercase tracking-wider font-semibold text-[rgb(var(--muted))]">
+              <p className="mt-1 text-xs sm:text-sm uppercase tracking-wider font-semibold text-sage-gray">
                 {s.label}
               </p>
             </div>
@@ -116,17 +116,17 @@ export default function AboutPage() {
           {/* Texto */}
           <div>
             <span className="eyebrow">Quiénes somos</span>
-            <h2 className="display-2 mt-3">
+            <h2 className="h2 mt-3">
               Una fábrica, un equipo, un mismo oficio.
             </h2>
-            <p className="mt-5 text-base sm:text-lg text-[rgb(var(--muted))] leading-relaxed">
+            <p className="mt-5 text-base sm:text-lg text-sage-gray leading-relaxed">
               Carsoplac nace hace más de 15 años con una idea clara: fabricar
               mesadas y revestimientos de calidad industrial, con diseño
               moderno y a un precio justo. Hoy seguimos trabajando igual que el
               primer día: con la misma dedicación y la misma responsabilidad de
               poner nuestro nombre en cada pieza.
             </p>
-            <p className="mt-4 text-base sm:text-lg text-[rgb(var(--muted))] leading-relaxed">
+            <p className="mt-4 text-base sm:text-lg text-sage-gray leading-relaxed">
               Atendemos tanto a familias que renuevan su cocina como a
               arquitectos, constructoras y locales comerciales que necesitan un
               proveedor serio, con stock real y entregas puntuales.
@@ -137,7 +137,7 @@ export default function AboutPage() {
                 <Link
                   key={c.name}
                   to={c.href}
-                  className="chip hover:bg-[rgb(var(--primary))] hover:text-white transition"
+                  className="chip hover:bg-mossy-edge transition"
                 >
                   {c.name}
                 </Link>
@@ -147,7 +147,7 @@ export default function AboutPage() {
 
           {/* Imagen fábrica */}
           <div className="relative">
-            <div className="aspect-[4/5] rounded-2xl overflow-hidden border border-[rgb(var(--line))]">
+            <div className="aspect-[4/5] rounded-xl overflow-hidden border border-spruce-border">
               <img
                 src={fotoFabrica}
                 alt="Planta de fabricación Carsoplac"
@@ -155,7 +155,7 @@ export default function AboutPage() {
                 loading="lazy"
               />
             </div>
-            <div className="absolute -bottom-5 -left-5 hidden sm:block bg-white rounded-2xl shadow-[0_18px_50px_rgba(26,26,26,0.10)] p-4 max-w-[220px]">
+            <div className="absolute -bottom-5 -left-5 hidden sm:block bg-deep-lichen border border-spruce-border rounded-xl  p-4 max-w-[220px]">
               <div className="flex items-center gap-3">
                 <img
                   src={sello}
@@ -163,10 +163,10 @@ export default function AboutPage() {
                   className="w-12 h-12 object-contain"
                 />
                 <div>
-                  <p className="text-xs uppercase tracking-wider font-bold text-[rgb(var(--primary))]">
+                  <p className="text-xs uppercase tracking-wider font-bold text-white">
                     Garantía oficial
                   </p>
-                  <p className="text-xs text-[rgb(var(--muted))]">
+                  <p className="text-xs text-sage-gray">
                     Respaldamos cada producto que sale de planta.
                   </p>
                 </div>
@@ -177,7 +177,7 @@ export default function AboutPage() {
       </section>
 
       {/* ─────────────── VALORES ─────────────── */}
-      <section className="bg-[rgb(var(--primary))] text-white py-16 sm:py-24">
+      <section className="bg-shaded-fern text-white py-16 sm:py-24">
         <div className="container-x">
           <SectionHeader
             title="NUESTROS VALORES"
@@ -188,18 +188,18 @@ export default function AboutPage() {
             {values.map((v, i) => (
               <div
                 key={v.title}
-                className="card bg-white/5 border-white/10 text-white p-6 sm:p-7 card-hover"
+                className="card text-white p-6 sm:p-7 card-hover"
               >
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-full bg-[rgb(var(--secondary))]/15 grid place-items-center text-[rgb(var(--secondary))] font-extrabold">
+                  <div className="w-10 h-10 rounded-full bg-accent-brand/15 grid place-items-center text-accent-brand font-extrabold">
                     {String(i + 1).padStart(2, "0")}
                   </div>
                   <div className="h-px flex-1 bg-white/10" />
                 </div>
-                <h3 className="text-lg font-extrabold tracking-tight">
+                <h3 className="h2 tracking-tight">
                   {v.title}
                 </h3>
-                <p className="mt-2 text-sm text-white/70 leading-relaxed">
+                <p className="mt-2 copy">
                   {v.description}
                 </p>
               </div>
@@ -212,7 +212,7 @@ export default function AboutPage() {
       <section className="container-x py-16 sm:py-24">
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           <div className="order-2 lg:order-1">
-            <div className="aspect-square rounded-2xl overflow-hidden border border-[rgb(var(--line))] bg-[rgb(var(--neutral))]">
+            <div className="aspect-square rounded-xl overflow-hidden border border-spruce-border bg-shaded-fern">
               <img
                 src={placa1}
                 alt="Placa decorativa Carsoplac"
@@ -223,10 +223,10 @@ export default function AboutPage() {
           </div>
           <div className="order-1 lg:order-2">
             <span className="eyebrow">Cómo trabajamos</span>
-            <h2 className="display-2 mt-3">
+            <h2 className="h2 mt-3">
               Diseño, corte y terminación en un solo lugar.
             </h2>
-            <p className="mt-5 text-base sm:text-lg text-[rgb(var(--muted))] leading-relaxed">
+            <p className="mt-5 text-base sm:text-lg text-sage-gray leading-relaxed">
               Todas nuestras piezas se producen en nuestra propia planta. Eso
               nos permite controlar el proceso completo: desde la selección de
               la materia prima hasta el empaquetado final. El resultado es un
@@ -243,9 +243,9 @@ export default function AboutPage() {
               ].map((line) => (
                 <li
                   key={line}
-                  className="flex items-start gap-3 text-[rgb(var(--primary))]"
+                  className="flex items-start gap-3 text-white"
                 >
-                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-[rgb(var(--secondary))] shrink-0" />
+                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-accent-brand shrink-0" />
                   <span className="text-base">{line}</span>
                 </li>
               ))}
@@ -260,7 +260,7 @@ export default function AboutPage() {
 
       {/* ─────────────── CTA FINAL ─────────────── */}
       <section className="container-x pb-16 sm:pb-24">
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[rgb(var(--primary))] via-[rgb(var(--primary))] to-[rgb(15,15,15)] p-8 sm:p-14 text-white">
+        <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-shaded-fern via-mossy-edge to-deep-lichen p-8 sm:p-14 text-white">
           <div className="absolute -right-10 -bottom-10 opacity-10 hidden sm:block">
             <img
               src={logoCarso}
@@ -271,13 +271,13 @@ export default function AboutPage() {
           </div>
 
           <div className="relative max-w-2xl">
-            <span className="eyebrow text-[rgb(var(--secondary))]">
+            <span className="eyebrow text-accent-brand">
               ¿Listo para empezar?
             </span>
-            <h2 className="display-2 mt-3 text-white">
+            <h2 className="h2 mt-3">
               Pedí tu presupuesto sin compromiso.
             </h2>
-            <p className="mt-4 text-white/75 text-base sm:text-lg leading-relaxed">
+            <p className="mt-4 text-sage-gray text-base sm:text-lg leading-relaxed">
               Contanos qué necesitás y te respondemos a la brevedad con una
               cotización personalizada. Atendemos por WhatsApp, email o en
               nuestro showroom.

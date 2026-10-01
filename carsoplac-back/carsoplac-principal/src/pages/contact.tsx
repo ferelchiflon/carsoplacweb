@@ -131,22 +131,22 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="bg-white text-[rgb(var(--primary))]">
+    <div className="bg-midnight-forest text-white">
       {/* ─────────────── HERO ─────────────── */}
-      <section className="relative isolate overflow-hidden bg-[rgb(var(--primary))] text-white">
-        <div className="absolute inset-0 -z-10 bg-gradient-to-br from-[rgb(var(--primary))] via-[rgb(15,15,15)] to-[rgb(var(--primary))] opacity-95" />
-        <div className="absolute -right-20 -top-20 -z-10 h-72 w-72 rounded-full bg-[rgb(var(--secondary))]/10 blur-3xl" />
+      <section className="relative isolate overflow-hidden bg-shaded-fern text-white">
+        <div className="absolute inset-0 -z-10 bg-gradient-to-br from-shaded-fern via-mossy-edge to-shaded-fern opacity-95" />
+        <div className="absolute -right-20 -top-20 -z-10 h-72 w-72 rounded-full bg-accent-brand/10 blur-3xl" />
         <div className="absolute -left-20 -bottom-20 -z-10 h-72 w-72 rounded-full bg-white/5 blur-3xl" />
 
         <div className="container-x py-16 sm:py-20 lg:py-28">
           <div className="max-w-3xl">
-            <span className="eyebrow text-[rgb(var(--secondary))]">
+            <span className="eyebrow text-accent-brand">
               Hablemos
             </span>
-            <h1 className="display-1 mt-4 text-white">
+            <h1 className="display mt-4 text-white">
               Contacto
             </h1>
-            <p className="mt-5 text-base sm:text-lg text-white/80 leading-relaxed max-w-2xl">
+            <p className="mt-5 copy">
               ¿Tenés alguna consulta sobre nuestros productos, necesitás un
               presupuesto o querés asesoramiento? Elegí el canal que prefieras
               y te respondemos a la brevedad.
@@ -161,13 +161,13 @@ export default function ContactPage() {
           {/* ─────────── Columna izquierda: WhatsApp + Info ─────────── */}
           <div className="lg:col-span-2 flex flex-col gap-6">
             {/* Tarjeta WhatsApp */}
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#25D366] to-[#128C7E] text-white p-6 sm:p-8 shadow-[0_18px_50px_rgba(37,211,102,0.25)]">
+            <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-[#25D366] to-[#128C7E] text-white p-6 sm:p-8 ">
               <div className="absolute -right-10 -bottom-10 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
               <div className="relative">
                 <div className="w-14 h-14 rounded-full bg-white/20 grid place-items-center mb-5">
                   <MessageCircle size={28} className="text-white" />
                 </div>
-                <h3 className="text-xl sm:text-2xl font-extrabold tracking-tight">
+                <h3 className="h2 tracking-tight">
                   Chateá con nosotros
                 </h3>
                 <p className="mt-2 text-sm sm:text-base text-white/90 leading-relaxed">
@@ -188,25 +188,25 @@ export default function ContactPage() {
             {/* Tarjeta info de contacto */}
             <div className="card p-6 sm:p-7">
               <p className="eyebrow mb-4">Información</p>
-              <h3 className="display-3 text-[rgb(var(--primary))]">
+              <h3 className="h2 text-white">
                 Nuestros canales
               </h3>
 
-              <ul className="mt-5 divide-y divide-[rgb(var(--line))]">
+              <ul className="mt-5 divide-y divide-spruce-border">
                 {/* Teléfono */}
                 <li className="flex items-start gap-4 py-4">
-                  <span className="w-10 h-10 shrink-0 rounded-xl bg-[rgb(var(--neutral))] grid place-items-center">
-                    <Phone size={18} className="text-[rgb(var(--primary))]" />
+                  <span className="w-10 h-10 shrink-0 rounded-xl bg-shaded-fern grid place-items-center">
+                    <Phone size={18} className="text-sage-gray" />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[11px] uppercase tracking-[0.18em] font-bold text-[rgb(var(--muted))]">
+                    <p className="text-[11px] uppercase tracking-[0.18em] font-bold text-sage-gray">
                       Teléfono / WhatsApp
                     </p>
                     <a
                       href={`https://wa.me/${CONTACT.whatsappRaw}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="block mt-0.5 text-[15px] font-semibold text-[rgb(var(--primary))] hover:text-[rgb(var(--accent))] transition break-all"
+                      className="block mt-0.5 text-[15px] font-semibold text-white hover:text-accent-brand transition break-all"
                     >
                       {CONTACT.whatsappDisplay}
                     </a>
@@ -215,16 +215,16 @@ export default function ContactPage() {
 
                 {/* Email */}
                 <li className="flex items-start gap-4 py-4">
-                  <span className="w-10 h-10 shrink-0 rounded-xl bg-[rgb(var(--neutral))] grid place-items-center">
-                    <Mail size={18} className="text-[rgb(var(--primary))]" />
+                  <span className="w-10 h-10 shrink-0 rounded-xl bg-shaded-fern grid place-items-center">
+                    <Mail size={18} className="text-sage-gray" />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[11px] uppercase tracking-[0.18em] font-bold text-[rgb(var(--muted))]">
+                    <p className="text-[11px] uppercase tracking-[0.18em] font-bold text-sage-gray">
                       Email
                     </p>
                     <a
                       href={`mailto:${CONTACT.email}`}
-                      className="block mt-0.5 text-[15px] font-semibold text-[rgb(var(--primary))] hover:text-[rgb(var(--accent))] transition break-all"
+                      className="block mt-0.5 text-[15px] font-semibold text-white hover:text-accent-brand transition break-all"
                     >
                       {CONTACT.email}
                     </a>
@@ -233,17 +233,17 @@ export default function ContactPage() {
 
                 {/* Dirección */}
                 <li className="flex items-start gap-4 py-4">
-                  <span className="w-10 h-10 shrink-0 rounded-xl bg-[rgb(var(--neutral))] grid place-items-center">
-                    <MapPin size={18} className="text-[rgb(var(--primary))]" />
+                  <span className="w-10 h-10 shrink-0 rounded-xl bg-shaded-fern grid place-items-center">
+                    <MapPin size={18} className="text-sage-gray" />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[11px] uppercase tracking-[0.18em] font-bold text-[rgb(var(--muted))]">
+                    <p className="text-[11px] uppercase tracking-[0.18em] font-bold text-sage-gray">
                       Showroom / Fábrica
                     </p>
-                    <p className="mt-0.5 text-[15px] font-semibold text-[rgb(var(--primary))] leading-snug">
+                    <p className="mt-0.5 text-[15px] font-semibold text-white leading-snug">
                       {CONTACT.address}
                     </p>
-                    <p className="text-xs text-[rgb(var(--muted))] mt-1">
+                    <p className="text-xs text-sage-gray mt-1">
                       {CONTACT.city}
                     </p>
                   </div>
@@ -251,14 +251,14 @@ export default function ContactPage() {
 
                 {/* Horario */}
                 <li className="flex items-start gap-4 py-4">
-                  <span className="w-10 h-10 shrink-0 rounded-xl bg-[rgb(var(--neutral))] grid place-items-center">
-                    <Clock size={18} className="text-[rgb(var(--primary))]" />
+                  <span className="w-10 h-10 shrink-0 rounded-xl bg-shaded-fern grid place-items-center">
+                    <Clock size={18} className="text-sage-gray" />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[11px] uppercase tracking-[0.18em] font-bold text-[rgb(var(--muted))]">
+                    <p className="text-[11px] uppercase tracking-[0.18em] font-bold text-sage-gray">
                       Horario de atención
                     </p>
-                    <p className="mt-0.5 text-[15px] font-semibold text-[rgb(var(--primary))] leading-snug">
+                    <p className="mt-0.5 text-[15px] font-semibold text-white leading-snug">
                       {CONTACT.hours}
                     </p>
                   </div>
@@ -269,14 +269,14 @@ export default function ContactPage() {
 
           {/* ─────────── Columna derecha: Formulario ─────────── */}
           <div className="lg:col-span-3">
-            <div className="card p-6 sm:p-8 lg:p-10 shadow-[0_18px_50px_rgba(26,26,26,0.08)]">
+            <div className="card p-6 sm:p-8 lg:p-10 ">
               <p className="eyebrow">Formulario</p>
-              <h2 className="display-2 mt-2 text-[rgb(var(--primary))]">
+              <h2 className="h2 mt-2 text-white">
                 Envianos tu consulta
               </h2>
-              <p className="mt-3 text-[rgb(var(--muted))] text-base leading-relaxed">
+              <p className="mt-3 text-sage-gray text-base leading-relaxed">
                 Completá los datos y te respondemos a la brevedad. Los campos
-                marcados con <span className="text-[rgb(var(--accent))]">*</span>{" "}
+                marcados con <span className="text-accent-brand">*</span>{" "}
                 son obligatorios.
               </p>
 
@@ -284,7 +284,7 @@ export default function ContactPage() {
               {isSuccess && (
                 <div
                   role="status"
-                  className="mt-6 flex items-center gap-3 rounded-xl border border-green-200 bg-green-50 text-green-800 px-4 py-3 text-sm font-medium"
+                  className="mt-6 flex items-center gap-3 rounded-xl border border-[rgb(var(--color-success-border))] bg-[rgb(var(--color-success-bg))] text-[rgb(var(--color-success-text))] px-4 py-3 text-sm font-medium"
                 >
                   <CheckCircle2 size={20} className="shrink-0" />
                   ¡Mensaje enviado con éxito! Te responderemos pronto.
@@ -296,10 +296,10 @@ export default function ContactPage() {
                 <div className="flex flex-col gap-1.5">
                   <label
                     htmlFor="name"
-                    className="text-sm font-semibold text-[rgb(var(--primary))]"
+                    className="text-sm font-semibold text-white"
                   >
                     Nombre completo{" "}
-                    <span className="text-[rgb(var(--accent))]">*</span>
+                    <span className="text-accent-brand">*</span>
                   </label>
                   <input
                     id="name"
@@ -311,12 +311,12 @@ export default function ContactPage() {
                     aria-invalid={!!errors.name}
                     className={`input-base !h-12 ${
                       errors.name
-                        ? "!ring-2 !ring-[rgb(var(--accent))] !bg-red-50/40"
+                        ? "!ring-2 !ring-[rgb(var(--color-danger-border))] !bg-[rgb(var(--color-danger-bg))]"
                         : ""
                     }`}
                   />
                   {errors.name && (
-                    <span className="text-xs text-[rgb(var(--accent))] font-medium">
+                    <span className="text-xs text-[rgb(var(--color-danger-text))] font-medium">
                       {errors.name}
                     </span>
                   )}
@@ -327,10 +327,10 @@ export default function ContactPage() {
                   <div className="flex flex-col gap-1.5">
                     <label
                       htmlFor="email"
-                      className="text-sm font-semibold text-[rgb(var(--primary))]"
+                      className="text-sm font-semibold text-white"
                     >
                       Email{" "}
-                      <span className="text-[rgb(var(--accent))]">*</span>
+                      <span className="text-accent-brand">*</span>
                     </label>
                     <input
                       id="email"
@@ -342,12 +342,12 @@ export default function ContactPage() {
                       aria-invalid={!!errors.email}
                       className={`input-base !h-12 ${
                         errors.email
-                          ? "!ring-2 !ring-[rgb(var(--accent))] !bg-red-50/40"
+                          ? "!ring-2 !ring-[rgb(var(--color-danger-border))] !bg-[rgb(var(--color-danger-bg))]"
                           : ""
                       }`}
                     />
                     {errors.email && (
-                      <span className="text-xs text-[rgb(var(--accent))] font-medium">
+                      <span className="text-xs text-[rgb(var(--color-danger-text))] font-medium">
                         {errors.email}
                       </span>
                     )}
@@ -356,7 +356,7 @@ export default function ContactPage() {
                   <div className="flex flex-col gap-1.5">
                     <label
                       htmlFor="phone"
-                      className="text-sm font-semibold text-[rgb(var(--primary))]"
+                      className="text-sm font-semibold text-white"
                     >
                       Teléfono
                     </label>
@@ -376,7 +376,7 @@ export default function ContactPage() {
                 <div className="flex flex-col gap-1.5">
                   <label
                     htmlFor="subject"
-                    className="text-sm font-semibold text-[rgb(var(--primary))]"
+                    className="text-sm font-semibold text-white"
                   >
                     Asunto
                   </label>
@@ -385,7 +385,7 @@ export default function ContactPage() {
                     name="subject"
                     value={formData.subject}
                     onChange={handleChange}
-                    className="input-base !h-12 !appearance-none !bg-[url('data:image/svg+xml;utf8,<svg%20xmlns=%22http://www.w3.org/2000/svg%22%20width=%2216%22%20height=%2216%22%20viewBox=%220%200%2024%2024%22%20fill=%22none%22%20stroke=%22%231e1e1e%22%20stroke-width=%222%22%20stroke-linecap=%22round%22%20stroke-linejoin=%22round%22><polyline%20points=%226%209%2012%2015%2018%209%22/></svg>')] !bg-[length:16px_16px] !bg-[right_1.25rem_center] !bg-no-repeat !pr-12 cursor-pointer"
+                    className="input-base !h-12 !appearance-none !bg-[url('data:image/svg+xml;utf8,<svg%20xmlns=%22http://www.w3.org/2000/svg%22%20width=%2216%22%20height=%2216%22%20viewBox=%220%200%2024%2024%22%20fill=%22none%22%20stroke=%22%23ffffff%22%20stroke-width=%222%22%20stroke-linecap=%22round%22%20stroke-linejoin=%22round%22><polyline%20points=%226%209%2012%2015%2018%209%22/></svg>')] !bg-[length:16px_16px] !bg-[right_1.25rem_center] !bg-no-repeat !pr-12 cursor-pointer"
                   >
                     {SUBJECTS.map((s) => (
                       <option key={s.value} value={s.value}>
@@ -399,10 +399,10 @@ export default function ContactPage() {
                 <div className="flex flex-col gap-1.5">
                   <label
                     htmlFor="message"
-                    className="text-sm font-semibold text-[rgb(var(--primary))]"
+                    className="text-sm font-semibold text-white"
                   >
                     Mensaje{" "}
-                    <span className="text-[rgb(var(--accent))]">*</span>
+                    <span className="text-accent-brand">*</span>
                   </label>
                   <textarea
                     id="message"
@@ -412,14 +412,14 @@ export default function ContactPage() {
                     placeholder="Contanos en qué podemos ayudarte..."
                     rows={6}
                     aria-invalid={!!errors.message}
-                    className={`w-full rounded-2xl bg-[rgb(var(--neutral))] px-5 py-3.5 text-sm placeholder:text-[rgb(var(--muted))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))] transition resize-y min-h-[140px] ${
+                    className={`w-full rounded-xl border border-spruce-border bg-shaded-fern px-5 py-3.5 text-sm text-white placeholder:text-sage-gray focus:outline-none focus:border-accent-brand focus:ring-2 focus:ring-accent-brand transition resize-y min-h-[140px] ${
                       errors.message
-                        ? "!ring-2 !ring-[rgb(var(--accent))] !bg-red-50/40"
+                        ? "!ring-2 !ring-[rgb(var(--color-danger-border))] !bg-[rgb(var(--color-danger-bg))]"
                         : ""
                     }`}
                   />
                   {errors.message && (
-                    <span className="text-xs text-[rgb(var(--accent))] font-medium">
+                    <span className="text-xs text-[rgb(var(--color-danger-text))] font-medium">
                       {errors.message}
                     </span>
                   )}
@@ -427,7 +427,7 @@ export default function ContactPage() {
 
                 {/* Submit */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-2">
-                  <p className="text-xs text-[rgb(var(--muted))] leading-snug">
+                  <p className="text-xs text-sage-gray leading-snug">
                     Al enviar aceptás que te contactemos por los medios
                     indicados.
                   </p>

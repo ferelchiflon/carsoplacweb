@@ -12,7 +12,7 @@ const PaymentSuccess = () => {
 
   return (
     <div>
-      <h1 className="bg-[rgb(var(--primary))]">¡Pago Exitoso!</h1>
+      <h1 className="h1 mt-6 tracking-tight text-white">¡Pago Exitoso!</h1>
       <p>Tu pago se ha procesado correctamente.</p>
     </div>
   );

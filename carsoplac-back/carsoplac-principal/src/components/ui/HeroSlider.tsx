@@ -61,7 +61,7 @@ export default function HeroSlider({
 
   return (
     <div
-      className="relative w-full h-[calc(100vh-var(--navbar-h))] overflow-hidden bg-black"
+      className="relative w-full min-h-[520px] h-[calc(100vh-var(--navbar-h))] overflow-hidden bg-black"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onTouchStart={onTouchStart}
@@ -86,18 +86,53 @@ export default function HeroSlider({
             draggable={false}
             className="absolute inset-0 w-full h-full object-cover object-center select-none"
           />
-          <div className="absolute inset-0 bg-black/30" />
+           <div className="absolute inset-0 bg-gradient-to-b from-midnight-forest/90 via-midnight-forest/50 to-transparent sm:bg-gradient-to-t" />
         </div>
       ))}
 
       {/* Caption */}
       <div className="relative z-20 flex flex-col items-center justify-center h-full text-white px-4 pointer-events-none">
-        <h2 className="text-3xl sm:text-5xl font-bold text-center drop-shadow-lg">
-          Carso Plac
-        </h2>
-        <p className="text-base sm:text-lg mt-2 text-center font-display drop-shadow-md">
-          Calidad y diseño para tu hogar
-        </p>
+        {slides.map((_, i) =>
+          i === index ? (
+            <div key={i} className="flex flex-col items-center text-center">
+              {i === 0 && (
+                <p className="eyebrow text-accent-brand">NUEVA COLECCIÓN</p>
+              )}
+              {i === 1 && (
+                <p className="eyebrow text-accent-brand">CATÁLOGO PRINCIPAL</p>
+              )}
+              {i === 2 && (
+                <p className="eyebrow text-accent-brand">FABRICACIÓN PROPIA</p>
+              )}
+              <h1 className="display mt-3">
+                {i === 0
+                  ? "Carso Plac"
+                  : i === 1
+                  ? "Placas de Alta Resistencia"
+                  : "Hecho en Nuestra Fábrica"}
+              </h1>
+              <p className="copy max-w-[560px] mt-4">
+                {i === 0
+                  ? "Calidad y diseño para tu hogar"
+                  : i === 1
+                  ? "Para pisos y paredes exigentes"
+                  : "Control total de calidad"}
+              </p>
+              <div className="mt-6 flex flex-col sm:flex-row sm:gap-4 pointer-events-auto">
+                <a href="/productos" className="btn btn-primary">
+                  {i === 0
+                    ? "Ver colección"
+                    : i === 1
+                    ? "Ver productos"
+                    : "Ver proceso"}
+                </a>
+                <a href="/contacto" className="btn btn-ghost">
+                  Contacto
+                </a>
+              </div>
+            </div>
+          ) : null
+        )}
       </div>
 
       {/* Prev / Next */}
