@@ -92,7 +92,7 @@ export default function HeroSlider({
 
       {/* Caption */}
       <div className="relative z-20 flex flex-col items-center justify-center h-full text-white px-4 pointer-events-none">
-        <h2 className="text-3xl sm:text-5xl font-bold text-center drop-shadow-lg">
+        <h2 className="text-3xl sm:text-5xl display text-center drop-shadow-subtle">
           Carso Plac
         </h2>
         <p className="text-base sm:text-lg mt-2 text-center font-display drop-shadow-md">
