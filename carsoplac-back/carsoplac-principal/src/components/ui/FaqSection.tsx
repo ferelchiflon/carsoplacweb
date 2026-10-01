@@ -49,7 +49,7 @@ export default function FaqSection() {
       {/* Títulos */}
       <div className="text-center mb-6">
         <p className="text-sm uppercase tracking-wide text-sage-gray">FAQs</p>
-        <h2 id={headingId} className="text-2xl font-bold">
+        <h2 id={headingId} className="text-2xl h2">
           PREGUNTAS FRECUENTES
         </h2>
       </div>
