@@ -161,7 +161,7 @@ export default function ContactPage() {
           {/* ─────────── Columna izquierda: WhatsApp + Info ─────────── */}
           <div className="lg:col-span-2 flex flex-col gap-6">
             {/* Tarjeta WhatsApp */}
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#25D366] to-[#128C7E] text-white p-6 sm:p-8 shadow-xl">
+            <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-[#25D366] to-[#128C7E] text-white p-6 sm:p-8 shadow-subtle">
               <div className="absolute -right-10 -bottom-10 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
               <div className="relative">
                 <div className="w-14 h-14 rounded-full bg-white/20 grid place-items-center mb-5">
@@ -269,7 +269,7 @@ export default function ContactPage() {
 
           {/* ─────────── Columna derecha: Formulario ─────────── */}
           <div className="lg:col-span-3">
-            <div className="card p-6 sm:p-8 lg:p-10 shadow-xl">
+            <div className="card p-6 sm:p-8 lg:p-10 shadow-subtle">
               <p className="eyebrow">Formulario</p>
               <h2 className="display-2 mt-2 text-white">
                 Envianos tu consulta
@@ -412,7 +412,7 @@ export default function ContactPage() {
                     placeholder="Contanos en qué podemos ayudarte..."
                     rows={6}
                     aria-invalid={!!errors.message}
-                    className={`w-full rounded-2xl border border-spruce-border bg-shaded-fern px-5 py-3.5 text-sm text-white placeholder:text-sage-gray focus:outline-none focus:border-accent-brand focus:ring-2 focus:ring-accent-brand transition resize-y min-h-[140px] ${
+                    className={`w-full rounded-xl border border-spruce-border bg-shaded-fern px-5 py-3.5 text-sm text-white placeholder:text-sage-gray focus:outline-none focus:border-accent-brand focus:ring-2 focus:ring-accent-brand transition resize-y min-h-[140px] ${
                       errors.message
                         ? "!ring-2 !ring-[rgb(var(--color-danger-border))] !bg-[rgb(var(--color-danger-bg))]"
                         : ""
