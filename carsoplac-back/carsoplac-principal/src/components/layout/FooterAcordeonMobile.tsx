@@ -139,9 +139,9 @@ export default function FooterAcordeonMobile() {
           <Award size={18} className="text-white/80" />
           <p className="eyebrow text-white/70">Club CarsoPlac</p>
         </div>
-        <h3 className="text-xl font-medium leading-tight mb-1">
+        <h2 className="h2 leading-tight mb-1">
           Recibí ofertas exclusivas
-        </h3>
+        </h2>
         <p className="text-sm text-white/70 mb-4 leading-snug">
           Suscribite y enterate primero de lanzamientos, descuentos y novedades.
         </p>
