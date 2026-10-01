@@ -204,7 +204,7 @@ export default function ProductsPage() {
         {/* Panel de filtros */}
         {filtersOpen && (
           <div 
-            className="bg-deep-lichen rounded-2xl shadow-xl p-4 mb-4 border border-spruce-border animate-fadeIn"
+            className="bg-deep-lichen rounded-xl shadow-subtle p-4 mb-4 border border-spruce-border animate-fadeIn"
             role="region"
             aria-label="Filtros de productos"
           >
@@ -303,7 +303,7 @@ export default function ProductsPage() {
             {Array.from({ length: 8 }).map((_, i) => (
               <div
                 key={i}
-                className="bg-deep-lichen rounded-2xl border border-spruce-border overflow-hidden animate-pulse"
+                className="bg-deep-lichen rounded-xl border border-spruce-border overflow-hidden animate-pulse"
               >
                 <div className="aspect-square bg-shaded-fern" />
                 <div className="p-3 flex flex-col gap-2">
@@ -320,7 +320,7 @@ export default function ProductsPage() {
         {/* Estado de error con botón Reintentar (recarga datos sin refrescar la página) */}
         {error && !loading && (
           <div
-            className="rounded-2xl border border-[rgb(var(--color-danger-border))] bg-[rgb(var(--color-danger-bg))] p-6 text-center"
+            className="rounded-xl border border-[rgb(var(--color-danger-border))] bg-[rgb(var(--color-danger-bg))] p-6 text-center"
             role="alert"
           >
             <p className="font-bold text-[rgb(var(--color-danger-text))]">No pudimos cargar el catálogo</p>
