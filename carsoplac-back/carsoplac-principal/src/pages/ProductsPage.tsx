@@ -338,7 +338,7 @@ export default function ProductsPage() {
         {/* Lista de productos */}
         {!loading && !error && (
           <>
-            <p className="mb-3 text-body">
+            <p className="mb-3 copy">
               {filteredProducts.length}{" "}
               {filteredProducts.length === 1 ? "producto" : "productos"}
               {activeFiltersCount > 0 && " encontrados"}
@@ -346,7 +346,7 @@ export default function ProductsPage() {
 
             {filteredProducts.length === 0 ? (
               <div className="text-center py-12">
-                <p className="mb-4 text-body">
+                <p className="mb-4 copy">
                   No encontramos productos con esos filtros.
                 </p>
                 <button
