@@ -146,7 +146,7 @@ export default function ContactPage() {
             <h1 className="display mt-4 text-white">
               Contacto
             </h1>
-            <p className="mt-5 text-body">
+            <p className="mt-5 copy">
               ¿Tenés alguna consulta sobre nuestros productos, necesitás un
               presupuesto o querés asesoramiento? Elegí el canal que prefieras
               y te respondemos a la brevedad.
