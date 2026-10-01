@@ -74,7 +74,7 @@ export default function ProductCard(props: ProductCardProps) {
   };
 
   return (
-    <article className="group relative flex flex-col w-full bg-deep-lichen rounded-xl overflow-hidden border border-spruce-border hover:border-accent-brand/50 hover:shadow-subtle transition-all duration-300">
+    <article className="group relative flex flex-col w-full bg-deep-lichen rounded-xl overflow-hidden border border-spruce-border hover:border-accent-brand/50  transition-all duration-300">
       {/* Image */}
       <button
         onClick={props.onClick}
@@ -160,7 +160,7 @@ export default function ProductCard(props: ProductCardProps) {
         </span>
         <h3
           onClick={props.onClick}
-          className="text-sm font-bold leading-snug text-white line-clamp-2 cursor-pointer transition-colors duration-200 group-hover:text-accent-brand hover:underline"
+          className="text-sm h2 leading-snug text-white line-clamp-2 cursor-pointer transition-colors duration-200 group-hover:text-accent-brand hover:underline"
         >
           {props.name}
         </h3>
@@ -170,7 +170,7 @@ export default function ProductCard(props: ProductCardProps) {
 
         {/* Price */}
         <div className="mt-2 flex items-baseline gap-2">
-          <span className="text-lg font-extrabold text-white">
+          <span className="text-lg font-medium text-white">
             {formatARS(priceNum)}
           </span>
           {oldPriceNum > priceNum && priceNum > 0 && (
@@ -182,7 +182,7 @@ export default function ProductCard(props: ProductCardProps) {
         {(props.installments ?? 12) > 1 && priceNum > 0 && (
           <p className="text-[11px] text-sage-gray mt-0.5">
             o hasta{" "}
-            <span className="font-semibold text-white">
+            <span className="font-medium text-white">
               {props.installments ?? 12} cuotas sin interés
             </span>{" "}
             de {formatARS(priceNum / (props.installments ?? 12))}
@@ -192,7 +192,7 @@ export default function ProductCard(props: ProductCardProps) {
         {/* CTA móvil */}
         <button
           onClick={handleAdd}
-          className="md:hidden mt-3 w-full h-10 rounded-full bg-pure-white text-midnight-forest text-xs font-bold uppercase tracking-wide hover:bg-mist-gray active:scale-95 transition flex items-center justify-center gap-1.5"
+          className="md:hidden mt-3 w-full h-10 rounded-full bg-pure-white text-midnight-forest text-xs font-medium uppercase tracking-wide hover:bg-mist-gray active:scale-95 transition flex items-center justify-center gap-1.5"
         >
           <ShoppingBag size={14} />
           Agregar
@@ -202,12 +202,12 @@ export default function ProductCard(props: ProductCardProps) {
       {/* Toast confirmación */}
       {showToast && (
         <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:max-w-sm z-50 pointer-events-none">
-          <div className="pointer-events-auto bg-shaded-fern border border-spruce-border text-white rounded-xl shadow-subtle p-4 flex items-start gap-3">
+          <div className="pointer-events-auto bg-shaded-fern border border-spruce-border text-white rounded-xl  p-4 flex items-start gap-3">
             <span className="w-9 h-9 grid place-items-center rounded-full bg-white/15 shrink-0">
               <Check size={18} />
             </span>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold">¡Producto agregado!</p>
+              <p className="text-sm font-medium">¡Producto agregado!</p>
               <p className="text-xs opacity-80 truncate">{props.name}</p>
               <div className="flex gap-4 mt-2">
                 <button
@@ -215,7 +215,7 @@ export default function ProductCard(props: ProductCardProps) {
                     cleanToast();
                     setOpenCart(true);
                   }}
-                  className="text-xs font-bold underline underline-offset-2"
+                  className="text-xs font-medium underline underline-offset-2"
                 >
                   Ver carrito
                 </button>
