@@ -137,8 +137,6 @@
 }
 
 .title {
-  font-size: 1.9rem;
-  font-weight: 700;
   color: var(--color-pure-white, #ffffff);
   margin: 0;
   line-height: 1.2;
