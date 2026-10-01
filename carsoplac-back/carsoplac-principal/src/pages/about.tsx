@@ -63,7 +63,7 @@ export default function AboutPage() {
             <span className="eyebrow text-accent-brand">
               Sobre Carsoplac
             </span>
-            <h1 className="display-1 mt-4 text-white">
+            <h1 className="display mt-4 text-white">
               Fabricamos lo que tu hogar necesita,
               <br className="hidden sm:block" />
               <span className="text-accent-brand">
@@ -93,13 +93,13 @@ export default function AboutPage() {
 
       {/* ─────────────── STATS BAR ─────────────── */}
       <section className="container-x -mt-10 sm:-mt-14 relative z-10">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-spruce-border rounded-xl overflow-hidden shadow-subtle">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-spruce-border rounded-xl overflow-hidden ">
           {stats.map((s) => (
             <div
               key={s.label}
               className="bg-deep-lichen p-5 sm:p-7 text-center"
             >
-              <div className="display-3 text-white">
+              <div className="h2 text-white">
                 {s.number}
               </div>
               <p className="mt-1 text-xs sm:text-sm uppercase tracking-wider font-semibold text-sage-gray">
@@ -116,7 +116,7 @@ export default function AboutPage() {
           {/* Texto */}
           <div>
             <span className="eyebrow">Quiénes somos</span>
-            <h2 className="display-2 mt-3">
+            <h2 className="h2 mt-3">
               Una fábrica, un equipo, un mismo oficio.
             </h2>
             <p className="mt-5 text-base sm:text-lg text-sage-gray leading-relaxed">
@@ -155,7 +155,7 @@ export default function AboutPage() {
                 loading="lazy"
               />
             </div>
-            <div className="absolute -bottom-5 -left-5 hidden sm:block bg-deep-lichen border border-spruce-border rounded-xl shadow-subtle p-4 max-w-[220px]">
+            <div className="absolute -bottom-5 -left-5 hidden sm:block bg-deep-lichen border border-spruce-border rounded-xl  p-4 max-w-[220px]">
               <div className="flex items-center gap-3">
                 <img
                   src={sello}
@@ -196,10 +196,10 @@ export default function AboutPage() {
                   </div>
                   <div className="h-px flex-1 bg-white/10" />
                 </div>
-                <h3 className="text-lg font-extrabold tracking-tight">
+                <h3 className="h2 tracking-tight">
                   {v.title}
                 </h3>
-                <p className="mt-2 text-sm text-sage-gray leading-relaxed">
+                <p className="mt-2 text-body">
                   {v.description}
                 </p>
               </div>
@@ -223,7 +223,7 @@ export default function AboutPage() {
           </div>
           <div className="order-1 lg:order-2">
             <span className="eyebrow">Cómo trabajamos</span>
-            <h2 className="display-2 mt-3">
+            <h2 className="h2 mt-3">
               Diseño, corte y terminación en un solo lugar.
             </h2>
             <p className="mt-5 text-base sm:text-lg text-sage-gray leading-relaxed">
@@ -274,7 +274,7 @@ export default function AboutPage() {
             <span className="eyebrow text-accent-brand">
               ¿Listo para empezar?
             </span>
-            <h2 className="display-2 mt-3 text-white">
+            <h2 className="h2 mt-3">
               Pedí tu presupuesto sin compromiso.
             </h2>
             <p className="mt-4 text-sage-gray text-base sm:text-lg leading-relaxed">
