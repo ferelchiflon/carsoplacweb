@@ -8,7 +8,7 @@ export default function PaymentSuccess() {
         <div className="mx-auto grid h-16 w-16 place-items-center rounded-full border border-[rgb(var(--color-success-border))] bg-[rgb(var(--color-success-bg))]">
           <Check size={32} strokeWidth={2.5} className="text-[rgb(var(--color-success-text))]" />
         </div>
-        <h1 className="mt-6 h1 tracking-tight text-white">
+        <h1 className="mt-6 h1">
           ¡Pago Exitoso!
         </h1>
         <p className="mt-3 text-sage-gray">

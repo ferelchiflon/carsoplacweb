@@ -8,7 +8,7 @@ export default function PaymentPending() {
         <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-accent-brand/10">
           <Clock size={32} strokeWidth={2.5} className="text-accent-brand" />
         </div>
-        <h1 className="mt-6 h1 tracking-tight text-white">
+        <h1 className="mt-6 h1">
           Tu pago está pendiente
         </h1>
         <p className="mt-3 text-sage-gray">
