@@ -5,8 +5,8 @@ export default function PaymentPending() {
   return (
     <div className="mt-28 px-4 pb-16">
       <section className="mx-auto w-full max-w-[480px] rounded-xl border border-spruce-border bg-deep-lichen p-8 text-center">
-        <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-[rgb(var(--color-accent-brand))/10]">
-          <Clock size={32} strokeWidth={2.5} className="text-[rgb(var(--color-accent-brand))]" />
+        <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-accent-brand/10">
+          <Clock size={32} strokeWidth={2.5} className="text-accent-brand" />
         </div>
         <h1 className="mt-6 h1 tracking-tight text-white">
           Tu pago está pendiente
