@@ -71,7 +71,7 @@ export default function Home() {
           {Array.from({ length: 8 }).map((_, i) => (
             <div
               key={i}
-              className="skeleton w-full aspect-[4/5] rounded-2xl"
+              className="skeleton w-full aspect-[4/5] rounded-xl"
               role="status"
             />
           ))}
