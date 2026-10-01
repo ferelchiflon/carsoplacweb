@@ -123,7 +123,7 @@ export default function MobileMenu({
           >
             {item.label}
           </span>
-          <span className="text-[9px] font-extrabold uppercase tracking-wider bg-accent-brand text-midnight-forest px-1.5 py-0.5 rounded-full">
+          <span className="text-[9px] font-medium uppercase tracking-wider bg-accent-brand text-midnight-forest px-1.5 py-0.5 rounded-full">
             Pronto
           </span>
         </button>
@@ -174,7 +174,7 @@ export default function MobileMenu({
       />
 
       <aside
-        className={`fixed top-0 left-0 z-[70] h-full w-[88%] max-w-[380px] bg-deep-lichen text-white border-r border-spruce-border shadow-xl flex flex-col transition-transform duration-300 ease-out ${
+        className={`fixed top-0 left-0 z-[70] h-full w-[88%] max-w-[380px] bg-deep-lichen text-white border-r border-spruce-border shadow-subtle flex flex-col transition-transform duration-300 ease-out ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
         role="dialog"
@@ -186,7 +186,7 @@ export default function MobileMenu({
           <Link
             to="/"
             onClick={close}
-            className="font-extrabold tracking-tight text-lg"
+            className="font-medium tracking-tight text-lg"
           >
             CARSOPLAC
           </Link>
@@ -229,11 +229,11 @@ export default function MobileMenu({
                   onClick={close}
                   className="relative flex flex-col items-center justify-center py-3 px-2 rounded-xl bg-shaded-fern hover:bg-mossy-edge transition text-center"
                 >
-                  <span className="absolute top-1.5 right-1.5 text-[9px] font-extrabold bg-accent-brand text-midnight-forest px-1.5 py-0.5 rounded-full">
+                  <span className="absolute top-1.5 right-1.5 text-[9px] font-medium bg-accent-brand text-midnight-forest px-1.5 py-0.5 rounded-full">
                     {p.tag}
                   </span>
                   <Sparkles size={16} className="text-accent-brand mb-1" />
-                  <span className="text-[11px] font-bold uppercase tracking-wide">
+                  <span className="text-[11px] font-medium uppercase tracking-wide">
                     {p.label}
                   </span>
                 </Link>
@@ -300,7 +300,7 @@ export default function MobileMenu({
                       <Link
                         to="/productos"
                         onClick={close}
-                        className="flex items-center gap-2 py-2 text-[13px] font-bold text-accent-brand"
+                        className="flex items-center gap-2 py-2 text-[13px] font-medium text-accent-brand"
                       >
                         Ver todo el catálogo
                         <ArrowRight size={13} />
