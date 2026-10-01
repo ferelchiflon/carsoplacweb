@@ -180,7 +180,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
 
       {/* Panel */}
       <aside
-        className={`fixed top-0 right-0 z-[70] h-full w-full sm:w-[440px] bg-deep-lichen text-white border-l border-spruce-border shadow-xl flex flex-col transition-transform duration-300 ease-out ${
+        className={`fixed top-0 right-0 z-[70] h-full w-full sm:w-[440px] bg-deep-lichen text-white border-l border-spruce-border shadow-subtle flex flex-col transition-transform duration-300 ease-out ${
           open ? "translate-x-0" : "translate-x-full"
         }`}
         role="dialog"
@@ -190,7 +190,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
         {/* Header */}
         <div className="flex items-center justify-between px-6 h-16 border-b border-spruce-border">
           <div className="flex items-baseline gap-2">
-            <h2 className="text-base font-extrabold tracking-tight">Tu carrito</h2>
+            <h2 className="text-base h2 tracking-tight">Tu carrito</h2>
             <span className="text-xs text-sage-gray">
               ({totalItems} {totalItems === 1 ? "producto" : "productos"})
             </span>
@@ -227,7 +227,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                   <path d="M6 6L5 3H2" />
                 </svg>
               </div>
-              <h3 className="font-bold text-lg mb-1">Tu carrito está vacío</h3>
+              <h3 className="font-medium text-lg mb-1">Tu carrito está vacío</h3>
               <p className="text-sm text-sage-gray mb-5 max-w-[260px]">
                 Explorá nuestro catálogo y elegí las placas que mejor se adaptan a tu proyecto.
               </p>
@@ -267,7 +267,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                       </button>
                     </div>
 
-                    <p className="text-sm font-bold mt-1">{formatPrice(item.price)}</p>
+                    <p className="text-sm font-medium mt-1">{formatPrice(item.price)}</p>
 
                     <div className="flex items-center justify-between mt-3">
                       <div className="inline-flex items-center bg-shaded-fern text-white rounded-full">
@@ -289,7 +289,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                           <Plus size={14} />
                         </button>
                       </div>
-                      <p className="text-sm font-bold">
+                      <p className="text-sm font-medium">
                         {formatPrice(item.price * item.quantity)}
                       </p>
                     </div>
@@ -386,7 +386,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
 
             <div className="flex items-baseline justify-between pt-2">
               <span className="text-sm text-sage-gray">Subtotal</span>
-              <span className="text-xl font-extrabold">{formatPrice(total)}</span>
+              <span className="text-xl font-medium">{formatPrice(total)}</span>
             </div>
 
             {!preferenceId && (
