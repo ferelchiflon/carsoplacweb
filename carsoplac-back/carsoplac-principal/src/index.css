@@ -25,7 +25,7 @@
           espaciado de Tailwind v4 ya existe y re-declararla la rompería.
    ========================================================= */
 
-@theme {
+@theme static {
   /* Colors */
   --color-midnight-forest: #02090a;
   --color-deep-lichen: #061a1c;
