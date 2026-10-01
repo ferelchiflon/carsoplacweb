@@ -139,7 +139,7 @@ export default function FooterAcordeonMobile() {
           <Award size={18} className="text-white/80" />
           <p className="eyebrow text-white/70">Club CarsoPlac</p>
         </div>
-        <h3 className="text-xl font-extrabold leading-tight mb-1">
+        <h3 className="text-xl font-medium leading-tight mb-1">
           Recibí ofertas exclusivas
         </h3>
         <p className="text-sm text-white/70 mb-4 leading-snug">
@@ -195,7 +195,7 @@ export default function FooterAcordeonMobile() {
               className="w-full flex justify-between items-center text-left py-4"
               aria-expanded={open === i}
             >
-              <span className="text-sm font-bold uppercase tracking-wider">
+              <span className="text-sm font-medium uppercase tracking-wider">
                 {item.title}
               </span>
               <ChevronDown
