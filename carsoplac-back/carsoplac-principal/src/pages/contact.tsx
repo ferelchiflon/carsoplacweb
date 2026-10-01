@@ -143,10 +143,10 @@ export default function ContactPage() {
             <span className="eyebrow text-accent-brand">
               Hablemos
             </span>
-            <h1 className="display-1 mt-4 text-white">
+            <h1 className="display mt-4 text-white">
               Contacto
             </h1>
-            <p className="mt-5 text-base sm:text-lg text-sage-gray leading-relaxed max-w-2xl">
+            <p className="mt-5 text-body">
               ¿Tenés alguna consulta sobre nuestros productos, necesitás un
               presupuesto o querés asesoramiento? Elegí el canal que prefieras
               y te respondemos a la brevedad.
@@ -161,13 +161,13 @@ export default function ContactPage() {
           {/* ─────────── Columna izquierda: WhatsApp + Info ─────────── */}
           <div className="lg:col-span-2 flex flex-col gap-6">
             {/* Tarjeta WhatsApp */}
-            <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-[#25D366] to-[#128C7E] text-white p-6 sm:p-8 shadow-subtle">
+            <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-[#25D366] to-[#128C7E] text-white p-6 sm:p-8 ">
               <div className="absolute -right-10 -bottom-10 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
               <div className="relative">
                 <div className="w-14 h-14 rounded-full bg-white/20 grid place-items-center mb-5">
                   <MessageCircle size={28} className="text-white" />
                 </div>
-                <h3 className="text-xl sm:text-2xl font-extrabold tracking-tight">
+                <h3 className="h2 tracking-tight">
                   Chateá con nosotros
                 </h3>
                 <p className="mt-2 text-sm sm:text-base text-white/90 leading-relaxed">
@@ -188,7 +188,7 @@ export default function ContactPage() {
             {/* Tarjeta info de contacto */}
             <div className="card p-6 sm:p-7">
               <p className="eyebrow mb-4">Información</p>
-              <h3 className="display-3 text-white">
+              <h3 className="h2 text-white">
                 Nuestros canales
               </h3>
 
@@ -269,9 +269,9 @@ export default function ContactPage() {
 
           {/* ─────────── Columna derecha: Formulario ─────────── */}
           <div className="lg:col-span-3">
-            <div className="card p-6 sm:p-8 lg:p-10 shadow-subtle">
+            <div className="card p-6 sm:p-8 lg:p-10 ">
               <p className="eyebrow">Formulario</p>
-              <h2 className="display-2 mt-2 text-white">
+              <h2 className="h2 mt-2 text-white">
                 Envianos tu consulta
               </h2>
               <p className="mt-3 text-sage-gray text-base leading-relaxed">
