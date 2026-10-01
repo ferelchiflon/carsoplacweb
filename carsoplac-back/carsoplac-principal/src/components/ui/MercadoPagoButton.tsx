@@ -9,16 +9,13 @@ type Props = {
 
 const MercadoPagoButton = ({ preferenceId }: Props) => {
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        marginTop: "10px",
-      }}
-    >
-      {/* Renderiza el botón de pago */}
-      <div style={{ width: "300px" }}>
+    // Tarjeta clara obligatoria: el wallet de MercadoPago trae su propio
+    // estilo de marca (fondo blanco + azul) y sobre el canvas oscuro
+    // quedaría ilegible.
+    <div className="mt-2.5 rounded-xl bg-pure-white p-4">
+      {/* Antes era un width fijo de 300px, que desbordaba el drawer a 375px.
+          Ahora es fluido con un máximo razonable. */}
+      <div className="w-full max-w-[300px] mx-auto">
         <Wallet initialization={{ preferenceId: preferenceId }} />
       </div>
     </div>
