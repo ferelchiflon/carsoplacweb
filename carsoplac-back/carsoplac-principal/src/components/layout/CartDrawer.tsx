@@ -180,7 +180,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
 
       {/* Panel */}
       <aside
-        className={`fixed top-0 right-0 z-[70] h-full w-full sm:w-[440px] bg-deep-lichen text-white border-l border-spruce-border shadow-subtle flex flex-col transition-transform duration-300 ease-out ${
+        className={`fixed top-0 right-0 z-[70] h-full w-full sm:w-[440px] bg-deep-lichen text-white border-l border-spruce-border shadow-md flex flex-col transition-transform duration-300 ease-out ${
           open ? "translate-x-0" : "translate-x-full"
         }`}
         role="dialog"
@@ -227,7 +227,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                   <path d="M6 6L5 3H2" />
                 </svg>
               </div>
-              <h3 className="font-medium text-lg mb-1">Tu carrito está vacío</h3>
+              <p className="mb-1 text-body">Tu carrito está vacío</p>
               <p className="text-sm text-sage-gray mb-5 max-w-[260px]">
                 Explorá nuestro catálogo y elegí las placas que mejor se adaptan a tu proyecto.
               </p>
@@ -255,9 +255,9 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
 
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between gap-2">
-                      <h3 className="font-semibold text-sm leading-snug line-clamp-2">
+                      <h2 className="h2 leading-snug line-clamp-2">
                         {item.name}
-                      </h3>
+                      </h2>
                       <button
                         onClick={() => removeFromCart(item.id)}
                         aria-label="Eliminar producto"
