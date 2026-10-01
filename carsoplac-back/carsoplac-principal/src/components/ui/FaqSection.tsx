@@ -44,18 +44,19 @@ export default function FaqSection() {
       role="region"
       id={regionId}
       aria-labelledby={headingId}
-      className="w-full bg-shaded-fern px-4 py-8 text-white"
+      className="w-full bg-deep-lichen py-12 md:py-20 text-white"
     >
-      {/* Títulos */}
-      <div className="text-center mb-6">
-        <p className="text-sm uppercase tracking-wide text-sage-gray">FAQs</p>
-        <h2 id={headingId} className="text-2xl h2">
-          PREGUNTAS FRECUENTES
-        </h2>
-      </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Títulos */}
+        <div className="text-center mb-8">
+          <p className="eyebrow">FAQs</p>
+          <h2 id={headingId} className="h2 mt-2">
+            PREGUNTAS FRECUENTES
+          </h2>
+        </div>
 
-      {/* Acordeón */}
-      <div className="w-full mx-auto">
+        {/* Acordeón */}
+        <div className="w-full">
         {faqs.map((faq, index) => {
           const isOpen = openIndex === index;
           const panelId = `faq-panel-${index}`;
@@ -92,6 +93,7 @@ export default function FaqSection() {
             </div>
           );
         })}
+        </div>
       </div>
     </section>
   );
