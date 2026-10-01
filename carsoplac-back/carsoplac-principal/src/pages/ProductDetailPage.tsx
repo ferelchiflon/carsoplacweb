@@ -71,7 +71,7 @@ export default function ProductDetailPage() {
   if (error || !product) {
     return (
       <div className={styles.center}>
-        <h2>Producto no encontrado</h2>
+        <h2 className="h1">Producto no encontrado</h2>
         <Link to="/productos" className={styles.backBtn}>
           ← Volver al catálogo
         </Link>
@@ -122,7 +122,7 @@ export default function ProductDetailPage() {
 
         <div className={styles.info}>
           <span className={styles.badge}>{categoryName}</span>
-          <h1 className={styles.title}>{product.name}</h1>
+          <h1 className="h1">{product.name}</h1>
           <p className={styles.price}>${product.price.toLocaleString("es-AR")}</p>
 
           {product.stock !== undefined && (
@@ -140,7 +140,7 @@ export default function ProductDetailPage() {
 
           {product.description && (
             <div className={styles.description}>
-              <h3>Descripción</h3>
+              <h2 className="h2">Descripción</h2>
               <p>{product.description}</p>
             </div>
           )}
