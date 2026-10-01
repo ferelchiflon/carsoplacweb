@@ -95,9 +95,9 @@ export default function Login() {
   return (
     <section className="min-h-[calc(100vh-var(--navbar-h))] bg-midnight-forest flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-sm">
-        <div className="bg-deep-lichen border border-spruce-border text-white rounded-xl p-8 shadow-subtle">
+        <div className="bg-deep-lichen border border-spruce-border text-white rounded-xl p-8 ">
           <span className="eyebrow">Acceso</span>
-          <h1 className="display-3 mt-1 text-white">Iniciar sesión</h1>
+          <h1 className="h1 mt-1 text-white">Iniciar sesión</h1>
           <p className="text-sm text-sage-gray mt-2">
             Ingresá con tu cuenta para gestionar el sitio.
           </p>
