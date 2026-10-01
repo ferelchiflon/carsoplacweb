@@ -227,7 +227,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                   <path d="M6 6L5 3H2" />
                 </svg>
               </div>
-              <p className="mb-1 text-body">Tu carrito está vacío</p>
+              <p className="mb-1 copy">Tu carrito está vacío</p>
               <p className="text-sm text-sage-gray mb-5 max-w-[260px]">
                 Explorá nuestro catálogo y elegí las placas que mejor se adaptan a tu proyecto.
               </p>
