@@ -7,6 +7,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
+         <Route path="/login" element={<Login />} />
         {/* Fix: sincronizado con navigate('/products') del Login */}
         <Route path="/products" element={<ProductPage />} />
         {/* Alias legacy por si acaso */}
