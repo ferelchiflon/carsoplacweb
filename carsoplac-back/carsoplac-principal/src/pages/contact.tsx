@@ -156,7 +156,7 @@ export default function ContactPage() {
       </section>
 
       {/* ─────────────── CONTENIDO ─────────────── */}
-      <section className="container-x py-12 sm:py-16 lg:py-20">
+      <section className="container-x py-12 md:py-20">
         <div className="grid lg:grid-cols-5 gap-6 lg:gap-10 items-start">
           {/* ─────────── Columna izquierda: WhatsApp + Info ─────────── */}
           <div className="lg:col-span-2 flex flex-col gap-6">
@@ -167,7 +167,7 @@ export default function ContactPage() {
                 <div className="w-14 h-14 rounded-full bg-white/20 grid place-items-center mb-5">
                   <MessageCircle size={28} className="text-white" />
                 </div>
-                <h3 className="h2 tracking-tight">
+                <h3 className="h2">
                   Chateá con nosotros
                 </h3>
                 <p className="mt-2 text-sm sm:text-base text-white/90 leading-relaxed">
@@ -177,7 +177,7 @@ export default function ContactPage() {
                 <button
                   type="button"
                   onClick={openWhatsApp}
-                  className="btn mt-6 bg-white text-[#128C7E] hover:brightness-95 active:scale-[0.98] !rounded-full"
+                  className="btn mt-6 bg-white text-[#128C7E] hover:brightness-95 active:scale-[0.98]"
                 >
                   <MessageCircle size={18} />
                   Iniciar conversación
@@ -199,7 +199,7 @@ export default function ContactPage() {
                     <Phone size={18} className="text-sage-gray" />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[11px] uppercase tracking-[0.18em] font-bold text-sage-gray">
+                    <p className="eyebrow">
                       Teléfono / WhatsApp
                     </p>
                     <a
@@ -219,7 +219,7 @@ export default function ContactPage() {
                     <Mail size={18} className="text-sage-gray" />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[11px] uppercase tracking-[0.18em] font-bold text-sage-gray">
+                    <p className="eyebrow">
                       Email
                     </p>
                     <a
@@ -237,7 +237,7 @@ export default function ContactPage() {
                     <MapPin size={18} className="text-sage-gray" />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[11px] uppercase tracking-[0.18em] font-bold text-sage-gray">
+                    <p className="eyebrow">
                       Showroom / Fábrica
                     </p>
                     <p className="mt-0.5 text-[15px] font-semibold text-white leading-snug">
@@ -255,7 +255,7 @@ export default function ContactPage() {
                     <Clock size={18} className="text-sage-gray" />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[11px] uppercase tracking-[0.18em] font-bold text-sage-gray">
+                    <p className="eyebrow">
                       Horario de atención
                     </p>
                     <p className="mt-0.5 text-[15px] font-semibold text-white leading-snug">
@@ -269,12 +269,12 @@ export default function ContactPage() {
 
           {/* ─────────── Columna derecha: Formulario ─────────── */}
           <div className="lg:col-span-3">
-            <div className="card p-6 sm:p-8 lg:p-10 ">
+            <div className="card p-6 sm:p-8 lg:p-10">
               <p className="eyebrow">Formulario</p>
               <h2 className="h2 mt-2 text-white">
                 Envianos tu consulta
               </h2>
-              <p className="mt-3 text-sage-gray text-base leading-relaxed">
+              <p className="mt-3 copy">
                 Completá los datos y te respondemos a la brevedad. Los campos
                 marcados con <span className="text-accent-brand">*</span>{" "}
                 son obligatorios.
@@ -434,7 +434,7 @@ export default function ContactPage() {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="btn btn-primary !rounded-full w-full sm:w-auto disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="btn btn-primary w-full sm:w-auto disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     {isSubmitting ? (
                       <>
