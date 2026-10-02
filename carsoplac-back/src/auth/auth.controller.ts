@@ -64,4 +64,9 @@ export class AuthController {
   //       message: 'Contraseña actualizada, volvé a iniciar sesión',
   //     });
   //   }
+  @Get('me')
+  @UseGuards(AuthGuard)
+  async me(@Req() req: Request) {
+    return req.user;
+  }
 }

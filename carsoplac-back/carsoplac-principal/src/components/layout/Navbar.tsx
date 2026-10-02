@@ -4,6 +4,7 @@ import { Search, User, ShoppingCart } from "lucide-react";
 import LOGO from "../../assets/imagenes/LOGO CARSO.png";
 import { useCart } from "../../context/CartContext";
 
+
 const NAV = [
   { label: "Inicio", to: "/" },
   { label: "Catálogo", to: "/productos" },
@@ -22,6 +23,7 @@ export default function Navbar({ onOpenCart, onOpenSearch, onOpenMobileMenu }: P
   const navigate = useNavigate();
   const { totalItems } = useCart();
   const raf = useRef<number | null>(null);
+  
 
   // La barra es siempre oscura (bg-shaded-fern), así que el logo va en blanco
   // en los dos estados: constante y sin flash de color en el primer render.

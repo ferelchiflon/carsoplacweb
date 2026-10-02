@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "./hooks/useAuth";
+import { useAuth } from "../hooks/useAuth";
 
 type CatItem = { name: string; to: string; Icon: typeof Layers };
 
@@ -76,20 +76,6 @@ export default function MobileMenu({
   const [openProducts, setOpenProducts] = useState(true);
   const [searchValue, setSearchValue] = useState("");
   const { user } = useAuth();
-  const authAccountLinks = accountLinks.map(link => {
-    if (link.label === "Mi cuenta") {
-      return {
-        ...link,
-        to: user ? "/cuenta" : "/login",
-        disabled: false,
-      };
-    }
-    // For other account items, require auth
-    return {
-      ...link,
-      disabled: !user,
-    };
-  });
 
   const close = () => onClose();
 
@@ -334,10 +320,24 @@ export default function MobileMenu({
           </nav>
 
           {/* Mi cuenta (también con placeholders) */}
+           const authAccountLinks = accountLinks.map(link => {
+             if (link.label === "Mi cuenta") {
+               return {
+                 ...link,
+                 to: user ? "/cuenta" : "/login",
+                 disabled: false,
+               };
+             }
+             // For other account items, require auth
+             return {
+               ...link,
+               disabled: !user,
+             };
+           });
           <div className="px-5 py-4 border-t border-spruce-border">
             <p className="eyebrow mb-2">Mi cuenta</p>
             <div className="grid grid-cols-2 gap-2">
-              {authAccountLinks.map((it) => renderItem(it, "chip"))}
+              {accountLinks.map((it) => renderItem(it, "chip"))}
             </div>
           </div>
         </div>
