@@ -71,7 +71,7 @@ export default function AboutPage() {
                 directo de fábrica.
               </span>
             </h1>
-            <p className="mt-6 text-base sm:text-lg text-sage-gray leading-relaxed max-w-2xl">
+            <p className="mt-6 copy max-w-2xl">
               Somos una fábrica argentina especializada en mesadas, revestimientos
               y muebles de diseño industrial. Producimos nosotros, vendemos
               nosotros y garantizamos cada pieza que sale de nuestra planta.
@@ -82,7 +82,7 @@ export default function AboutPage() {
               </Link>
               <Link
                 to="/contacto"
-                className="btn border border-white/30 text-white hover:bg-white/10"
+                className="btn btn-secondary"
               >
                 Hablar con un asesor
               </Link>
@@ -93,7 +93,7 @@ export default function AboutPage() {
 
       {/* ─────────────── STATS BAR ─────────────── */}
       <section className="container-x -mt-10 sm:-mt-14 relative z-10">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-spruce-border rounded-xl overflow-hidden ">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-spruce-border rounded-xl overflow-hidden">
           {stats.map((s) => (
             <div
               key={s.label}
@@ -111,7 +111,7 @@ export default function AboutPage() {
       </section>
 
       {/* ─────────────── QUIÉNES SOMOS ─────────────── */}
-      <section className="container-x py-16 sm:py-24">
+      <section className="container-x py-12 md:py-20">
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           {/* Texto */}
           <div>
@@ -119,14 +119,14 @@ export default function AboutPage() {
             <h2 className="h2 mt-3">
               Una fábrica, un equipo, un mismo oficio.
             </h2>
-            <p className="mt-5 text-base sm:text-lg text-sage-gray leading-relaxed">
+            <p className="mt-5 copy">
               Carsoplac nace hace más de 15 años con una idea clara: fabricar
               mesadas y revestimientos de calidad industrial, con diseño
               moderno y a un precio justo. Hoy seguimos trabajando igual que el
               primer día: con la misma dedicación y la misma responsabilidad de
               poner nuestro nombre en cada pieza.
             </p>
-            <p className="mt-4 text-base sm:text-lg text-sage-gray leading-relaxed">
+            <p className="mt-4 copy">
               Atendemos tanto a familias que renuevan su cocina como a
               arquitectos, constructoras y locales comerciales que necesitan un
               proveedor serio, con stock real y entregas puntuales.
@@ -155,7 +155,7 @@ export default function AboutPage() {
                 loading="lazy"
               />
             </div>
-            <div className="absolute -bottom-5 -left-5 hidden sm:block bg-deep-lichen border border-spruce-border rounded-xl  p-4 max-w-[220px]">
+            <div className="absolute -bottom-5 -left-5 hidden sm:block bg-deep-lichen border border-spruce-border rounded-xl p-4 max-w-[220px]">
               <div className="flex items-center gap-3">
                 <img
                   src={sello}
@@ -177,7 +177,7 @@ export default function AboutPage() {
       </section>
 
       {/* ─────────────── VALORES ─────────────── */}
-      <section className="bg-shaded-fern text-white py-16 sm:py-24">
+      <section className="bg-shaded-fern text-white py-12 md:py-20">
         <div className="container-x">
           <SectionHeader
             title="NUESTROS VALORES"
@@ -196,7 +196,7 @@ export default function AboutPage() {
                   </div>
                   <div className="h-px flex-1 bg-white/10" />
                 </div>
-                <h3 className="h2 tracking-tight">
+                <h3 className="h2">
                   {v.title}
                 </h3>
                 <p className="mt-2 copy">
@@ -209,7 +209,7 @@ export default function AboutPage() {
       </section>
 
       {/* ─────────────── PRODUCTO ESTRELLA ─────────────── */}
-      <section className="container-x py-16 sm:py-24">
+      <section className="container-x py-12 md:py-20">
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           <div className="order-2 lg:order-1">
             <div className="aspect-square rounded-xl overflow-hidden border border-spruce-border bg-shaded-fern">
@@ -226,7 +226,7 @@ export default function AboutPage() {
             <h2 className="h2 mt-3">
               Diseño, corte y terminación en un solo lugar.
             </h2>
-            <p className="mt-5 text-base sm:text-lg text-sage-gray leading-relaxed">
+            <p className="mt-5 copy">
               Todas nuestras piezas se producen en nuestra propia planta. Eso
               nos permite controlar el proceso completo: desde la selección de
               la materia prima hasta el empaquetado final. El resultado es un
@@ -259,7 +259,7 @@ export default function AboutPage() {
       </section>
 
       {/* ─────────────── CTA FINAL ─────────────── */}
-      <section className="container-x pb-16 sm:pb-24">
+      <section className="container-x pb-12 md:pb-20">
         <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-shaded-fern via-mossy-edge to-deep-lichen p-8 sm:p-14 text-white">
           <div className="absolute -right-10 -bottom-10 opacity-10 hidden sm:block">
             <img
@@ -277,7 +277,7 @@ export default function AboutPage() {
             <h2 className="h2 mt-3">
               Pedí tu presupuesto sin compromiso.
             </h2>
-            <p className="mt-4 text-sage-gray text-base sm:text-lg leading-relaxed">
+            <p className="mt-4 copy">
               Contanos qué necesitás y te respondemos a la brevedad con una
               cotización personalizada. Atendemos por WhatsApp, email o en
               nuestro showroom.
@@ -290,7 +290,7 @@ export default function AboutPage() {
                 href="https://wa.me/5491100000000"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn border border-white/30 text-white hover:bg-white/10"
+                className="btn btn-secondary"
               >
                 <LinkIcon size={16} />
                 Escribinos por WhatsApp
