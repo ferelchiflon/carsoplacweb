@@ -3,7 +3,6 @@ import { useParams, Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { API_URL } from "../config/api";
 import { fetchWithTimeout, getFetchErrorMsg } from "../utils/fetchWithTimeout";
-import styles from "./ProductDetailPage.module.css";
 
 type Product = {
   id: string;
@@ -61,18 +60,18 @@ export default function ProductDetailPage() {
 
   if (loading) {
     return (
-      <div className={styles.center}>
-        <div className={styles.spinner} />
-        <p>Cargando producto...</p>
+      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-4 py-12 text-center text-white">
+        <div className="h-11 w-11 animate-spin rounded-full border-4 border-spruce-border border-t-accent-brand" />
+        <p className="copy">Cargando producto...</p>
       </div>
     );
   }
 
   if (error || !product) {
     return (
-      <div className={styles.center}>
+      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-4 py-12 text-center text-white">
         <h2 className="h1">Producto no encontrado</h2>
-        <Link to="/productos" className={styles.backBtn}>
+        <Link to="/productos" className="btn btn-primary">
           ← Volver al catálogo
         </Link>
       </div>
@@ -85,79 +84,104 @@ export default function ProductDetailPage() {
       : (product.category ?? "General");
 
   return (
-    <div className={styles.page}>
-      <div className={styles.breadcrumb}>
-        <Link to="/">Inicio</Link>
-        <span>/</span>
-        <Link to="/productos">Productos</Link>
-        <span>/</span>
-        <strong>{product.name}</strong>
-      </div>
+    <div className="container-x py-4 pb-12">
+      <nav
+        aria-label="Navegación de migas"
+        className="mb-6 flex flex-wrap items-center gap-2 text-sm text-sage-gray"
+      >
+        <Link to="/" className="transition-colors hover:text-pure-white hover:underline">
+          Inicio
+        </Link>
+        <span aria-hidden>/</span>
+        <Link to="/productos" className="transition-colors hover:text-pure-white hover:underline">
+          Productos
+        </Link>
+        <span aria-hidden>/</span>
+        <strong className="break-words font-semibold text-pure-white">{product.name}</strong>
+      </nav>
 
-      <div className={styles.container}>
-        <div className={styles.gallery}>
-          <div className={styles.mainImage}>
+      <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-2 md:gap-10">
+        <div className="flex min-w-0 flex-col gap-4">
+          <div className="flex aspect-square w-full items-center justify-center overflow-hidden rounded-xl border border-spruce-border bg-deep-lichen">
             {product.images?.[activeImage] ? (
-              <img src={product.images[activeImage]} alt={product.name} />
+              <img
+                src={product.images[activeImage]}
+                alt={product.name}
+                className="h-full w-full object-cover"
+              />
             ) : (
-              <div className={styles.placeholder}>Sin imagen</div>
+              <div className="text-sm text-sage-gray">Sin imagen</div>
             )}
           </div>
           {product.images && product.images.length > 1 && (
-            <div className={styles.thumbnails}>
+            <div className="flex flex-wrap gap-2.5">
               {product.images.map((img, idx) => (
                 <button
                   key={idx}
-                  className={`${styles.thumb} ${
-                    idx === activeImage ? styles.thumbActive : ""
+                  type="button"
+                  aria-label={`Ver imagen ${idx + 1}`}
+                  aria-pressed={idx === activeImage}
+                  className={`h-14 w-14 overflow-hidden rounded-xl border-2 bg-deep-lichen transition-colors sm:h-[70px] sm:w-[70px] ${
+                    idx === activeImage ? "border-accent-brand" : "border-transparent"
                   }`}
                   onClick={() => setActiveImage(idx)}
                 >
-                  <img src={img} alt={`Vista ${idx + 1}`} />
+                  <img src={img} alt={`Vista ${idx + 1}`} className="h-full w-full object-cover" />
                 </button>
               ))}
             </div>
           )}
         </div>
 
-        <div className={styles.info}>
-          <span className={styles.badge}>{categoryName}</span>
-          <h1 className="h1">{product.name}</h1>
-          <p className={styles.price}>${product.price.toLocaleString("es-AR")}</p>
+        <div className="card flex min-w-0 flex-col gap-4 p-6">
+          <span className="chip chip-new w-fit">{categoryName}</span>
+          <h1 className="h1 break-words">{product.name}</h1>
+          <p className="text-[1.75rem] font-medium leading-none text-pure-white">
+            ${product.price.toLocaleString("es-AR")}
+          </p>
 
           {product.stock !== undefined && (
-            <p className={styles.stock}>
+            <p className="flex items-center gap-2 text-sm text-sage-gray">
               {product.stock > 0 ? (
                 <>
-                  <span className={styles.dot} /> Stock disponible
+                  <span className="inline-block h-2.5 w-2.5 shrink-0 rounded-full bg-[rgb(var(--color-success-text))]" />
+                  Stock disponible
                   {product.stock < 10 && ` (${product.stock} unidades)`}
                 </>
               ) : (
-                <span className={styles.outOfStock}>Sin stock</span>
+                <span className="font-semibold text-[rgb(var(--color-danger-text))]">Sin stock</span>
               )}
             </p>
           )}
 
           {product.description && (
-            <div className={styles.description}>
+            <div className="border-t border-spruce-border pt-4">
               <h2 className="h2">Descripción</h2>
-              <p>{product.description}</p>
+              <p className="copy mt-2 whitespace-pre-line break-words">
+                {product.description}
+              </p>
             </div>
           )}
 
-          <div className={styles.quantityRow}>
-            <label>Cantidad:</label>
-            <div className={styles.qtyControls}>
+          <div className="flex flex-wrap items-center gap-4">
+            <label className="text-sm font-semibold text-pure-white">Cantidad:</label>
+            <div className="flex items-center gap-3 rounded-lg border border-spruce-border bg-deep-lichen px-2 py-1">
               <button
+                type="button"
+                className="flex h-8 w-8 items-center justify-center rounded-lg bg-mossy-edge text-lg text-pure-white transition-colors hover:bg-mist-gray hover:text-midnight-forest"
                 onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                aria-label="Disminuir"
+                aria-label="Disminuir cantidad"
               >
                 −
               </button>
-              <span>{quantity}</span>
+              <span className="min-w-[28px] text-center font-semibold text-pure-white">
+                {quantity}
+              </span>
               <button
+                type="button"
+                className="flex h-8 w-8 items-center justify-center rounded-lg bg-mossy-edge text-lg text-pure-white transition-colors hover:bg-mist-gray hover:text-midnight-forest"
                 onClick={() => setQuantity((q) => q + 1)}
-                aria-label="Aumentar"
+                aria-label="Aumentar cantidad"
               >
                 +
               </button>
@@ -165,7 +189,10 @@ export default function ProductDetailPage() {
           </div>
 
           <button
-            className={`${styles.addBtn} ${added ? styles.added : ""}`}
+            type="button"
+            className={`btn btn-primary w-full ${
+              added ? "!bg-accent-brand !text-midnight-forest" : ""
+            }`}
             onClick={handleAddToCart}
             disabled={adding || product.stock === 0}
           >
@@ -176,26 +203,32 @@ export default function ProductDetailPage() {
               : "🛒 Agregar al carrito"}
           </button>
 
-          <div className={styles.features}>
-            <div className={styles.feature}>
-              <span>🚚</span>
+          <div className="mt-2 flex flex-col gap-3 border-t border-spruce-border pt-5">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl leading-none">🚚</span>
               <div>
-                <strong>Envío a domicilio</strong>
-                <p>Coordinamos entrega en todo el país</p>
+                <strong className="mb-0.5 block text-sm font-semibold text-pure-white">
+                  Envío a domicilio
+                </strong>
+                <p className="text-xs text-sage-gray">Coordinamos entrega en todo el país</p>
               </div>
             </div>
-            <div className={styles.feature}>
-              <span>💳</span>
+            <div className="flex items-start gap-3">
+              <span className="text-2xl leading-none">💳</span>
               <div>
-                <strong>Pago seguro</strong>
-                <p>MercadoPago / Transferencia</p>
+                <strong className="mb-0.5 block text-sm font-semibold text-pure-white">
+                  Pago seguro
+                </strong>
+                <p className="text-xs text-sage-gray">MercadoPago / Transferencia</p>
               </div>
             </div>
-            <div className={styles.feature}>
-              <span>🏭</span>
+            <div className="flex items-start gap-3">
+              <span className="text-2xl leading-none">🏭</span>
               <div>
-                <strong>Directo de fábrica</strong>
-                <p>Sin intermediarios</p>
+                <strong className="mb-0.5 block text-sm font-semibold text-pure-white">
+                  Directo de fábrica
+                </strong>
+                <p className="text-xs text-sage-gray">Sin intermediarios</p>
               </div>
             </div>
           </div>
