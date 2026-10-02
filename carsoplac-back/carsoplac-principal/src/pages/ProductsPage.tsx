@@ -166,12 +166,12 @@ export default function ProductsPage() {
   return (
     <div className="pb-8">
       {/* HEADER */}
-      <div className="px-4 pt-4">
+      <div className="container-x pt-12 md:pt-20">
         <SectionHeader title="NUESTRO" subtitle="CATÁLOGO COMPLETO" />
       </div>
 
       {/* CONTENIDO PRINCIPAL */}
-      <div className="px-4 mt-4">
+      <div className="container-x mt-6">
         {/* Buscador y toggle de filtros */}
         <div className="flex gap-2 mb-3">
           <input
@@ -204,12 +204,12 @@ export default function ProductsPage() {
         {/* Panel de filtros */}
         {filtersOpen && (
           <div 
-            className="bg-deep-lichen rounded-xl  p-4 mb-4 border border-spruce-border animate-fadeIn"
+            className="bg-deep-lichen rounded-xl p-4 mb-4 border border-spruce-border anim-fade-up"
             role="region"
             aria-label="Filtros de productos"
           >
             <div className="flex justify-between items-center mb-3">
-              <h3 className="h2 text-white text-lg">Filtros</h3>
+              <h3 className="text-lg font-semibold text-white">Filtros</h3>
               {activeFiltersCount > 0 && (
                 <button
                   type="button"
@@ -378,9 +378,7 @@ export default function ProductsPage() {
       </div>
 
       {/* SECCIONES INFERIORES */}
-      <div className="w-full mt-8">
-        <FaqSection />
-      </div>
+      <FaqSection />
     </div>
   );
 }
