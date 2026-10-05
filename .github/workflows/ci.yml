@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, 'feat/*' ]
+  pull_request:
+    branches: [ main, 'feat/*' ]
+
+jobs:
+  admin:
+    name: Carsoplac Admin
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: carsoplac-admin
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run lint
+      - run: npx tsc --noEmit
+      - run: npm run build
+
+  principal:
+    name: Carsoplac Principal (Frontend)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: carsoplac-back/carsoplac-principal
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run lint
+      - run: npx tsc --noEmit
+      - run: npm run build
+
+  back:
+    name: Carsoplac Backend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: carsoplac-back
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run lint
+      - run: npx tsc --noEmit
+      - run: npm run build
