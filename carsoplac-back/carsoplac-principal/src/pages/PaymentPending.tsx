@@ -3,7 +3,7 @@ import { Clock } from "lucide-react";
 
 export default function PaymentPending() {
   return (
-    <section className="container-x py-12 md:py-20">
+    <section className="container-x py-12 md:py-20" data-testid="payment-pending-page">
       <div className="rounded-xl border border-spruce-border bg-deep-lichen p-8 text-center">
         <div className="mx-auto grid h-16 w-16 place-items-center rounded-md bg-accent-brand/10">
           <Clock size={32} strokeWidth={2.5} className="text-accent-brand" />

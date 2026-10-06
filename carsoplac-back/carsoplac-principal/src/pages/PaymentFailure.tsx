@@ -3,7 +3,7 @@ import { X } from "lucide-react";
 
 export default function PaymentFailure() {
   return (
-    <section className="container-x py-12 md:py-20">
+    <section className="container-x py-12 md:py-20" data-testid="payment-failure-page">
       <div className="rounded-xl border border-spruce-border bg-deep-lichen p-8 text-center">
         <div className="mx-auto grid h-16 w-16 place-items-center rounded-md border border-[rgb(var(--color-danger-border))] bg-[rgb(var(--color-danger-bg))]">
           <X size={32} strokeWidth={2.5} className="text-[rgb(var(--color-danger-text))]" />
