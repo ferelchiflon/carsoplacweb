@@ -28,7 +28,7 @@ export default function TopBanner() {
         {stream.map((msg, i) => (
           <span
             key={i}
-            className="mx-6 inline-flex items-center gap-2 text-[11px] tracking-[0.14em] font-semibold uppercase"
+            className="mx-6 inline-flex items-center gap-2 text-xs tracking-[0.14em] font-semibold uppercase"
           >
             <msg.Icon size={13} className="text-accent-brand shrink-0" />
             {msg.text}
