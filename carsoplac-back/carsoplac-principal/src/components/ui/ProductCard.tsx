@@ -73,77 +73,95 @@ export default function ProductCard(props: ProductCardProps) {
     timeoutRef.current = window.setTimeout(() => setShowToast(false), 6000);
   };
 
+  // La imagen ya no es un <button> (contenía otros botones). Se comporta igual
+  // con mouse y con teclado (Enter / Espacio).
+  const handleImageKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      props.onClick?.();
+    }
+  };
+
   return (
-    <article className="group relative flex flex-col w-full bg-deep-lichen rounded-xl overflow-hidden border border-spruce-border hover:border-accent-brand/50  transition-all duration-300">
-      {/* Image */}
-      <button
-        onClick={props.onClick}
-        className="relative w-full aspect-square bg-shaded-fern overflow-hidden block cursor-pointer"
-        aria-label={`Ver ${props.name}`}
-      >
+    <article className="group relative flex flex-col w-full bg-deep-lichen rounded-xl overflow-hidden border border-spruce-border hover:border-accent-brand/50 transition-colors duration-300">
+      {/* Imagen: contenedor 4:3. Los botones son HERMANOS del área clickeable. */}
+      <div className="relative w-full aspect-[4/3] bg-shaded-fern overflow-hidden">
+        <div
+          role="button"
+          tabIndex={0}
+          onClick={props.onClick}
+          onKeyDown={handleImageKeyDown}
+          aria-label={`Ver ${props.name}`}
+          className="absolute inset-0 cursor-pointer"
+        >
+          {/* object-cover recorta para que todas las fotos se vean parejas.
+              Si alguna placa queda cortada, cambiá a "object-contain p-2". */}
+          <img
+            src={props.img}
+            alt={props.name}
+            loading="lazy"
+            onError={(e) => {
+              const t = e.currentTarget as HTMLImageElement;
+              if (t.dataset.fallback === "1") return;
+              t.dataset.fallback = "1";
+              t.onerror = null;
+              t.src =
+                "data:image/svg+xml;utf8," +
+                encodeURIComponent(
+                  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><rect width="400" height="300" fill="#061a1c"/><text x="50%" y="50%" font-family="sans-serif" font-size="20" fill="#99b3ad" text-anchor="middle" dominant-baseline="middle">Sin imagen</text></svg>'
+                );
+            }}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+        </div>
+
         {/* Badges */}
-        <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
+        <div className="absolute top-2 left-2 z-10 flex flex-col gap-1 pointer-events-none">
           {props.badge && (
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-accent-brand text-midnight-forest text-[10px] font-medium uppercase tracking-wide shadow">
+            <span className="inline-flex items-center px-2 py-1 rounded-full bg-accent-brand text-midnight-forest text-[10px] font-semibold uppercase tracking-wide">
               {props.badge}
             </span>
           )}
           {discount > 0 && (
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-[rgb(var(--color-sale))] text-white text-[10px] font-medium uppercase tracking-wide shadow">
+            <span className="inline-flex items-center px-2 py-1 rounded-full bg-[rgb(var(--color-sale))] text-white text-[10px] font-semibold uppercase tracking-wide">
               -{discount}%
             </span>
           )}
         </div>
 
-        {/* Quick actions: siempre visibles en mobile, hover en desktop */}
-        <div className="absolute top-2 right-2 z-10 flex flex-col gap-1.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+        {/* Acciones rápidas: siempre visibles en mobile; en desktop al hover o con foco de teclado */}
+        <div className="absolute top-2 right-2 z-10 flex flex-col gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 transition-opacity">
           <button
+            type="button"
             onClick={(e) => {
               e.stopPropagation();
               setFav((v) => !v);
             }}
             aria-label="Favorito"
             aria-pressed={fav}
-            className={`w-9 h-9 grid place-items-center rounded-full bg-shaded-fern/90 backdrop-blur border border-spruce-border hover:bg-mossy-edge transition ${
+            className={`w-10 h-10 grid place-items-center rounded-full bg-midnight-forest/70 border border-spruce-border hover:bg-midnight-forest transition ${
               fav ? "text-accent-brand" : "text-white"
             }`}
           >
-            <Heart size={16} fill={fav ? "currentColor" : "none"} />
+            <Heart size={18} fill={fav ? "currentColor" : "none"} />
           </button>
           <button
+            type="button"
             onClick={(e) => {
               e.stopPropagation();
               props.onClick?.();
             }}
             aria-label="Vista rápida"
-            className="w-9 h-9 grid place-items-center rounded-full bg-shaded-fern/90 backdrop-blur border border-spruce-border hover:bg-mossy-edge text-white transition"
+            className="w-10 h-10 grid place-items-center rounded-full bg-midnight-forest/70 border border-spruce-border hover:bg-midnight-forest text-white transition"
           >
-            <Eye size={16} />
+            <Eye size={18} />
           </button>
         </div>
 
-        {/* Image (object-contain mantiene la proporción real dentro del aspect-square) */}
-        <img
-          src={props.img}
-          alt={props.name}
-          loading="lazy"
-          onError={(e) => {
-            const t = e.currentTarget as HTMLImageElement;
-            if (t.dataset.fallback === "1") return;
-            t.dataset.fallback = "1";
-            t.onerror = null;
-            t.src =
-              "data:image/svg+xml;utf8," +
-              encodeURIComponent(
-                '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><rect width="400" height="400" fill="#061a1c"/><text x="50%" y="50%" font-family="sans-serif" font-size="20" fill="#99b3ad" text-anchor="middle" dominant-baseline="middle">Sin imagen</text></svg>'
-              );
-          }}
-          className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-500"
-        />
-
-        {/* Quick-add overlay (hover desktop) */}
-        <div className="hidden md:flex absolute inset-x-3 bottom-3 translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+        {/* Agregar rápido (desktop: hover o foco de teclado) */}
+        <div className="hidden md:flex absolute inset-x-3 bottom-3 z-10 translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100 transition-all duration-300">
           <button
+            type="button"
             onClick={handleAdd}
             className="w-full h-10 rounded-full bg-pure-white text-midnight-forest text-xs font-medium uppercase tracking-wide hover:bg-mist-gray active:scale-95 transition flex items-center justify-center gap-1.5"
           >
@@ -151,16 +169,16 @@ export default function ProductCard(props: ProductCardProps) {
             Agregar al carrito
           </button>
         </div>
-      </button>
+      </div>
 
-      {/* Body */}
-      <div className="flex flex-col flex-1 p-3">
+      {/* Cuerpo */}
+      <div className="flex flex-col flex-1 p-4">
         <span className="text-[10px] uppercase tracking-wider text-sage-gray font-semibold mb-1">
           {props.category}
         </span>
         <h3
           onClick={props.onClick}
-          className="text-sm h2 leading-snug text-white line-clamp-2 cursor-pointer transition-colors duration-200 group-hover:text-accent-brand hover:underline"
+          className="text-sm font-medium leading-snug text-white line-clamp-2 cursor-pointer transition-colors duration-200 group-hover:text-accent-brand hover:underline"
         >
           {props.name}
         </h3>
@@ -168,7 +186,7 @@ export default function ProductCard(props: ProductCardProps) {
           {props.provider}
         </p>
 
-        {/* Price */}
+        {/* Precio */}
         <div className="mt-2 flex items-baseline gap-2">
           <span className="text-lg font-medium text-white">
             {formatARS(priceNum)}
@@ -191,6 +209,7 @@ export default function ProductCard(props: ProductCardProps) {
 
         {/* CTA móvil */}
         <button
+          type="button"
           onClick={handleAdd}
           className="md:hidden mt-3 w-full h-10 rounded-full bg-pure-white text-midnight-forest text-xs font-medium uppercase tracking-wide hover:bg-mist-gray active:scale-95 transition flex items-center justify-center gap-1.5"
         >
@@ -202,7 +221,7 @@ export default function ProductCard(props: ProductCardProps) {
       {/* Toast confirmación */}
       {showToast && (
         <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:max-w-sm z-50 pointer-events-none">
-          <div className="pointer-events-auto bg-shaded-fern border border-spruce-border text-white rounded-xl  p-4 flex items-start gap-3">
+          <div className="pointer-events-auto bg-shaded-fern border border-spruce-border text-white rounded-xl p-4 flex items-start gap-3">
             <span className="w-9 h-9 grid place-items-center rounded-full bg-white/15 shrink-0">
               <Check size={18} />
             </span>
@@ -211,6 +230,7 @@ export default function ProductCard(props: ProductCardProps) {
               <p className="text-xs opacity-80 truncate">{props.name}</p>
               <div className="flex gap-4 mt-2">
                 <button
+                  type="button"
                   onClick={() => {
                     cleanToast();
                     setOpenCart(true);
@@ -220,6 +240,7 @@ export default function ProductCard(props: ProductCardProps) {
                   Ver carrito
                 </button>
                 <button
+                  type="button"
                   onClick={cleanToast}
                   className="text-xs opacity-80 hover:opacity-100"
                 >
@@ -228,6 +249,7 @@ export default function ProductCard(props: ProductCardProps) {
               </div>
             </div>
             <button
+              type="button"
               onClick={cleanToast}
               aria-label="Cerrar"
               className="opacity-60 hover:opacity-100"
