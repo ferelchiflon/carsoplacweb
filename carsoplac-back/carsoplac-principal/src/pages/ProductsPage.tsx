@@ -179,20 +179,20 @@ export default function ProductsPage() {
             placeholder="Buscar producto..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 px-4 py-2 rounded-full border border-spruce-border bg-shaded-fern text-white placeholder:text-sage-gray text-sm focus:outline-none focus:border-accent-brand focus:ring-2 focus:ring-accent-brand transition"
+            className="flex-1 px-4 py-2 rounded border border-spruce-border bg-shaded-fern text-white placeholder:text-sage-gray text-sm focus:outline-none focus:border-accent-brand focus:ring-2 focus:ring-accent-brand transition"
             aria-label="Buscar productos"
           />
           <button
             type="button"
             onClick={() => setFiltersOpen((prev) => !prev)}
-            className="px-4 py-2 rounded-full bg-pure-white text-midnight-forest text-sm font-bold relative hover:bg-pure-white/90 active:scale-95 transition-all"
+            className="px-4 py-2 rounded-full bg-pure-white text-midnight-forest text-sm font-medium relative hover:bg-mist-gray active:scale-95 transition-all"
             aria-label={filtersOpen ? "Cerrar filtros" : "Abrir filtros"}
             aria-expanded={filtersOpen}
           >
             Filtros
             {activeFiltersCount > 0 && (
-              <span 
-                className="absolute -top-1 -right-1 bg-accent-brand text-midnight-forest text-[10px] font-extrabold rounded-full w-5 h-5 flex items-center justify-center"
+              <span
+                className="absolute -top-1 -right-1 bg-accent-brand text-midnight-forest text-[10px] font-semibold rounded-full w-5 h-5 flex items-center justify-center"
                 aria-label={`${activeFiltersCount} filtros activos`}
               >
                 {activeFiltersCount}
@@ -203,18 +203,18 @@ export default function ProductsPage() {
 
         {/* Panel de filtros */}
         {filtersOpen && (
-          <div 
+          <div
             className="bg-deep-lichen rounded-xl p-4 mb-4 border border-spruce-border anim-fade-up"
             role="region"
             aria-label="Filtros de productos"
           >
             <div className="flex justify-between items-center mb-3">
-              <h3 className="text-lg font-semibold text-white">Filtros</h3>
+              <h3 className="text-lg font-medium text-white">Filtros</h3>
               {activeFiltersCount > 0 && (
                 <button
                   type="button"
                   onClick={clearFilters}
-                  className="text-sm text-accent-brand font-semibold underline underline-offset-2 hover:no-underline transition-colors"
+                  className="text-sm text-accent-brand font-medium underline underline-offset-2 hover:no-underline transition-colors"
                 >
                   Limpiar todo
                 </button>
@@ -223,7 +223,7 @@ export default function ProductsPage() {
 
             {/* Categorías */}
             <div className="mb-4">
-              <p className="text-sm font-semibold text-white mb-2">Categoría</p>
+              <p className="text-sm font-medium text-white mb-2">Categoría</p>
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
@@ -255,14 +255,14 @@ export default function ProductsPage() {
 
             {/* Precio */}
             <div className="mb-4">
-              <p className="text-sm font-semibold text-white mb-2">Precio</p>
+              <p className="text-sm font-medium text-white mb-2">Precio</p>
               <div className="flex gap-2 items-center">
                 <input
                   type="number"
                   placeholder="Mín"
                   value={minPrice}
                   onChange={(e) => setMinPrice(e.target.value)}
-                  className="w-1/2 px-3 py-1.5 rounded-lg border border-spruce-border bg-shaded-fern text-white placeholder:text-sage-gray text-sm focus:outline-none focus:border-accent-brand focus:ring-2 focus:ring-accent-brand transition"
+                  className="w-1/2 px-3 py-1.5 rounded border border-spruce-border bg-shaded-fern text-white placeholder:text-sage-gray text-sm focus:outline-none focus:border-accent-brand focus:ring-2 focus:ring-accent-brand transition"
                   aria-label="Precio mínimo"
                   min="0"
                 />
@@ -272,7 +272,7 @@ export default function ProductsPage() {
                   placeholder="Máx"
                   value={maxPrice}
                   onChange={(e) => setMaxPrice(e.target.value)}
-                  className="w-1/2 px-3 py-1.5 rounded-lg border border-spruce-border bg-shaded-fern text-white placeholder:text-sage-gray text-sm focus:outline-none focus:border-accent-brand focus:ring-2 focus:ring-accent-brand transition"
+                  className="w-1/2 px-3 py-1.5 rounded border border-spruce-border bg-shaded-fern text-white placeholder:text-sage-gray text-sm focus:outline-none focus:border-accent-brand focus:ring-2 focus:ring-accent-brand transition"
                   aria-label="Precio máximo"
                   min="0"
                 />
@@ -281,11 +281,11 @@ export default function ProductsPage() {
 
             {/* Ordenamiento */}
             <div>
-              <p className="text-sm font-semibold text-white mb-2">Ordenar por</p>
+              <p className="text-sm font-medium text-white mb-2">Ordenar por</p>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortOption)}
-                className="w-full px-3 py-1.5 rounded-lg border border-spruce-border bg-shaded-fern text-white text-sm focus:outline-none focus:border-accent-brand focus:ring-2 focus:ring-accent-brand transition"
+                className="w-full px-3 py-1.5 rounded border border-spruce-border bg-shaded-fern text-white text-sm focus:outline-none focus:border-accent-brand focus:ring-2 focus:ring-accent-brand transition"
                 aria-label="Ordenar productos"
               >
                 <option value="recent">Más recientes</option>
@@ -297,16 +297,20 @@ export default function ProductsPage() {
           </div>
         )}
 
-        {/* Estados de carga: skeletons con la misma grilla que el resultado */}
+        {/* Estados de carga: skeletons con la misma grilla y proporción que la tarjeta */}
         {loading && (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4" aria-busy="true" aria-label="Cargando productos">
+          <div
+            className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4"
+            aria-busy="true"
+            aria-label="Cargando productos"
+          >
             {Array.from({ length: 8 }).map((_, i) => (
               <div
                 key={i}
                 className="bg-deep-lichen rounded-xl border border-spruce-border overflow-hidden animate-pulse"
               >
-                <div className="aspect-square bg-shaded-fern" />
-                <div className="p-3 flex flex-col gap-2">
+                <div className="aspect-[4/3] bg-shaded-fern" />
+                <div className="p-4 flex flex-col gap-2">
                   <div className="h-2.5 w-1/3 rounded-full bg-shaded-fern" />
                   <div className="h-3.5 w-full rounded-full bg-shaded-fern" />
                   <div className="h-3.5 w-2/3 rounded-full bg-shaded-fern" />
@@ -323,7 +327,7 @@ export default function ProductsPage() {
             className="rounded-xl border border-[rgb(var(--color-danger-border))] bg-[rgb(var(--color-danger-bg))] p-6 text-center"
             role="alert"
           >
-            <p className="font-bold text-[rgb(var(--color-danger-text))]">No pudimos cargar el catálogo</p>
+            <p className="font-medium text-[rgb(var(--color-danger-text))]">No pudimos cargar el catálogo</p>
             <p className="text-sm text-[rgb(var(--color-danger-text))]/80 mt-1">{error}</p>
             <button
               type="button"
@@ -358,7 +362,7 @@ export default function ProductsPage() {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">
                 {filteredProducts.map((product) => (
                   <ProductCard
                     key={product.id}
