@@ -5,6 +5,8 @@ import ProductsPage from "./pages/ProductsPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
 import MobileOnly from "./components/layout/MobileOnly";
 import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentFailure from "./pages/PaymentFailure";
+import PaymentPending from "./pages/PaymentPending";
 import AboutPage from "./pages/about";
 import ContactPage from "./pages/contact";
 import Login from "./pages/Login";
@@ -21,8 +23,8 @@ function App() {
           <Route path="/contacto" element={<ContactPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/payment/success" element={<PaymentSuccess />} />
-          <Route path="/payment/failure" element={<PaymentSuccess />} />
-          <Route path="/payment/pending" element={<PaymentSuccess />} />
+          <Route path="/payment/failure" element={<PaymentFailure />} />
+          <Route path="/payment/pending" element={<PaymentPending />} />
         </Route>
       </Routes>
     </MobileOnly>
