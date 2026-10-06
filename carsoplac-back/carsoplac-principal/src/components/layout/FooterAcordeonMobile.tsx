@@ -115,7 +115,7 @@ export default function FooterAcordeonMobile() {
   const showError = touched && Boolean(emailError);
 
   return (
-    <footer className="w-full bg-shaded-fern text-white">
+    <footer className="w-full bg-deep-lichen">
       {/* Trust strip */}
       <div className="border-b border-white/10">
         <div className="grid grid-cols-2 divide-x divide-white/10 sm:grid-cols-4">
@@ -211,7 +211,7 @@ export default function FooterAcordeonMobile() {
                   <li key={idx}>
                     <a
                       href={c.href || "#"}
-                      className="text-sm text-white/70 hover:text-white transition"
+                      className="text-sm text-sage-gray hover:text-white transition"
                     >
                       {c.label}
                     </a>
@@ -228,14 +228,14 @@ export default function FooterAcordeonMobile() {
         <p className="eyebrow text-white/70">Contacto</p>
         <a
           href="tel:+5491100000000"
-          className="flex items-center gap-3 text-sm hover:text-white/90"
+          className="flex items-center gap-3 text-sm text-sage-gray hover:text-white"
         >
           <Phone size={16} className="text-white/70" />
           +54 9 11 0000 0000
         </a>
         <a
           href="mailto:hola@carsoplac.com"
-          className="flex items-center gap-3 text-sm hover:text-white/90"
+          className="flex items-center gap-3 text-sm text-sage-gray hover:text-white"
         >
           <Mail size={16} className="text-white/70" />
           hola@carsoplac.com
