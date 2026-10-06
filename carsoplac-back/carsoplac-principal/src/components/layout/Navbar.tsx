@@ -52,8 +52,8 @@ export default function Navbar({ onOpenCart, onOpenSearch, onOpenMobileMenu }: P
 
   return (
     <header
-      className={`sticky top-0 z-50 border-b border-spruce-border transition-all duration-300 ${
-        scrolled ? "bg-shaded-fern/95 backdrop-blur-xl" : "bg-shaded-fern"
+      className={`sticky top-0 z-50 border-b border-spruce-border transition-all duration-300 bg-shaded-fern rounded-[12px] ${
+        scrolled ? "backdrop-blur-xl" : ""
       }`}
     >
       <div className={`container-x flex items-center justify-between transition-all ${scrolled ? "h-16" : "h-20"}`}>
@@ -97,9 +97,9 @@ export default function Navbar({ onOpenCart, onOpenSearch, onOpenMobileMenu }: P
               to={item.to}
               end={item.to === "/"}
               className={({ isActive }) =>
-                `relative px-4 py-2 text-sm font-semibold rounded-full transition ${
+                `relative px-4 py-2 text-[14px] font-medium rounded-full transition ${
                   isActive
-                    ? "text-accent-brand"
+                    ? "border-b-2 border-accent-brand"
                     : "text-sage-gray hover:text-white hover:bg-white/10"
                 }`
               }
@@ -133,9 +133,9 @@ export default function Navbar({ onOpenCart, onOpenSearch, onOpenMobileMenu }: P
             onClick={onOpenCart}
             aria-label="Carrito"
             title="Ver carrito"
-            className={`${iconBtnBase} relative grid ${iconBtnState}`}
+            className="w-10 h-10 place-items-center rounded-full bg-white transition cursor-pointer active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 hover:bg-white/20"
           >
-            <ShoppingCart size={20} strokeWidth={1.8} className={`transition-colors ${iconColor}`} />
+            <ShoppingCart size={20} strokeWidth={1.8} className="transition-colors text-midnight-forest" />
             {totalItems > 0 && (
               <span
                 className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full grid place-items-center text-[10px] font-medium bg-accent-brand text-midnight-forest ring-2 ring-shaded-fern"
