@@ -39,39 +39,40 @@ describe('fetchWithTimeout', () => {
     expect(response.ok).toBe(true);
   });
 
-  it.skip('throws a timeout error when fetch takes too long', async () => {
-    // Mock fetch to never resolve (simulate a hanging request)
-    vi.mocked(fetch).mockImplementation(() => {
-      return new Promise(() => {
-        // pending forever
-      });
-    });
+  it('throws a timeout error when fetch takes too long', async () => {
+    // Mock fetch that hangs until its signal aborts, mimicking real fetch behavior:
+    // when the AbortController fires, real fetch rejects with a DOMException AbortError.
+    vi.mocked(fetch).mockImplementation(
+      (_url: RequestInfo | URL, init?: RequestInit) => {
+        return new Promise<Response>((_resolve, reject) => {
+          init?.signal?.addEventListener('abort', () => {
+            reject(new DOMException('The operation was aborted.', 'AbortError'));
+          });
+        });
+      },
+    );
 
     const promise = fetchWithTimeout(url, options, 10); // 10ms timeout
 
-    // Wait for 20ms
-    await new Promise(resolve => setTimeout(resolve, 20));
-
+    // The controller aborts after 10ms, fetch rejects with AbortError,
+    // and fetchWithTimeout converts it into a friendly timeout message.
     await expect(promise).rejects.toThrow(
-      /El servidor no respondió en 0 segundos/
+      /El servidor no respondió en 0 segundos/,
     );
-  }, 1000000);
+  });
 
   it('clears the timeout on fetch error', async () => {
-    vi.mocked(fetch).mockRejectedValueOnce(new Error('Network error'));
+    const mockFetch = vi.fn().mockRejectedValueOnce(new Error('Network error'));
+    vi.stubGlobal('fetch', mockFetch);
 
     const promise = fetchWithTimeout(url, options, 100); // 100ms timeout
 
-    // Wait for 50ms
-    await new Promise(resolve => setTimeout(resolve, 50));
-
     await expect(promise).rejects.toThrow('Network error');
 
-    // After the fetch rejects, the timeout should have been cleared in the finally block.
-    // We can't directly test the clearTimeout call, but we can ensure that
-    // the timeout does not fire and reject the promise after the fetch has already rejected.
-    // We'll wait for 200ms and see that the promise is already rejected.
+    // Wait a bit to ensure the timeout doesn't fire and cause another rejection
+    // after the fetch has already rejected (testing the finally block cleanup)
     await new Promise(resolve => setTimeout(resolve, 200));
-    // The promise is already rejected, so no new error should be thrown.
+    
+    // If we get here without error, the timeout was properly cleared
   });
 });
