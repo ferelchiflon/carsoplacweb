@@ -51,11 +51,7 @@ export default function Navbar({ onOpenCart, onOpenSearch, onOpenMobileMenu }: P
   }, []);
 
   return (
-    <header
-      className={`sticky top-0 z-50 border-b border-spruce-border transition-all duration-300 bg-shaded-fern rounded-[12px] ${
-        scrolled ? "backdrop-blur-xl" : ""
-      }`}
-    >
+    <header className="sticky top-0 z-50 border-b border-spruce-border transition-all duration-300 bg-shaded-fern rounded-xl">
       <div className={`container-x flex items-center justify-between transition-all ${scrolled ? "h-16" : "h-20"}`}>
         {/* Mobile: burger + logo */}
         <div className="flex items-center gap-3 lg:hidden">
@@ -133,12 +129,12 @@ export default function Navbar({ onOpenCart, onOpenSearch, onOpenMobileMenu }: P
             onClick={onOpenCart}
             aria-label="Carrito"
             title="Ver carrito"
-            className="w-10 h-10 place-items-center rounded-full bg-white transition cursor-pointer active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 hover:bg-white/20"
+            className="w-10 h-10 place-items-center rounded-full bg-white transition cursor-pointer active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 hover:bg-mist-gray"
           >
             <ShoppingCart size={20} strokeWidth={1.8} className="transition-colors text-midnight-forest" />
             {totalItems > 0 && (
               <span
-                className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full grid place-items-center text-[10px] font-medium bg-accent-brand text-midnight-forest ring-2 ring-shaded-fern"
+                className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full grid place-items-center text-[10px] font-medium bg-midnight-forest text-white ring-2 ring-shaded-fern"
               >
                 {totalItems > 99 ? "99+" : totalItems}
               </span>
