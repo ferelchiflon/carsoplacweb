@@ -1,9 +1,11 @@
 // src/components/ui/ProductCard.tsx
 
 import { useCart } from "../../context/CartContext";
+import { useFavorites } from "../../context/FavoritesContext";
 import { useState, useRef, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
 import { Heart, Eye, ShoppingBag, Check, X } from "lucide-react";
+import { API_URL } from "../../config/api";
 
 type ProductCardProps = {
   id: string;
@@ -34,9 +36,11 @@ function formatARS(n: number) {
 
 export default function ProductCard(props: ProductCardProps) {
   const { addToCart } = useCart();
+  const { isFavorite, toggleFavorite } = useFavorites();
   const [showToast, setShowToast] = useState(false);
-  const [fav, setFav] = useState(false);
   const timeoutRef = useRef<number | null>(null);
+
+  const fav = isFavorite(props.id);
 
   const { setOpenCart } = useOutletContext<{
     setOpenCart: (v: boolean) => void;
@@ -48,6 +52,22 @@ export default function ProductCard(props: ProductCardProps) {
     oldPriceNum > priceNum && priceNum > 0
       ? Math.round(((oldPriceNum - priceNum) / oldPriceNum) * 100)
       : 0;
+   const getImageUrl = (src: string): string => {
+     if (!src) {
+       return 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><rect width="400" height="300" fill="#061a1c"/><text x="50%" y="50%" font-family="sans-serif" font-size="20" fill="#99b3ad" text-anchor="middle" dominant-baseline="middle">Sin imagen</text></svg>');
+     }
+     try {
+       const url = new URL(src);
+       if (url.protocol === "http:" || url.protocol === "https:") {
+         return src;
+       }
+     } catch {
+       // not a valid URL
+     }
+     // Assume relative path, prepend API_URL
+     const cleaned = src.replace(/^\/+/, "");
+     return `${API_URL}/${cleaned}`;
+   };
 
   const cleanToast = () => {
     if (timeoutRef.current) {
@@ -97,7 +117,7 @@ export default function ProductCard(props: ProductCardProps) {
           {/* object-cover recorta para que todas las fotos se vean parejas.
               Si alguna placa queda cortada, cambiá a "object-contain p-2". */}
           <img
-            src={props.img}
+            src={getImageUrl(props.img)}
             alt={props.name}
             loading="lazy"
             onError={(e) => {
@@ -135,7 +155,12 @@ export default function ProductCard(props: ProductCardProps) {
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              setFav((v) => !v);
+              toggleFavorite({
+                id: props.id,
+                name: props.name,
+                price: priceNum,
+                img: props.img,
+              });
             }}
             aria-label="Favorito"
             aria-pressed={fav}
