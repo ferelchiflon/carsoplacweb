@@ -1,7 +1,7 @@
 // src/components/ui/ProductCard.tsx
 
 import { useCart } from "../../context/CartContext";
-import { useFavorites } from "../../context/FavoritesContext";
+import { useFavorites } from "../../context/FavoritesContext.tsx";
 import { useState, useRef, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
 import { Heart, Eye, ShoppingBag, Check, X } from "lucide-react";

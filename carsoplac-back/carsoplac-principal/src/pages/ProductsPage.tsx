@@ -4,7 +4,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import ProductCard from "../components/ui/ProductCard";
 import SectionHeader from "../components/ui/SectionHeader";
 import FaqSection from "../components/ui/FaqSection";
-import FilterPanel from "../components/ui/FilterPanel";
+import FilterPanel from "../components/ui/FilterPanel.tsx";
 import { API_URL } from "../config/api";
 import { fetchWithTimeout, getFetchErrorMsg } from "../utils/fetchWithTimeout";
 import {
@@ -252,34 +252,34 @@ export default function ProductsPage() {
             <div className="sticky top-24">
               <FilterPanel
                 selectedCategory={selectedCategory}
-                setSelectedCategory={(cat) => {
+                setSelectedCategory={(cat: string) => {
                   setSelectedCategory(cat);
                   setPage(1);
                 }}
                 search={search}
                 setSearch={setSearch}
                 minPrice={minPrice}
-                setMinPrice={(v) => {
+                setMinPrice={(v: string) => {
                   setMinPrice(v);
                   setPage(1);
                 }}
                 maxPrice={maxPrice}
-                setMaxPrice={(v) => {
+                setMaxPrice={(v: string) => {
                   setMaxPrice(v);
                   setPage(1);
                 }}
                 brand={brand}
-                setBrand={(b) => {
+                setBrand={(b: string) => {
                   setBrand(b);
                   setPage(1);
                 }}
                 inStock={inStock}
-                setInStock={(s) => {
+                setInStock={(s: boolean) => {
                   setInStock(s);
                   setPage(1);
                 }}
                 sortBy={sortBy}
-                setSortBy={(s) => {
+                setSortBy={(s: string) => {
                   setSortBy(s);
                   setPage(1);
                 }}
@@ -452,34 +452,34 @@ export default function ProductsPage() {
           >
             <FilterPanel
               selectedCategory={selectedCategory}
-              setSelectedCategory={(c) => {
+              setSelectedCategory={(c: string) => {
                 setSelectedCategory(c);
                 setPage(1);
               }}
               search={search}
               setSearch={setSearch}
               minPrice={minPrice}
-              setMinPrice={(v) => {
+              setMinPrice={(v: string) => {
                 setMinPrice(v);
                 setPage(1);
               }}
               maxPrice={maxPrice}
-              setMaxPrice={(v) => {
+              setMaxPrice={(v: string) => {
                 setMaxPrice(v);
                 setPage(1);
               }}
               brand={brand}
-              setBrand={(b) => {
+              setBrand={(b: string) => {
                 setBrand(b);
                 setPage(1);
               }}
               inStock={inStock}
-              setInStock={(s) => {
+              setInStock={(s: boolean) => {
                 setInStock(s);
                 setPage(1);
               }}
               sortBy={sortBy}
-              setSortBy={(s) => {
+              setSortBy={(s: string) => {
                 setSortBy(s);
                 setPage(1);
               }}
