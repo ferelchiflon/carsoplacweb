@@ -40,10 +40,11 @@ export default function Home() {
         }
         return res.json();
       })
-      .then((data: Product[]) => {
+      .then((data: any) => {
         if (cancelled) return;
-        setProducts(Array.isArray(data) ? data : []);
-        setState(Array.isArray(data) && data.length > 0 ? "ready" : "empty");
+        const list = Array.isArray(data) ? data : Array.isArray(data?.data) ? data.data : [];
+        setProducts(list);
+        setState(list.length > 0 ? "ready" : "empty");
       })
       .catch((err: unknown) => {
         if (cancelled) return;

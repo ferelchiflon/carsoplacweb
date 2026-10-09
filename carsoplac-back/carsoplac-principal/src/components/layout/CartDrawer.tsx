@@ -119,33 +119,38 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
 
     try {
       const res = await fetch(
-        "https://parsoplac-back.onrender.com/payments/mercadopago/test",
+        `${import.meta.env.VITE_BACKEND_URL}/orders`,
         {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({
-            customer: trimmedCustomer,
             items: cart.map((item) => ({
-              id: item.id,
-              title: item.name,
+              productId: item.id,
               quantity: item.quantity,
-              unit_price: item.price,
             })),
+            shippingAddress: `DNI: ${trimmedCustomer.dni} - ${trimmedCustomer.name} ${trimmedCustomer.surname}`,
           }),
         }
       );
 
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Error desconocido');
+      }
 
       const data = await res.json();
-      setPreferenceId(data.preferenceId);
-    } catch (error) {
-      setMpError("No se pudo iniciar el pago. Intentá nuevamente.");
+      // Expecting { initPoint, orderId }
+      if (!data.initPoint) {
+        throw new Error('Respuesta inesperada del servidor');
+      }
+      window.location.href = data.initPoint;
+    } catch (error: any) {
+      setMpError(error?.message ?? 'No se pudo iniciar el pago. Intentá nuevamente.');
       console.error(error);
     } finally {
       setLoadingMp(false);
-    }
-  };
+    }  };
 
   const increaseQuantity = (item: CartItem) => addToCart({ ...item, quantity: 1 });
 
