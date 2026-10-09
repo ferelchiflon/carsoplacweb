@@ -4,6 +4,7 @@ import { useCart } from "../../context/CartContext";
 import type { CartItem } from "../../context/CartContext";
 import { X, Trash2, Plus, Minus, ShieldCheck, Truck } from "lucide-react";
 import MercadoPagoButton from "../ui/MercadoPagoButton";
+import { API_URL } from "../../config/api";
 
 type CartDrawerProps = {
   open: boolean;
@@ -119,7 +120,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
 
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/orders`,
+        `${API_URL}/orders`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
