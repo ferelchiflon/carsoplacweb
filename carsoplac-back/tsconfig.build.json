@@ -1,4 +1,4 @@
 {
   "extends": "./tsconfig.json",
-  "exclude": ["node_modules", "test", "dist", "**/*spec.ts", "carsoplac-principal"]
+  "exclude": ["node_modules", "test", "dist", "**/*spec.ts", "carsoplac-principal", "testing-backup"]
 }
