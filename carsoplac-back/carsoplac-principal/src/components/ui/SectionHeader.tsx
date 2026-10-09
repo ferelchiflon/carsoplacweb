@@ -12,18 +12,18 @@ export default function SectionHeader({
   onViewAll,
 }: SectionHeaderProps) {
   return (
-    <div className="w-full text-white py-6 px-4 flex flex-col gap-2">
-      <h2 className="text-xl font-bold leading-tight">{title}</h2>
+    <div className="w-full text-white py-6 flex flex-col gap-2">
+      <h1 className="h1">{title}</h1>
 
       {subtitle && (
-        <p className="text-2xl font-bold text-on-dark-300">{subtitle}</p>
+        <h2 className="h2 text-sage-gray">{subtitle}</h2>
       )}
 
       {onViewAll && (
         <button
           type="button"
           onClick={onViewAll}
-          className="btn btn-outline border-white text-white hover:bg-white hover:text-[rgb(var(--primary))] mt-2 w-fit"
+          className="btn btn-outline mt-2 w-fit"
         >
           VER TODO
         </button>

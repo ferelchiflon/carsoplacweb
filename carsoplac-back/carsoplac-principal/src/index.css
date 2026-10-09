@@ -1,10 +1,101 @@
 @import "tailwindcss";
 
 /* =========================================================
-   CARSOPLAC — Design System (eCommerce profesional)
-   Paleta sobria: grafito + acento industrial
+   CARSOPLAC — Design System "Midnight Greenhouse" (Shopify-style)
+   Canvas #02090a · tarjetas #061a1c · navbar #072720 · acento mint #36f4a4
+   Doc de referencia: scripts/desing.md
+   ---------------------------------------------------------
+   Tokens + base + utilidades. Fuente única de color del sitio.
+
+   • @theme registra los tokens del doc y genera utilidades Tailwind v4
+     (bg-midnight-forest, bg-deep-lichen, bg-shaded-fern,
+      border-spruce-border, bg-accent-brand, text-sage-gray,
+      shadow-xl, text-display, ...).
+   • IMPORTANTE: los tokens de @theme son la ÚNICA fuente de verdad de
+     esos colores. NO se re-declaran en :root: al vivir @theme en
+     @layer theme, cualquier re-declaración dentro de @layer base gana
+     la cascada y convertiría la utilidad en un color inválido
+     (o en un ciclo var() -> var(), que es "invalid at computed-value time").
+   • Los tokens legacy (--primary, --neutral, --line, ...) conservan los
+     valores del tema claro: los archivos que todavía no se migraron
+     siguen renderizando igual. La migración al tema oscuro se hace
+     archivo por archivo con las utilidades del design system.
+   • Desviaciones documentadas del doc:
+        - El bloque --spacing-* del doc NO entra a @theme: la escala de
+          espaciado de Tailwind v4 ya existe y re-declararla la rompería.
    ========================================================= */
 
+@theme static {
+  /* Colors */
+  --color-midnight-forest: #02090a;
+  --color-deep-lichen: #061a1c;
+  --color-shaded-fern: #072720;
+  --color-spruce-border: #1e2c31;
+  --color-abyss-indigo: #000a1e;
+  --color-pure-white: #ffffff;
+  --color-mist-gray: #a1a1aa;
+  --color-sage-gray: #99b3ad;
+  --color-faded-steel: #9dabad;
+  --color-soft-pearl: #9797a2;
+  --color-carbon-black: #000000;
+  --color-slate: #71717a;
+  --color-graphite: #333333;
+  --color-shopify-mint: #36f4a4;
+  --color-accent-brand: #36f4a4;  /* Nuevo token: acento celebrativo (ex-disco) */
+  --color-mossy-edge: #133b32;
+
+  /* Typography */
+  --font-neue-haas-grotesk: 'Neue Haas Grotesk', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-inter-variable: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  /* Typography — Scale */
+  --text-caption: 12px;
+  --leading-caption: 1.2;
+  --tracking-caption: 0.72px;
+  --text-body-sm: 14px;
+  --leading-body-sm: 1.43;
+  --tracking-body-sm: 0.28px;
+  --text-body: 16px;
+  --leading-body: 1.5;
+  --tracking-body: 0.32px;
+  --text-subheading: 20px;
+  --leading-subheading: 1.4;
+  --tracking-subheading: 0.4px;
+  --text-heading-sm: 24px;
+  --leading-heading-sm: 1.25;
+  --tracking-heading-sm: 0.48px;
+  --text-heading: 28px;
+  --leading-heading: 1.16;
+  --tracking-heading: 0.56px;
+  --text-heading-lg: 48px;
+  --leading-heading-lg: 1.14;
+  --tracking-heading-lg: 1.92px;
+  --text-display: 70px;
+  --leading-display: 0.96;
+  --tracking-display: 2.8px;
+
+  /* Border Radius */
+  --radius-md: 4px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-2xl-2: 20px;
+  --radius-full: 48px;
+  --radius-full-2: 340px;
+  --radius-full-3: 405px;
+  --radius-full-4: 9999px;
+
+  /* Shadows */
+  --shadow-sm: rgba(0, 0, 0, 0.1) 0px 8px 8px 0px, rgba(0, 0, 0, 0.1) 0px 4px 4px 0px, rgba(0, 0, 0, 0.1) 0px 2px 2px 0px, rgba(0, 0, 0, 0.1) 0px 0px 0px 1px, rgba(255, 255, 255, 0.03) 0px 1px 0px 0px inset;
+  --shadow-md: rgba(0, 0, 0, 0.2) 10px 13px 12px 2px;
+  --shadow-subtle: rgba(255, 255, 255, 0.05) 0px 1px 2px 0px, rgba(255, 255, 255, 0.04) 0px 1px 0px 0px inset;
+  --shadow-subtle-2: rgba(64, 71, 77, 0.4) 0px 1px 0px 0px inset, rgba(255, 255, 255, 0.08) 0px 1px 0px 0px;
+  --shadow-xl: rgba(5, 24, 19, 0.05) 0px 20px 60px 0px, rgb(19, 59, 50) 0px 1px 0px 0px inset;
+}
+
+/* ========================================================= */
+/* Base styles */
+/* ========================================================= */
 @layer base {
   :root {
     /* Layout: altura reservada por navbar + banner.
@@ -12,48 +103,23 @@
        siempre ocupe exactamente el alto disponible. */
     --navbar-h: 130px;           /* mobile  : TopBanner (50) + Nav h-20 (80) */
 
-    /* Paleta principal */
-    --primary: 26 26 26;        /* grafito profundo */
-    --secondary: 245 215 110;   /* mostaza premium (acento) */
-    --accent: 220 38 38;        /* rojo señal (ofertas) */
-    --neutral: 245 245 244;     /* blanco hueso */
-    --line: 229 229 229;        /* gris claro */
-    --muted: 115 115 115;       /* gris texto */
-    --success: 22 163 74;
-    --bg: 255 255 255;
+    /* Estados feedback (oscuro). Tripletas RGB: se consumen como rgb(var(--x)). */
+    --color-danger-bg: 45 15 18;
+    --color-danger-border: 110 40 45;
+    --color-danger-text: 252 165 165;
+    --color-success-bg: 10 40 28;
+    --color-success-border: 20 83 45;
+    --color-success-text: 134 239 172;   /* verde-300 */
 
-    /* Tokens semánticos (alias para utilidades Tailwind crudas) */
-    --color-primary: rgb(var(--primary));
-    --color-secondary: rgb(var(--secondary));
-    --color-accent: rgb(var(--accent));
-    --color-muted: rgb(var(--muted));
-    --color-line: rgb(var(--line));
-    --color-neutral: rgb(var(--neutral));
-    --color-success: rgb(var(--success));
+    /* Token propio con tripleta RGB: se consume como rgb(var(--color-sale)). */
+    --color-sale: 180 50 55;             /* #b43237 — badges de oferta */
 
-    /* Estados feedback */
-    --color-danger-bg: 254 242 242;   /* rojo-50 */
-    --color-danger-border: 254 202 202;/* rojo-200 */
-    --color-danger-text: 153 27 27;    /* rojo-800 */
-    --color-success-bg: 240 253 244;   /* green-50 */
-    --color-success-border: 187 247 208;/* green-200 */
-    --color-success-text: 22 101 52;   /* green-800 */
-
-    /* Grises armónicos con la paleta */
-    --gray-300: 209 213 219;
-    --gray-400: 156 163 175;
-    --gray-500: 107 114 128;
-    --gray-600: 75 85 99;
-    --gray-700: 55 65 81;
-    --gray-800: 31 41 55;
-    --gray-on-dark-300: 209 213 219;  /* gris claro sobre fondo grafito */
-    --gray-on-dark-400: 156 163 175;
-    --gray-on-dark-700: 55 65 81;     /* divisor sobre fondo grafito */
-
-    /* Botón / CTA (token explícito solicitado) */
-    --color-button: rgb(var(--primary));
-    --color-button-hover: rgb(15 15 15);
-    --color-button-text: 255 255 255;
+    /* NO re-declarar aquí --color-midnight-forest, --color-spruce-border
+       ni --color-accent-brand: viven en @theme y sus utilidades
+       (bg-midnight-forest, border-spruce-border, bg-accent-brand...)
+       dependen de ese valor hex. Los 8 tokens del tema claro (--primary,
+       --secondary, --accent, --neutral, --line, --muted, --success, --bg)
+       se eliminaron al cerrar la fase 1b, cuando el grep de usos dio cero. */
 
     /* Tipografía */
     --font-display: "Rubik", "Inter", system-ui, sans-serif;
@@ -66,8 +132,8 @@
 
   body {
     font-family: var(--font-body);
-    color: rgb(var(--primary));
-    background: rgb(var(--bg));
+    color: var(--color-pure-white);
+    background: var(--color-midnight-forest);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
@@ -79,18 +145,18 @@
   }
 
   ::selection {
-    background: rgb(var(--secondary) / 0.35);
-    color: rgb(var(--primary));
+    background: var(--color-accent-brand);
+    color: var(--color-midnight-forest);
   }
 
   /* Scrollbar global */
   ::-webkit-scrollbar { width: 10px; height: 10px; }
-  ::-webkit-scrollbar-track { background: rgb(var(--neutral)); }
+  ::-webkit-scrollbar-track { background: var(--color-deep-lichen); }
   ::-webkit-scrollbar-thumb {
-    background: rgb(var(--primary) / 0.25);
+    background: var(--color-spruce-border);
     border-radius: 999px;
   }
-  ::-webkit-scrollbar-thumb:hover { background: rgb(var(--primary) / 0.45); }
+  ::-webkit-scrollbar-thumb:hover { background: var(--color-mossy-edge); }
 }
 
 /* =========================================================
@@ -105,102 +171,94 @@
     @apply mx-auto w-full max-w-[1120px] px-4 sm:px-6 lg:px-8;
   }
 
-  /* Botones */
+  /* Botones — Primary = pill blanca con texto oscuro; Secondary/Outline = ghost
+     (scripts/desing.md: la única acción primaria es la pill blanca sobre oscuro,
+     la secundaria es ghost con borde claro; el mint NUNCA rellena botones). */
   .btn {
     @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-bold tracking-wide transition-all duration-200 select-none disabled:opacity-50 disabled:cursor-not-allowed;
   }
   .btn-primary {
-    @apply bg-[rgb(var(--primary))] text-white hover:bg-[rgb(15,15,15)] active:scale-[0.98] shadow-[0_4px_14px_rgba(26,26,26,0.18)];
+    @apply bg-pure-white text-midnight-forest hover:bg-pure-white/90 active:scale-[0.98] shadow-subtle;
   }
   .btn-secondary {
-    @apply bg-[rgb(var(--secondary))] text-[rgb(var(--primary))] hover:brightness-95 active:scale-[0.98];
+    @apply border border-white/30 text-white hover:bg-white/10 active:scale-[0.98];
   }
   .btn-outline {
-    @apply border border-[rgb(var(--primary))] text-[rgb(var(--primary))] hover:bg-[rgb(var(--primary))] hover:text-white;
+    @apply border border-spruce-border text-white hover:border-white/40 hover:bg-white/10 active:scale-[0.98];
   }
   .btn-ghost {
-    @apply text-[rgb(var(--primary))] hover:bg-[rgb(var(--neutral))];
+    @apply text-white hover:bg-white/10;
   }
 
   /* Tipografía display */
-  .display-1 {
-    @apply text-4xl sm:text-5xl lg:text-7xl font-extrabold leading-[1.02] tracking-tight;
-  }
-  .display-2 {
-    @apply text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-[1.05] tracking-tight;
-  }
-  .display-3 {
-    @apply text-2xl sm:text-3xl lg:text-4xl font-bold leading-[1.1] tracking-tight;
-  }
   .eyebrow {
-    @apply inline-block text-[11px] uppercase tracking-[0.22em] font-bold text-[rgb(var(--muted))];
+    @apply inline-block text-[11px] uppercase tracking-[0.22em] font-bold text-sage-gray;
   }
 
   /* Tarjetas */
   .card {
-    @apply bg-white rounded-2xl border border-[rgb(var(--line))] overflow-hidden transition-shadow;
+    @apply bg-deep-lichen rounded-2xl border border-spruce-border overflow-hidden transition-shadow;
   }
   .card-hover {
-    @apply hover:shadow-[0_18px_50px_rgba(26,26,26,0.10)] hover:-translate-y-0.5 transition-all duration-300;
+    @apply hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300;
   }
 
   /* Chips / tags */
   .chip {
-    @apply inline-flex items-center gap-1 rounded-full bg-[rgb(var(--neutral))] text-[rgb(var(--primary))] px-3 py-1 text-xs font-semibold;
+    @apply inline-flex items-center gap-1 rounded-full bg-shaded-fern text-white px-3 py-1 text-xs font-semibold;
   }
   .chip-discount {
-    @apply bg-[rgb(var(--accent))] text-white;
+    @apply bg-[rgb(var(--color-sale))] text-white;
   }
   .chip-new {
-    @apply bg-[rgb(var(--secondary))] text-[rgb(var(--primary))];
+    @apply bg-accent-brand text-midnight-forest;
   }
 
   /* Inputs */
   .input-base {
-    @apply w-full h-12 rounded-full bg-[rgb(var(--neutral))] px-5 text-sm placeholder:text-[rgb(var(--muted))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))] transition;
+    @apply w-full h-12 rounded-full bg-shaded-fern text-white border border-spruce-border px-5 text-sm placeholder:text-sage-gray focus:outline-none focus:border-accent-brand focus:ring-2 focus:ring-accent-brand transition;
   }
 
   /* Skeleton */
   .skeleton {
-    @apply animate-pulse bg-gradient-to-r from-[rgb(var(--neutral))] via-[rgb(var(--line))] to-[rgb(var(--neutral))] bg-[length:200%_100%];
+    @apply animate-pulse bg-gradient-to-r from-shaded-fern via-spruce-border to-shaded-fern bg-[length:200%_100%];
     animation: shimmer 1.4s ease-in-out infinite;
   }
-
-  /* ─── Tokens semánticos (reemplazo de utilidades Tailwind crudas) ─── */
-
-  /* Texto: escala de grises sobre fondo claro */
-  .text-gray-300 { color: rgb(var(--gray-300)); }
-  .text-gray-400 { color: rgb(var(--gray-400)); }
-  .text-gray-500 { color: rgb(var(--gray-500)); }
-  .text-gray-600 { color: rgb(var(--gray-600)); }
-  .text-gray-700 { color: rgb(var(--gray-700)); }
-  .text-gray-800 { color: rgb(var(--gray-800)); }
-
-  /* Texto: grises sobre fondo grafito (alta jerarquía) */
-  .text-on-dark-300 { color: rgb(var(--gray-on-dark-300)); }
-  .text-on-dark-400 { color: rgb(var(--gray-on-dark-400)); }
-  .text-on-dark-700 { color: rgb(var(--gray-on-dark-700)); }
-
-  /* Bordes / divisores grises */
-  .border-gray-200 { border-color: rgb(var(--line)); }
-  .border-gray-300 { border-color: rgb(var(--gray-300)); }
-  .border-gray-700 { border-color: rgb(var(--gray-on-dark-700)); }
-  .placeholder-gray-400::placeholder { color: rgb(var(--gray-400)); }
-
-  /* Estado: error / peligro */
-  .text-red-500 { color: rgb(var(--accent)); }
-  .bg-red-50\/40 { background-color: rgb(var(--color-danger-bg) / 0.4); }
-  .bg-red-500  { background-color: rgb(var(--accent)); }
-
-  /* Estado: éxito */
-  .border-green-200 { border-color: rgb(var(--color-success-border)); }
-  .bg-green-50      { background-color: rgb(var(--color-success-bg)); }
-  .text-green-800   { color: rgb(var(--color-success-text)); }
-
-  /* Botón / CTA (token solicitado) */
-  .bg-button          { background-color: var(--color-button); }
-  .bg-button:hover    { background-color: var(--color-button-hover); }
-  .text-button        { color: rgb(var(--color-button-text)); }
+}
+@layer base {
+  html, body {
+    font-family: var(--font-inter-variable);
+    font-feature-settings: "ss03";
+  }
+}
+/* Tipografía utility classes per design system */
+@layer components {
+  .display {
+    font-size: clamp(2.5rem, 6vw, 4.375rem);
+    font-weight: 400;
+    line-height: 1.0;
+    letter-spacing: 0.02em;
+    color: var(--color-pure-white);
+  }
+  .h1 {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: 0.02em;
+    color: var(--color-pure-white);
+  }
+  .h2 {
+    font-size: clamp(1.5rem, 4vw, 1.75rem);
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: 0.01em;
+    color: var(--color-pure-white);
+  }
+  .copy {
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--color-sage-gray);
+  }
 }
 
 /* =========================================================

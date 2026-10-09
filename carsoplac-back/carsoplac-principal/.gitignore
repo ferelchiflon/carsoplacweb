@@ -29,3 +29,4 @@ build/
 coverage/
 !.env.example
 **/.DS_Store
+.env

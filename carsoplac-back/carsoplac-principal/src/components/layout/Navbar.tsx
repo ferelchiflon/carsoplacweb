@@ -3,6 +3,7 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Search, User, ShoppingCart } from "lucide-react";
 import LOGO from "../../assets/imagenes/LOGO CARSO.png";
 import { useCart } from "../../context/CartContext";
+import { useAuth } from "./hooks/useAuth";
 
 const NAV = [
   { label: "Inicio", to: "/" },
@@ -21,22 +22,21 @@ export default function Navbar({ onOpenCart, onOpenSearch, onOpenMobileMenu }: P
   const [scrolled, setScrolled] = useState(false);
   const navigate = useNavigate();
   const { totalItems } = useCart();
+  const { user } = useAuth();
   const raf = useRef<number | null>(null);
+  
 
-  // Estado controlado para el filter del logo.
-  // Se inicializa en "brightness(0) invert(1)" (logo blanco sobre fondo grafito)
-  // para evitar el flash del logo a color en el primer render.
-  const logoFilter = scrolled ? "none" : "brightness(0) invert(1)";
+  // La barra es siempre oscura (bg-shaded-fern), así que el logo va en blanco
+  // en los dos estados: constante y sin flash de color en el primer render.
+  const logoFilter = "brightness(0) invert(1)";
 
   // Clases compartidas de los botones de acción (búsqueda, cuenta, carrito).
   // Lucide usa currentColor, así que el color del icono se controla con
-  // la clase de texto según el estado del navbar.
+  // la clase de texto.
   const iconBtnBase =
     "w-10 h-10 place-items-center rounded-full transition cursor-pointer active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2";
-  const iconBtnState = scrolled
-    ? "hover:bg-[rgb(var(--line))] focus-visible:outline-[rgb(var(--primary))]"
-    : "hover:bg-white/10 focus-visible:outline-white";
-  const iconColor = scrolled ? "text-[rgb(var(--primary))]" : "text-white";
+  const iconBtnState = "hover:bg-white/10 focus-visible:outline-accent-brand";
+  const iconColor = "text-white";
 
   useEffect(() => {
     const onScroll = () => {
@@ -52,24 +52,16 @@ export default function Navbar({ onOpenCart, onOpenSearch, onOpenMobileMenu }: P
   }, []);
 
   return (
-    <header
-      className={`sticky top-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "bg-white/85 backdrop-blur-xl shadow-[0_4px_24px_rgba(26,26,26,0.06)]"
-          : "bg-[rgb(var(--primary))]"
-      }`}
-    >
+    <header className="sticky top-0 z-50 border-b border-spruce-border transition-all duration-300 bg-shaded-fern rounded-xl">
       <div className={`container-x flex items-center justify-between transition-all ${scrolled ? "h-16" : "h-20"}`}>
         {/* Mobile: burger + logo */}
         <div className="flex items-center gap-3 lg:hidden">
           <button
             onClick={onOpenMobileMenu}
             aria-label="Abrir menú"
-            className={`w-10 h-10 grid place-items-center rounded-full cursor-pointer ${
-              scrolled ? "hover:bg-[rgb(var(--line))]" : "hover:bg-white/10"
-            } transition`}
+            className="w-10 h-10 grid place-items-center rounded-full cursor-pointer hover:bg-white/10 transition"
           >
-            <span className={`block w-5 h-px ${scrolled ? "bg-[rgb(var(--primary))]" : "bg-white"} relative before:content-[''] before:absolute before:w-5 before:h-px before:-top-1.5 before:left-0 ${scrolled ? "before:bg-[rgb(var(--primary))]" : "before:bg-white"} after:content-[''] after:absolute after:w-5 after:h-px after:top-1.5 after:left-0 ${scrolled ? "after:bg-[rgb(var(--primary))]" : "after:bg-white"}`} />
+            <span className="block w-5 h-px bg-white relative before:content-[''] before:absolute before:w-5 before:h-px before:-top-1.5 before:left-0 before:bg-white after:content-[''] after:absolute after:w-5 after:h-px after:top-1.5 after:left-0 after:bg-white" />
           </button>
         </div>
 
@@ -88,9 +80,9 @@ export default function Navbar({ onOpenCart, onOpenSearch, onOpenMobileMenu }: P
             className={`w-auto transition-[height] duration-300 ${scrolled ? "h-9" : "h-12"}`}
             style={{ filter: logoFilter }}
           />
-          <div className={`hidden sm:flex flex-col leading-none ${scrolled ? "" : "text-white"}`}>
-            <span className="text-lg font-extrabold tracking-tight">CARSOPLAC</span>
-            <span className="text-[10px] uppercase tracking-[0.22em] opacity-70">Fabricación propia</span>
+          <div className="hidden sm:flex flex-col leading-none text-white">
+            <span className="text-lg font-medium tracking-tight">CARSOPLAC</span>
+            <span className="text-[10px] uppercase tracking-[0.22em] text-sage-gray">Fabricación propia</span>
           </div>
         </Link>
 
@@ -102,14 +94,10 @@ export default function Navbar({ onOpenCart, onOpenSearch, onOpenMobileMenu }: P
               to={item.to}
               end={item.to === "/"}
               className={({ isActive }) =>
-                `relative px-4 py-2 text-sm font-semibold rounded-full transition ${
+                `relative px-4 py-2 text-[14px] font-medium rounded-full transition ${
                   isActive
-                    ? scrolled
-                      ? "text-[rgb(var(--secondary))]"
-                      : "text-[rgb(var(--accent))]"
-                    : scrolled
-                    ? "text-[rgb(var(--primary))] hover:bg-[rgb(var(--line))]"
-                    : "text-white/85 hover:text-white hover:bg-white/10"
+                    ? "border-b-2 border-accent-brand"
+                    : "text-sage-gray hover:text-white hover:bg-white/10"
                 }`
               }
             >
@@ -130,26 +118,26 @@ export default function Navbar({ onOpenCart, onOpenSearch, onOpenMobileMenu }: P
           </button>
 
           <button
-            onClick={() => navigate("/login")}
-            aria-label="Mi cuenta"
-            title="Mi cuenta"
-            className={`${iconBtnBase} hidden sm:grid ${iconBtnState}`}
+            onClick={() => navigate(user ? "/mi-cuenta" : "/login")}
+            aria-label={user ? "Mi cuenta" : "Iniciar sesión"}
+            title={user ? "Mi cuenta" : "Iniciar sesión"}
+            className={`${iconBtnBase} hidden sm:grid ${iconBtnState} ${
+              user ? "text-accent-brand" : iconColor
+            }`}
           >
-            <User size={20} strokeWidth={1.8} className={`transition-colors ${iconColor}`} />
+            <User size={20} strokeWidth={1.8} />
           </button>
 
           <button
             onClick={onOpenCart}
             aria-label="Carrito"
             title="Ver carrito"
-            className={`${iconBtnBase} relative grid ${iconBtnState}`}
+            className="relative grid w-10 h-10 place-items-center rounded-full bg-white transition cursor-pointer active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 hover:bg-mist-gray"
           >
-            <ShoppingCart size={20} strokeWidth={1.8} className={`transition-colors ${iconColor}`} />
+            <ShoppingCart size={20} strokeWidth={1.8} className="transition-colors text-midnight-forest" />
             {totalItems > 0 && (
               <span
-                className={`absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full grid place-items-center text-[10px] font-bold bg-[rgb(var(--secondary))] text-[rgb(var(--primary))] ring-2 ${
-                  scrolled ? "ring-white" : "ring-[rgb(var(--primary))]"
-                }`}
+                className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full grid place-items-center text-[10px] font-medium bg-midnight-forest text-white ring-2 ring-shaded-fern"
               >
                 {totalItems > 99 ? "99+" : totalItems}
               </span>

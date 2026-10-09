@@ -19,20 +19,20 @@ export default function TopBanner() {
   const stream = [...messages, ...messages, ...messages];
 
   return (
-    <div className="relative w-full overflow-hidden bg-[rgb(var(--primary))] text-white h-10 flex items-center">
+    <div className="relative w-full overflow-hidden bg-shaded-fern text-white h-10 flex items-center">
       {/* Gradientes laterales */}
-      <div className="pointer-events-none absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-[rgb(var(--primary))] to-transparent z-10" />
-      <div className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-[rgb(var(--primary))] to-transparent z-10" />
+      <div className="pointer-events-none absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-shaded-fern to-transparent z-10" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-shaded-fern to-transparent z-10" />
 
       <div className="flex whitespace-nowrap anim-marquee group motion-reduce:animate-none hover:[animation-play-state:paused]">
         {stream.map((msg, i) => (
           <span
             key={i}
-            className="mx-6 inline-flex items-center gap-2 text-[11px] tracking-[0.14em] font-semibold uppercase"
+            className="mx-6 inline-flex items-center gap-2 text-xs tracking-[0.14em] font-semibold uppercase"
           >
-            <msg.Icon size={13} className="text-[rgb(var(--secondary))] shrink-0" />
+            <msg.Icon size={13} className="text-accent-brand shrink-0" />
             {msg.text}
-            <span className="ml-4 text-[rgb(var(--secondary))] opacity-70">●</span>
+            <span className="ml-4 text-accent-brand/70">●</span>
           </span>
         ))}
       </div>

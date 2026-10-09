@@ -6,6 +6,7 @@ import MobileMenu from "./MobileMenu";
 import SearchDrawer from "./SearchDrawer";
 import { useState } from "react";
 import CartDrawer from "./CartDrawer";
+import WhatsAppButton from "../ui/WhatsAppButton";
 
 export default function MainLayout() {
   const [openCart, setOpenCart] = useState(false);
@@ -13,7 +14,7 @@ export default function MainLayout() {
   const [openMobileMenu, setOpenMobileMenu] = useState(false);
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-midnight-forest flex flex-col">
       <TopBanner />
 
       {/* Navbar premium con búsqueda, cuenta y carrito */}
@@ -34,6 +35,9 @@ export default function MainLayout() {
       </main>
 
       <FooterAcordeonMobile />
+
+      {/* Botón flotante de WhatsApp global */}
+      <WhatsAppButton />
     </div>
   );
 }

@@ -1,8 +1,9 @@
 // src/pages/Login.tsx
 import { useState, type FormEvent } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
-  User,
+  User as UserIcon,
+  Mail,
   Lock,
   Eye,
   EyeOff,
@@ -13,37 +14,52 @@ import {
 } from "lucide-react";
 import { API_URL } from "../config/api";
 
-// Mismo mínimo que exige el backend (auth/dto/login.dto.ts → @MinLength(6))
 const MIN_PASSWORD = 6;
-
-// El free tier de Render "duerme" el servicio tras inactividad; el primer
-// request puede tardar ~60s en despertarlo. Damos margen antes de abortar.
+const MIN_REGISTER_PASSWORD = 8;
 const REQUEST_TIMEOUT_MS = 90_000;
 
-type LoginStatus = "idle" | "submitting" | "success" | "error";
+type Mode = "login" | "register";
+type Status = "idle" | "submitting" | "success" | "error";
 
 export default function Login() {
-  const navigate = useNavigate();
-  const [username, setUsername] = useState("");
+  const [mode, setMode] = useState<Mode>("login");
+
+  // Campos
+  const [identifier, setIdentifier] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [status, setStatus] = useState<LoginStatus>("idle");
+
+  const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState("");
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setErrorMsg("");
 
-    // Validación client-side (espeja las reglas del backend para feedback inmediato)
-    if (!username.trim()) {
-      setStatus("error");
-      setErrorMsg("Ingresá tu usuario.");
-      return;
-    }
-    if (password.length < MIN_PASSWORD) {
-      setStatus("error");
-      setErrorMsg(`La contraseña debe tener al menos ${MIN_PASSWORD} caracteres.`);
-      return;
+    if (mode === "login") {
+      if (!identifier.trim()) {
+        setStatus("error");
+        setErrorMsg("Ingresá tu usuario o email.");
+        return;
+      }
+      if (password.length < MIN_PASSWORD) {
+        setStatus("error");
+        setErrorMsg(`La contraseña debe tener al menos ${MIN_PASSWORD} caracteres.`);
+        return;
+      }
+    } else {
+      if (!email.trim() || !email.includes("@")) {
+        setStatus("error");
+        setErrorMsg("Ingresá un email válido.");
+        return;
+      }
+      if (password.length < MIN_REGISTER_PASSWORD) {
+        setStatus("error");
+        setErrorMsg(`La contraseña para registro debe tener al menos ${MIN_REGISTER_PASSWORD} caracteres.`);
+        return;
+      }
     }
 
     setStatus("submitting");
@@ -52,14 +68,18 @@ export default function Login() {
     const timeout = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
     try {
-      const res = await fetch(`${API_URL}/auth/login`, {
+      const endpoint = mode === "login" ? `${API_URL}/auth/login` : `${API_URL}/auth/register`;
+      const payload =
+        mode === "login"
+          ? { email: identifier.trim(), password }
+          : { email: email.trim(), password, name: name.trim() || undefined };
+
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        // credentials: el backend setea la cookie JWT como httpOnly;
-        // sin esto el navegador la descarta en pedidos cross-origin.
         credentials: "include",
         signal: controller.signal,
-        body: JSON.stringify({ username: username.trim(), password }),
+        body: JSON.stringify(payload),
       });
       window.clearTimeout(timeout);
 
@@ -68,21 +88,33 @@ export default function Login() {
         setErrorMsg("Usuario o contraseña incorrectos.");
         return;
       }
+      if (res.status === 400) {
+        const data = await res.json().catch(() => null);
+        setStatus("error");
+        setErrorMsg(
+          Array.isArray(data?.message)
+            ? data.message.join(", ")
+            : data?.message || "Datos inválidos."
+        );
+        return;
+      }
       if (!res.ok) {
         setStatus("error");
         setErrorMsg(`Error del servidor (${res.status}). Reintentá en unos momentos.`);
         return;
       }
 
-      // Login OK: feedback breve y redirección a la home
       setStatus("success");
-      window.setTimeout(() => navigate("/", { replace: true }), 900);
+      window.setTimeout(() => {
+        // Redirigir a Mi Cuenta o a Home
+        window.location.href = "/mi-cuenta";
+      }, 900);
     } catch (err) {
       window.clearTimeout(timeout);
       setStatus("error");
       setErrorMsg(
         err instanceof DOMException && err.name === "AbortError"
-          ? "El servidor está despertando y tardó demasiado. Reintentá en unos segundos."
+          ? "El servidor está respondiendo lento. Reintentá en unos segundos."
           : "No pudimos conectar con el servidor. Verificá tu conexión y reintentá."
       );
     }
@@ -90,48 +122,121 @@ export default function Login() {
 
   const inputWrap = "relative";
   const inputIcon =
-    "absolute left-4 top-1/2 -translate-y-1/2 text-[rgb(var(--muted))] pointer-events-none";
+    "absolute left-4 top-1/2 -translate-y-1/2 text-sage-gray pointer-events-none";
 
   return (
-    <section className="min-h-[calc(100vh-var(--navbar-h))] bg-[rgb(var(--primary))] flex items-center justify-center px-4 py-12">
+    <section className="min-h-[calc(100vh-var(--navbar-h))] bg-midnight-forest flex items-center justify-center container-x py-12 md:py-20">
       <div className="w-full max-w-sm">
-        <div className="bg-white rounded-2xl p-8 shadow-[0_24px_60px_rgba(0,0,0,0.35)]">
-          <span className="eyebrow">Acceso</span>
-          <h1 className="display-3 mt-1 text-[rgb(var(--primary))]">Iniciar sesión</h1>
-          <p className="text-sm text-[rgb(var(--muted))] mt-2">
-            Ingresá con tu cuenta para gestionar el sitio.
+        <div className="bg-deep-lichen border border-spruce-border text-white rounded-xl p-8 shadow-subtle">
+          {/* Selector Login / Registro */}
+          <div className="flex border-b border-spruce-border mb-6">
+            <button
+              type="button"
+              onClick={() => {
+                setMode("login");
+                setErrorMsg("");
+                setStatus("idle");
+              }}
+              className={`flex-1 pb-3 text-sm font-semibold transition-colors border-b-2 -mb-px ${
+                mode === "login"
+                  ? "border-accent-brand text-white"
+                  : "border-transparent text-sage-gray hover:text-white"
+              }`}
+            >
+              Iniciar sesión
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setMode("register");
+                setErrorMsg("");
+                setStatus("idle");
+              }}
+              className={`flex-1 pb-3 text-sm font-semibold transition-colors border-b-2 -mb-px ${
+                mode === "register"
+                  ? "border-accent-brand text-white"
+                  : "border-transparent text-sage-gray hover:text-white"
+              }`}
+            >
+              Crear cuenta
+            </button>
+          </div>
+
+          <span className="eyebrow">
+            {mode === "login" ? "Acceso" : "Nuevo cliente"}
+          </span>
+          <h1 className="h1 mt-1 text-white">
+            {mode === "login" ? "Bienvenido" : "Crear mi cuenta"}
+          </h1>
+          <p className="text-sm text-sage-gray mt-2">
+            {mode === "login"
+              ? "Ingresá con tu cuenta para ver tus pedidos y favoritos."
+              : "Registrate para guardar tus pedidos, direcciones y favoritos."}
           </p>
 
           <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4" noValidate>
-            {/* Usuario */}
-            <div>
-              <label
-                htmlFor="username"
-                className="block text-xs font-bold uppercase tracking-wider text-[rgb(var(--muted))] mb-1.5"
-              >
-                Usuario
-              </label>
-              <div className={inputWrap}>
-                <User size={16} className={inputIcon} />
-                <input
-                  id="username"
-                  type="text"
-                  autoComplete="username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Tu usuario"
-                  className="input-base pl-11"
-                  aria-invalid={status === "error"}
-                />
+            {mode === "register" && (
+              <div>
+                <label htmlFor="name" className="eyebrow mb-1.5 block">
+                  Nombre completo (opcional)
+                </label>
+                <div className={inputWrap}>
+                  <UserIcon size={16} className={inputIcon} />
+                  <input
+                    id="name"
+                    type="text"
+                    autoComplete="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Tu nombre y apellido"
+                    className="input-base pl-11"
+                  />
+                </div>
               </div>
-            </div>
+            )}
 
-            {/* Contraseña */}
+            {mode === "login" ? (
+              <div>
+                <label htmlFor="identifier" className="eyebrow mb-1.5 block">
+                  Usuario o Email
+                </label>
+                <div className={inputWrap}>
+                  <UserIcon size={16} className={inputIcon} />
+                  <input
+                    id="identifier"
+                    type="text"
+                    autoComplete="username"
+                    value={identifier}
+                    onChange={(e) => setIdentifier(e.target.value)}
+                    placeholder="usuario@ejemplo.com o tu usuario"
+                    className="input-base pl-11"
+                    aria-invalid={status === "error"}
+                  />
+                </div>
+              </div>
+            ) : (
+              <div>
+                <label htmlFor="email" className="eyebrow mb-1.5 block">
+                  Correo electrónico
+                </label>
+                <div className={inputWrap}>
+                  <Mail size={16} className={inputIcon} />
+                  <input
+                    id="email"
+                    type="email"
+                    autoComplete="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="tunombre@ejemplo.com"
+                    className="input-base pl-11"
+                    aria-invalid={status === "error"}
+                  />
+                </div>
+              </div>
+            )}
+
             <div>
-              <label
-                htmlFor="password"
-                className="block text-xs font-bold uppercase tracking-wider text-[rgb(var(--muted))] mb-1.5"
-              >
+              <label htmlFor="password" className="eyebrow mb-1.5 block">
                 Contraseña
               </label>
               <div className={inputWrap}>
@@ -139,10 +244,10 @@ export default function Login() {
                 <input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  autoComplete="current-password"
+                  autoComplete={mode === "login" ? "current-password" : "new-password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder={mode === "register" ? "Mínimo 8 caracteres" : "••••••••"}
                   className="input-base pl-11 pr-12"
                   aria-invalid={status === "error"}
                 />
@@ -150,27 +255,34 @@ export default function Login() {
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
                   aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 grid place-items-center rounded-full text-[rgb(var(--muted))] hover:bg-[rgb(var(--neutral))] hover:text-[rgb(var(--primary))] transition cursor-pointer"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 grid place-items-center rounded-md text-sage-gray hover:bg-white/10 hover:text-white transition cursor-pointer"
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
+              {mode === "register" && (
+                <p className="text-[11px] text-sage-gray mt-1">
+                  Debe contener al menos 8 caracteres.
+                </p>
+              )}
             </div>
 
-            {/* Feedback */}
             {errorMsg && (
               <div
                 role="alert"
-                className="flex items-start gap-2 text-sm font-medium text-[rgb(var(--accent))]"
+                className="flex items-start gap-2 copy text-[rgb(var(--color-danger-text))]"
               >
                 <AlertCircle size={16} className="shrink-0 mt-0.5" />
-                {errorMsg}
+                <span>{errorMsg}</span>
               </div>
             )}
+
             {status === "success" && (
-              <div className="flex items-center gap-2 text-sm font-semibold text-[rgb(var(--success))]">
+              <div className="flex items-center gap-2 copy text-[rgb(var(--color-success-text))]">
                 <ShieldCheck size={16} />
-                ¡Login exitoso! Redirigiendo…
+                {mode === "login"
+                  ? "¡Login exitoso! Redirigiendo…"
+                  : "¡Cuenta creada! Ingresando…"}
               </div>
             )}
 
@@ -182,10 +294,12 @@ export default function Login() {
               {status === "submitting" ? (
                 <>
                   <Loader2 size={16} className="animate-spin" />
-                  Conectando…
+                  {mode === "login" ? "Conectando…" : "Registrando…"}
                 </>
-              ) : (
+              ) : mode === "login" ? (
                 "Ingresar"
+              ) : (
+                "Registrarme"
               )}
             </button>
           </form>

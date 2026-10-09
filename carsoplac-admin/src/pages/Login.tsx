@@ -30,7 +30,7 @@ export default function Login() {
       await authLogin(email.trim(), password);
       // Check authentication result
       if (isAuthenticated()) {
-        navigate('/', { replace: true });
+        navigate('/products', { replace: true });
       } else {
         // Auth failed but no error was set - show generic message
         setError('Credenciales inválidas');

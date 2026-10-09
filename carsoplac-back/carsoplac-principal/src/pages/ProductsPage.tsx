@@ -1,13 +1,22 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+// src/pages/ProductsPage.tsx
+import { useCallback, useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import ProductCard from "../components/ui/ProductCard";
 import SectionHeader from "../components/ui/SectionHeader";
 import FaqSection from "../components/ui/FaqSection";
+import FilterPanel from "../components/ui/FilterPanel";
 import { API_URL } from "../config/api";
 import { fetchWithTimeout, getFetchErrorMsg } from "../utils/fetchWithTimeout";
+import {
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  SlidersHorizontal,
+  X,
+  PackageOpen,
+} from "lucide-react";
 
-// ==================== TIPOS ====================
-type Category = {
+export type Category = {
   id: string;
   name: string;
 };
@@ -20,365 +29,471 @@ type Product = {
   images: string[];
   categoryId?: string | null;
   category?: Category | null;
+  stock?: number;
 };
 
-type SortOption = "recent" | "price-asc" | "price-desc" | "name";
+type PaginatedResponse = {
+  data: Product[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
 
-// ==================== COMPONENTE ====================
 export default function ProductsPage() {
-  // ===== ESTADOS =====
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Estados de datos
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [brands, setBrands] = useState<string[]>([]);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Filtros
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [search, setSearch] = useState("");
-  const [minPrice, setMinPrice] = useState<string>("");
-  const [maxPrice, setMaxPrice] = useState<string>("");
-  const [sortBy, setSortBy] = useState<SortOption>("recent");
+  // Filtros sincronizados con URL query params
+  const [search, setSearch] = useState(searchParams.get("search") || "");
+  const [selectedCategory, setSelectedCategory] = useState(
+    searchParams.get("category") || searchParams.get("cat") || "all"
+  );
+  const [minPrice, setMinPrice] = useState(searchParams.get("minPrice") || "");
+  const [maxPrice, setMaxPrice] = useState(searchParams.get("maxPrice") || "");
+  const [brand, setBrand] = useState(searchParams.get("brand") || "all");
+  const [inStock, setInStock] = useState(searchParams.get("inStock") === "true");
+  const [sortBy, setSortBy] = useState(searchParams.get("sort") || "newest");
+  const [page, setPage] = useState(Number(searchParams.get("page")) || 1);
+  const limit = 12; // 12 productos por página para grilla perfecta (2, 3 o 4 cols)
 
-  // UI móvil
-  const [filtersOpen, setFiltersOpen] = useState(false);
-  const navigate = useNavigate();
+  // Mobile Drawer
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
-  // ===== CARGA DE DATOS (reutilizable para el botón Reintentar) =====
-  const load = useCallback(async () => {
+  // Debounce para búsqueda por texto
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(1); // Reiniciar a página 1 al buscar
+    }, 400);
+    return () => clearTimeout(handler);
+  }, [search]);
+
+  // Sincronizar parámetros en URL
+  useEffect(() => {
+    const params: Record<string, string> = {};
+    if (debouncedSearch) params.search = debouncedSearch;
+    if (selectedCategory !== "all") params.category = selectedCategory;
+    if (minPrice) params.minPrice = minPrice;
+    if (maxPrice) params.maxPrice = maxPrice;
+    if (brand !== "all") params.brand = brand;
+    if (inStock) params.inStock = "true";
+    if (sortBy !== "newest") params.sort = sortBy;
+    if (page > 1) params.page = String(page);
+
+    setSearchParams(params, { replace: true });
+  }, [
+    debouncedSearch,
+    selectedCategory,
+    minPrice,
+    maxPrice,
+    brand,
+    inStock,
+    sortBy,
+    page,
+    setSearchParams,
+  ]);
+
+  // Cargar metadatos de filtros (categorías y marcas)
+  useEffect(() => {
+    fetchWithTimeout(`${API_URL}/products/filters`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data) {
+          if (Array.isArray(data.categories)) {
+            setCategories(data.categories);
+          }
+          if (Array.isArray(data.brands)) {
+            setBrands(data.brands);
+          }
+        }
+      })
+      .catch((err) => console.error("Error cargando filtros:", err));
+  }, []);
+
+  // Cargar productos desde el endpoint paginado y filtrado en servidor
+  const loadProducts = useCallback(async () => {
     setLoading(true);
     setError(null);
+
+    const query = new URLSearchParams();
+    if (debouncedSearch.trim()) query.set("search", debouncedSearch.trim());
+    if (selectedCategory !== "all") query.set("category", selectedCategory);
+    if (minPrice) query.set("minPrice", minPrice);
+    if (maxPrice) query.set("maxPrice", maxPrice);
+    if (brand !== "all") query.set("brand", brand);
+    if (inStock) query.set("inStock", "true");
+    if (sortBy) query.set("sort", sortBy);
+    query.set("page", String(page));
+    query.set("limit", String(limit));
+
     try {
-      // Con timeout: si el servidor cuelga la conexión (API dormida),
-      // abortamos en 30s y mostramos error en vez de un spinner eterno.
-      const [productsRes, categoriesRes] = await Promise.all([
-        fetchWithTimeout(`${API_URL}/products`),
-        // Las categorías son opcionales: si fallan, el catálogo igual funciona
-        fetchWithTimeout(`${API_URL}/categories`).catch(() => null),
-      ]);
-
-      if (!productsRes.ok) {
-        throw new Error(`Error del servidor (${productsRes.status})`);
+      const res = await fetchWithTimeout(`${API_URL}/products?${query.toString()}`);
+      if (!res.ok) {
+        throw new Error(`Error ${res.status}: no se pudieron cargar los productos`);
       }
 
-      const productsData = await productsRes.json();
-      if (!Array.isArray(productsData)) {
-        throw new Error("Formato de respuesta inválido");
+      const json: PaginatedResponse = await res.json();
+      if (Array.isArray(json?.data)) {
+        setProducts(json.data);
+        setTotalProducts(json.total || json.data.length);
+        setTotalPages(json.totalPages || 1);
+      } else if (Array.isArray(json)) {
+        // Fallback por si la respuesta fuera array plano
+        setProducts(json);
+        setTotalProducts((json as Product[]).length);
+        setTotalPages(1);
       }
-
-      let categoriesData: Category[] = [];
-      if (categoriesRes && categoriesRes.ok) {
-        const parsed = await categoriesRes.json();
-        if (Array.isArray(parsed)) categoriesData = parsed;
-      }
-
-      setProducts(productsData);
-      setCategories(categoriesData);
     } catch (err) {
-      console.error("Error fetching data:", err);
+      console.error("Error al cargar productos:", err);
       setError(getFetchErrorMsg(err));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [debouncedSearch, selectedCategory, minPrice, maxPrice, brand, inStock, sortBy, page]);
 
   useEffect(() => {
-    load();
-  }, [load]);
+    loadProducts();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [loadProducts]);
 
-  // ===== PRODUCTOS FILTRADOS =====
-  const filteredProducts = useMemo(() => {
-    let result = [...products];
+  const activeFiltersCount = [
+    selectedCategory !== "all",
+    minPrice !== "",
+    maxPrice !== "",
+    brand !== "all",
+    inStock,
+    sortBy !== "newest",
+  ].filter(Boolean).length;
 
-    // Filtro por categoría
-    if (selectedCategory !== "all") {
-      result = result.filter((product) => {
-        const categoryId = product.category?.id ?? product.categoryId;
-        return categoryId === selectedCategory;
-      });
-    }
-
-    // Filtro por búsqueda
-    if (search.trim()) {
-      const searchTerm = search.toLowerCase().trim();
-      result = result.filter((product) =>
-        product.name.toLowerCase().includes(searchTerm)
-      );
-    }
-
-    // Filtro por precio mínimo
-    const min = minPrice ? parseFloat(minPrice) : null;
-    if (min !== null && !isNaN(min) && min >= 0) {
-      result = result.filter((product) => product.price >= min);
-    }
-
-    // Filtro por precio máximo
-    const max = maxPrice ? parseFloat(maxPrice) : null;
-    if (max !== null && !isNaN(max) && max >= 0) {
-      result = result.filter((product) => product.price <= max);
-    }
-
-    // Validar que mínimo sea menor que máximo
-    if (min !== null && max !== null && !isNaN(min) && !isNaN(max) && min > max) {
-      // Si el mínimo es mayor que el máximo, no mostrar resultados
-      return [];
-    }
-
-    // Ordenamiento
-    switch (sortBy) {
-      case "price-asc":
-        result.sort((a, b) => a.price - b.price);
-        break;
-      case "price-desc":
-        result.sort((a, b) => b.price - a.price);
-        break;
-      case "name":
-        result.sort((a, b) => a.name.localeCompare(b.name, "es", { sensitivity: "base" }));
-        break;
-      case "recent":
-      default:
-        // Asumimos que el backend ya devuelve los productos ordenados por fecha
-        break;
-    }
-
-    return result;
-  }, [products, selectedCategory, search, minPrice, maxPrice, sortBy]);
-
-  // ===== HANDLERS =====
-  const clearFilters = () => {
+  const handleClearAll = () => {
     setSelectedCategory("all");
     setSearch("");
     setMinPrice("");
     setMaxPrice("");
-    setSortBy("recent");
+    setBrand("all");
+    setInStock(false);
+    setSortBy("newest");
+    setPage(1);
   };
 
-  const activeFiltersCount = useMemo(() => {
-    let count = 0;
-    if (selectedCategory !== "all") count++;
-    if (search.trim()) count++;
-    if (minPrice) count++;
-    if (maxPrice) count++;
-    if (sortBy !== "recent") count++;
-    return count;
-  }, [selectedCategory, search, minPrice, maxPrice, sortBy]);
-
-  // ===== RENDER =====
   return (
-    <div className="pb-8">
+    <div className="min-h-screen bg-midnight-forest text-white pb-16">
       {/* HEADER */}
-      <div className="px-4 pt-4">
-        <SectionHeader title="NUESTRO" subtitle="CATÁLOGO COMPLETO" />
+      <div className="container-x pt-12 md:pt-16">
+        <SectionHeader title="DIRECTO DE FÁBRICA" subtitle="NUESTRO CATÁLOGO" />
       </div>
 
-      {/* CONTENIDO PRINCIPAL */}
-      <div className="px-4 mt-4">
-        {/* Buscador y toggle de filtros */}
-        <div className="flex gap-2 mb-3">
-          <input
-            type="text"
-            placeholder="Buscar producto..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 px-4 py-2 rounded-full border border-[rgb(var(--line))] bg-white text-[rgb(var(--primary))] placeholder:text-[rgb(var(--muted))] text-sm focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))] transition"
-            aria-label="Buscar productos"
-          />
-          <button
-            type="button"
-            onClick={() => setFiltersOpen((prev) => !prev)}
-            className="px-4 py-2 rounded-full bg-[rgb(var(--primary))] text-white text-sm font-bold relative hover:bg-[rgb(15,15,15)] active:scale-95 transition-all"
-            aria-label={filtersOpen ? "Cerrar filtros" : "Abrir filtros"}
-            aria-expanded={filtersOpen}
-          >
-            Filtros
-            {activeFiltersCount > 0 && (
-              <span 
-                className="absolute -top-1 -right-1 bg-[rgb(var(--accent))] text-white text-[10px] font-extrabold rounded-full w-5 h-5 flex items-center justify-center"
-                aria-label={`${activeFiltersCount} filtros activos`}
+      <div className="container-x mt-6">
+        {/* BARRA SUPERIOR: BUSCADOR + TOGGLE MOBILE + RESUMEN */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-6 bg-deep-lichen border border-spruce-border rounded-2xl p-3 md:p-4 shadow-subtle">
+          <div className="relative flex-1 max-w-md">
+            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-sage-gray" />
+            <input
+              type="text"
+              placeholder="Buscar por placa, baldosón, modelo..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-spruce-border bg-shaded-fern text-white placeholder:text-sage-gray text-xs focus:outline-none focus:border-accent-brand transition"
+            />
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-sage-gray hover:text-white"
               >
-                {activeFiltersCount}
-              </span>
+                <X size={14} />
+              </button>
             )}
-          </button>
-        </div>
+          </div>
 
-        {/* Panel de filtros */}
-        {filtersOpen && (
-          <div 
-            className="bg-white rounded-2xl shadow-[0_10px_30px_rgba(26,26,26,0.08)] p-4 mb-4 border border-[rgb(var(--line))] animate-fadeIn"
-            role="region"
-            aria-label="Filtros de productos"
-          >
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="font-bold text-[rgb(var(--primary))] text-lg">Filtros</h3>
-              {activeFiltersCount > 0 && (
-                <button
-                  type="button"
-                  onClick={clearFilters}
-                  className="text-sm text-[rgb(var(--accent))] font-semibold underline underline-offset-2 hover:no-underline transition-colors"
-                >
-                  Limpiar todo
-                </button>
+          <div className="flex items-center justify-between sm:justify-end gap-3">
+            <span className="text-xs text-sage-gray">
+              {loading ? (
+                "Buscando…"
+              ) : (
+                <>
+                  <strong className="text-white font-semibold">{totalProducts}</strong> productos
+                </>
               )}
-            </div>
+            </span>
 
-            {/* Categorías */}
-            <div className="mb-4">
-              <p className="text-sm font-semibold text-[rgb(var(--primary))] mb-2">Categoría</p>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => setSelectedCategory("all")}
-                  className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
-                    selectedCategory === "all"
-                      ? "bg-[rgb(var(--primary))] text-white border-[rgb(var(--primary))]"
-                      : "bg-white text-[rgb(var(--primary))] border-[rgb(var(--line))] hover:bg-[rgb(var(--neutral))]"
-                  }`}
-                >
-                  Todas
-                </button>
-                {categories.map((category) => (
-                  <button
-                    key={category.id}
-                    type="button"
-                    onClick={() => setSelectedCategory(category.id)}
-                    className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
-                      selectedCategory === category.id
-                        ? "bg-[rgb(var(--primary))] text-white border-[rgb(var(--primary))]"
-                        : "bg-white text-[rgb(var(--primary))] border-[rgb(var(--line))] hover:bg-[rgb(var(--neutral))]"
-                    }`}
-                  >
-                    {category.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Precio */}
-            <div className="mb-4">
-              <p className="text-sm font-semibold text-[rgb(var(--primary))] mb-2">Precio</p>
-              <div className="flex gap-2 items-center">
-                <input
-                  type="number"
-                  placeholder="Mín"
-                  value={minPrice}
-                  onChange={(e) => setMinPrice(e.target.value)}
-                  className="w-1/2 px-3 py-1.5 rounded-lg border border-[rgb(var(--line))] text-sm focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))] transition"
-                  aria-label="Precio mínimo"
-                  min="0"
-                />
-                <span className="text-[rgb(var(--muted))]">-</span>
-                <input
-                  type="number"
-                  placeholder="Máx"
-                  value={maxPrice}
-                  onChange={(e) => setMaxPrice(e.target.value)}
-                  className="w-1/2 px-3 py-1.5 rounded-lg border border-[rgb(var(--line))] text-sm focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))] transition"
-                  aria-label="Precio máximo"
-                  min="0"
-                />
-              </div>
-            </div>
-
-            {/* Ordenamiento */}
-            <div>
-              <p className="text-sm font-semibold text-[rgb(var(--primary))] mb-2">Ordenar por</p>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as SortOption)}
-                className="w-full px-3 py-1.5 rounded-lg border border-[rgb(var(--line))] text-sm focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))] transition"
-                aria-label="Ordenar productos"
-              >
-                <option value="recent">Más recientes</option>
-                <option value="price-asc">Menor precio</option>
-                <option value="price-desc">Mayor precio</option>
-                <option value="name">Nombre A-Z</option>
-              </select>
-            </div>
-          </div>
-        )}
-
-        {/* Estados de carga: skeletons con la misma grilla que el resultado */}
-        {loading && (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4" aria-busy="true" aria-label="Cargando productos">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div
-                key={i}
-                className="bg-white rounded-2xl border border-[rgb(var(--line))] overflow-hidden animate-pulse"
-              >
-                <div className="aspect-square bg-[rgb(var(--neutral))]" />
-                <div className="p-3 flex flex-col gap-2">
-                  <div className="h-2.5 w-1/3 rounded-full bg-[rgb(var(--neutral))]" />
-                  <div className="h-3.5 w-full rounded-full bg-[rgb(var(--neutral))]" />
-                  <div className="h-3.5 w-2/3 rounded-full bg-[rgb(var(--neutral))]" />
-                  <div className="h-5 w-1/2 rounded-full bg-[rgb(var(--neutral))] mt-1" />
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Estado de error con botón Reintentar (recarga datos sin refrescar la página) */}
-        {error && !loading && (
-          <div
-            className="rounded-2xl border border-[rgb(var(--color-danger-border))] bg-[rgb(var(--color-danger-bg))] p-6 text-center"
-            role="alert"
-          >
-            <p className="font-bold text-[rgb(var(--color-danger-text))]">No pudimos cargar el catálogo</p>
-            <p className="text-sm text-[rgb(var(--color-danger-text))]/80 mt-1">{error}</p>
+            {/* Botón Filtros Mobile */}
             <button
               type="button"
-              onClick={load}
-              className="btn btn-primary mt-4"
+              onClick={() => setMobileFiltersOpen(true)}
+              className="lg:hidden inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-shaded-fern border border-spruce-border text-xs font-semibold hover:border-accent-brand transition cursor-pointer"
             >
-              Reintentar
+              <SlidersHorizontal size={14} className="text-accent-brand" />
+              <span>Filtros</span>
+              {activeFiltersCount > 0 && (
+                <span className="bg-accent-brand text-midnight-forest text-[10px] font-bold px-1.5 py-0.2 rounded-full">
+                  {activeFiltersCount}
+                </span>
+              )}
             </button>
           </div>
-        )}
+        </div>
 
-        {/* Lista de productos */}
-        {!loading && !error && (
-          <>
-            <p className="text-sm text-[rgb(var(--muted))] mb-3">
-              {filteredProducts.length}{" "}
-              {filteredProducts.length === 1 ? "producto" : "productos"}
-              {activeFiltersCount > 0 && " encontrados"}
-            </p>
+        {/* LAYOUT: SIDEBAR DESKTOP + GRILLA DE PRODUCTOS */}
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* SIDEBAR DESKTOP (fijo y sticky) */}
+          <aside className="hidden lg:block w-72 shrink-0">
+            <div className="sticky top-24">
+              <FilterPanel
+                selectedCategory={selectedCategory}
+                setSelectedCategory={(cat) => {
+                  setSelectedCategory(cat);
+                  setPage(1);
+                }}
+                search={search}
+                setSearch={setSearch}
+                minPrice={minPrice}
+                setMinPrice={(v) => {
+                  setMinPrice(v);
+                  setPage(1);
+                }}
+                maxPrice={maxPrice}
+                setMaxPrice={(v) => {
+                  setMaxPrice(v);
+                  setPage(1);
+                }}
+                brand={brand}
+                setBrand={(b) => {
+                  setBrand(b);
+                  setPage(1);
+                }}
+                inStock={inStock}
+                setInStock={(s) => {
+                  setInStock(s);
+                  setPage(1);
+                }}
+                sortBy={sortBy}
+                setSortBy={(s) => {
+                  setSortBy(s);
+                  setPage(1);
+                }}
+                categories={categories}
+                brands={brands}
+              />
+            </div>
+          </aside>
 
-            {filteredProducts.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-[rgb(var(--muted))] mb-4">
-                  No encontramos productos con esos filtros.
+          {/* ÁREA PRINCIPAL DE CONTENIDO */}
+          <main className="flex-1 min-w-0">
+            {/* ESTADO CARGANDO */}
+            {loading && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="bg-deep-lichen rounded-xl border border-spruce-border overflow-hidden animate-pulse"
+                  >
+                    <div className="aspect-[4/3] bg-shaded-fern" />
+                    <div className="p-4 flex flex-col gap-2">
+                      <div className="h-2.5 w-1/3 rounded-full bg-shaded-fern" />
+                      <div className="h-3.5 w-full rounded-full bg-shaded-fern" />
+                      <div className="h-3.5 w-2/3 rounded-full bg-shaded-fern" />
+                      <div className="h-5 w-1/2 rounded-full bg-shaded-fern mt-1" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* ESTADO ERROR */}
+            {error && !loading && (
+              <div className="rounded-2xl border border-[rgb(var(--color-danger-border))] bg-[rgb(var(--color-danger-bg))] p-8 text-center my-6">
+                <p className="font-semibold text-base text-[rgb(var(--color-danger-text))]">
+                  No pudimos cargar los productos
+                </p>
+                <p className="text-xs text-[rgb(var(--color-danger-text))]/80 mt-1">{error}</p>
+                <button
+                  type="button"
+                  onClick={loadProducts}
+                  className="btn btn-primary mt-4 text-xs font-semibold"
+                >
+                  Reintentar
+                </button>
+              </div>
+            )}
+
+            {/* SIN RESULTADOS */}
+            {!loading && !error && products.length === 0 && (
+              <div className="bg-deep-lichen border border-spruce-border rounded-2xl p-12 text-center my-4">
+                <PackageOpen size={48} className="mx-auto mb-3 text-sage-gray/50" />
+                <h3 className="text-base font-bold text-white">No encontramos productos</h3>
+                <p className="text-xs text-sage-gray mt-1 max-w-sm mx-auto">
+                  Probá ajustando o limpiando los filtros de búsqueda para ver más opciones de fábrica.
                 </p>
                 <button
                   type="button"
-                  onClick={clearFilters}
-                  className="btn btn-primary"
+                  onClick={handleClearAll}
+                  className="btn btn-primary mt-6 text-xs font-bold"
                 >
                   Limpiar filtros
                 </button>
               </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-                {filteredProducts.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    id={product.id}
-                    img={product.images?.[0] || ""}
-                    name={product.name}
-                    provider={product.brand || "La Rosarina"}
-                    category={product.category?.name ?? "General"}
-                    price={`$${product.price.toFixed(2)}`}
-                    onClick={() => navigate(`/productos/${product.id}`)}
-                  />
-                ))}
-              </div>
             )}
-          </>
-        )}
+
+            {/* GRILLA DE PRODUCTOS */}
+            {!loading && !error && products.length > 0 && (
+              <>
+                <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+                  {products.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      id={product.id}
+                      img={product.images?.[0] || ""}
+                      name={product.name}
+                      provider={product.brand || "Carsoplac"}
+                      category={
+                        typeof product.category === "object" && product.category?.name
+                          ? product.category.name
+                          : "Placas"
+                      }
+                      price={`$${(product.price ?? 0).toLocaleString("es-AR")}`}
+                      onClick={() => navigate(`/productos/${product.id}`)}
+                    />
+                  ))}
+                </div>
+
+                {/* PAGINACIÓN SERVER-SIDE */}
+                {totalPages > 1 && (
+                  <nav
+                    aria-label="Paginación del catálogo"
+                    className="flex flex-wrap items-center justify-center gap-2 mt-10 pt-6 border-t border-spruce-border"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      disabled={page === 1}
+                      aria-label="Página anterior"
+                      className="flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-semibold bg-deep-lichen border border-spruce-border text-sage-gray hover:text-white disabled:opacity-40 disabled:pointer-events-none transition"
+                    >
+                      <ChevronLeft size={16} />
+                      <span className="hidden sm:inline">Anterior</span>
+                    </button>
+
+                    <div className="flex items-center gap-1">
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => {
+                        // En catálogos grandes, mostrar paginación concisa
+                        if (
+                          p === 1 ||
+                          p === totalPages ||
+                          (p >= page - 1 && p <= page + 1)
+                        ) {
+                          return (
+                            <button
+                              key={p}
+                              type="button"
+                              onClick={() => setPage(p)}
+                              className={`w-9 h-9 rounded-xl text-xs font-bold transition ${
+                                page === p
+                                  ? "bg-accent-brand text-midnight-forest shadow-sm"
+                                  : "bg-deep-lichen border border-spruce-border text-sage-gray hover:text-white hover:bg-shaded-fern"
+                              }`}
+                            >
+                              {p}
+                            </button>
+                          );
+                        } else if (p === page - 2 || p === page + 2) {
+                          return (
+                            <span key={p} className="px-1 text-sage-gray text-xs">
+                              …
+                            </span>
+                          );
+                        }
+                        return null;
+                      })}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                      disabled={page === totalPages}
+                      aria-label="Página siguiente"
+                      className="flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-semibold bg-deep-lichen border border-spruce-border text-sage-gray hover:text-white disabled:opacity-40 disabled:pointer-events-none transition"
+                    >
+                      <span className="hidden sm:inline">Siguiente</span>
+                      <ChevronRight size={16} />
+                    </button>
+                  </nav>
+                )}
+              </>
+            )}
+          </main>
+        </div>
       </div>
 
-      {/* SECCIONES INFERIORES */}
-      <div className="w-full mt-8">
+      {/* DRAWER MÓVIL DE FILTROS */}
+      {mobileFiltersOpen && (
+        <>
+          <div
+            onClick={() => setMobileFiltersOpen(false)}
+            className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm transition-opacity"
+            aria-hidden
+          />
+          <aside
+            className="fixed inset-y-0 right-0 z-50 w-full max-w-sm bg-deep-lichen border-l border-spruce-border p-5 shadow-2xl flex flex-col"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Filtros de búsqueda"
+          >
+            <FilterPanel
+              selectedCategory={selectedCategory}
+              setSelectedCategory={(c) => {
+                setSelectedCategory(c);
+                setPage(1);
+              }}
+              search={search}
+              setSearch={setSearch}
+              minPrice={minPrice}
+              setMinPrice={(v) => {
+                setMinPrice(v);
+                setPage(1);
+              }}
+              maxPrice={maxPrice}
+              setMaxPrice={(v) => {
+                setMaxPrice(v);
+                setPage(1);
+              }}
+              brand={brand}
+              setBrand={(b) => {
+                setBrand(b);
+                setPage(1);
+              }}
+              inStock={inStock}
+              setInStock={(s) => {
+                setInStock(s);
+                setPage(1);
+              }}
+              sortBy={sortBy}
+              setSortBy={(s) => {
+                setSortBy(s);
+                setPage(1);
+              }}
+              categories={categories}
+              brands={brands}
+              onClose={() => setMobileFiltersOpen(false)}
+              isDrawer={true}
+            />
+          </aside>
+        </>
+      )}
+
+      {/* SECCIÓN PREGUNTAS FRECUENTES */}
+      <div className="mt-16">
         <FaqSection />
       </div>
     </div>

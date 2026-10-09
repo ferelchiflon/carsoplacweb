@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
   UploadedFiles,
   UseInterceptors,
   UseGuards,
@@ -17,6 +18,7 @@ import { ProductService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
+import { ProductsQueryDto } from './dto/products-query.dto';
 import {
   PRODUCT_IMAGES_MULTER_OPTIONS,
   getSanitizedFileInfo,
@@ -58,8 +60,13 @@ export class ProductController {
   }
 
   @Get()
-  findAll() {
-    return this.productService.findAll();
+  async findAll(@Query() query: ProductsQueryDto) {
+    return this.productService.findAll(query);
+  }
+
+  @Get('filters')
+  async getFilters() {
+    return this.productService.getFilters();
   }
 
   @Get(':id')
@@ -67,6 +74,7 @@ export class ProductController {
     return this.productService.findOne(id);
   }
 
+@UseGuards(AuthGuard)
   @Patch(':id')
   update(
     @Param('id') id: string,
@@ -74,6 +82,7 @@ export class ProductController {
   ) {
     return this.productService.update(id, updateProductDto);
   }
+@UseGuards(AuthGuard)
 
   @Delete(':id')
   remove(@Param('id') id: string) {

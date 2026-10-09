@@ -40,10 +40,11 @@ export default function Home() {
         }
         return res.json();
       })
-      .then((data: Product[]) => {
+      .then((data: any) => {
         if (cancelled) return;
-        setProducts(Array.isArray(data) ? data : []);
-        setState(Array.isArray(data) && data.length > 0 ? "ready" : "empty");
+        const list = Array.isArray(data) ? data : Array.isArray(data?.data) ? data.data : [];
+        setProducts(list);
+        setState(list.length > 0 ? "ready" : "empty");
       })
       .catch((err: unknown) => {
         if (cancelled) return;
@@ -71,7 +72,7 @@ export default function Home() {
           {Array.from({ length: 8 }).map((_, i) => (
             <div
               key={i}
-              className="skeleton w-full aspect-[4/5] rounded-2xl"
+              className="skeleton w-full aspect-[4/5] rounded-xl"
               role="status"
             />
           ))}
@@ -91,7 +92,7 @@ export default function Home() {
           <button
             type="button"
             onClick={() => window.location.reload()}
-            className="btn btn-outline border-white text-white hover:bg-white hover:text-[rgb(var(--primary))] mt-2"
+            className="btn btn-outline mt-2"
           >
             Reintentar
           </button>
@@ -143,25 +144,27 @@ export default function Home() {
     <main>
       <HeroSlider slides={slides} intervalMs={5000} />
 
+      {/* Productos destacados */}
       <section
         aria-labelledby="products-heading"
-        className="px-4 bg-[rgb(var(--primary))]"
+        className="bg-midnight-forest py-12 md:py-20"
       >
-        <SectionHeader
-          title="DIRECTO DE FÁBRICA"
-          subtitle="CALIDAD EN TU HOGAR"
-          onViewAll={handleViewAll}
-        />
-        <h2 id="products-heading" className="sr-only">
-          Productos
-        </h2>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SectionHeader
+            title="DIRECTO DE FÁBRICA"
+            subtitle="CALIDAD EN TU HOGAR"
+            onViewAll={handleViewAll}
+          />
+          <h2 id="products-heading" className="sr-only">
+            Productos
+          </h2>
 
-        {renderProductsContent()}
+          {renderProductsContent()}
+        </div>
       </section>
 
-      <div className="w-full">
-        <FaqSection />
-      </div>
+      {/* Preguntas frecuentes */}
+      <FaqSection />
     </main>
   );
 }
