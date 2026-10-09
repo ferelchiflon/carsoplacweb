@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
+import { useFavorites } from "../context/FavoritesContext";
+import { Heart, MessageCircle } from "lucide-react";
 import { API_URL } from "../config/api";
 import { fetchWithTimeout, getFetchErrorMsg } from "../utils/fetchWithTimeout";
+import { WHATSAPP_CONFIG } from "../config/whatsapp";
 
 type Product = {
   id: string;
@@ -25,6 +28,8 @@ export default function ProductDetailPage() {
   const [adding, setAdding] = useState(false);
   const [added, setAdded] = useState(false);
   const { addToCart } = useCart();
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const isFav = product ? isFavorite(product.id) : false;
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -188,20 +193,56 @@ export default function ProductDetailPage() {
             </div>
           </div>
 
-          <button
-            type="button"
-            className={`btn btn-primary w-full ${
-              added ? "!bg-accent-brand !text-midnight-forest" : ""
-            }`}
-            onClick={handleAddToCart}
-            disabled={adding || product.stock === 0}
+          <div className="flex gap-3">
+            <button
+              type="button"
+              className={`btn btn-primary flex-1 ${
+                added ? "!bg-accent-brand !text-midnight-forest" : ""
+              }`}
+              onClick={handleAddToCart}
+              disabled={adding || product.stock === 0}
+            >
+              {added
+                ? "✓ Agregado al carrito"
+                : adding
+                ? "Agregando..."
+                : "🛒 Agregar al carrito"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                if (!product) return;
+                toggleFavorite({
+                  id: product.id,
+                  name: product.name,
+                  price: product.price,
+                  images: product.images,
+                });
+              }}
+              aria-label={isFav ? "Quitar de favoritos" : "Guardar en favoritos"}
+              title={isFav ? "Quitar de favoritos" : "Guardar en favoritos"}
+              className={`w-12 h-12 flex items-center justify-center rounded-xl border transition-colors ${
+                isFav
+                  ? "bg-midnight-forest border-accent-brand text-accent-brand"
+                  : "bg-deep-lichen border-spruce-border text-white hover:border-accent-brand/50"
+              }`}
+            >
+              <Heart size={20} fill={isFav ? "currentColor" : "none"} />
+            </button>
+          </div>
+
+          {/* Botón directo de consulta rápida por WhatsApp para este producto */}
+          <a
+            href={`https://wa.me/${WHATSAPP_CONFIG.phoneNumberRaw}?text=${encodeURIComponent(
+              WHATSAPP_CONFIG.productMessage(product.name, window.location.href)
+            )}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl border border-[#25D366]/40 bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366] hover:text-midnight-forest font-semibold text-xs tracking-wide transition-all"
           >
-            {added
-              ? "✓ Agregado al carrito"
-              : adding
-              ? "Agregando..."
-              : "🛒 Agregar al carrito"}
-          </button>
+            <MessageCircle size={16} />
+            Consultar stock / presupuesto por WhatsApp
+          </a>
 
           <div className="mt-2 flex flex-col gap-3 border-t border-spruce-border pt-5">
             <div className="flex items-start gap-3">

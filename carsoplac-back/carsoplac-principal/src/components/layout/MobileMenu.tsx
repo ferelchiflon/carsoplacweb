@@ -19,6 +19,7 @@ import {
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth";
+import { getWhatsAppUrl } from "../../config/whatsapp";
 
 type CatItem = { name: string; to: string; Icon: typeof Layers };
 
@@ -45,10 +46,10 @@ type AccountItem = {
 };
 
 const accountLinks: AccountItem[] = [
-  { label: "Mi cuenta", to: "/cuenta", Icon: User, disabled: true },
-  { label: "Mis pedidos", to: "/cuenta/pedidos", Icon: Package, disabled: true },
-  { label: "Favoritos", to: "/cuenta/favoritos", Icon: Heart, disabled: true },
-  { label: "Ayuda", to: "/ayuda", Icon: HelpCircle, disabled: true },
+  { label: "Mi cuenta", to: "/mi-cuenta", Icon: User, disabled: false },
+  { label: "Mis pedidos", to: "/mi-cuenta", Icon: Package, disabled: false },
+  { label: "Favoritos", to: "/mi-cuenta", Icon: Heart, disabled: false },
+  { label: "Ayuda", to: "/contacto", Icon: HelpCircle, disabled: false },
 ];
 
 // Otros items del menú (también tipados para soportar placeholders).
@@ -76,20 +77,11 @@ export default function MobileMenu({
   const [openProducts, setOpenProducts] = useState(true);
   const [searchValue, setSearchValue] = useState("");
   const { user } = useAuth();
-  const authAccountLinks = accountLinks.map(link => {
-    if (link.label === "Mi cuenta") {
-      return {
-        ...link,
-        to: user ? "/cuenta" : "/login",
-        disabled: false,
-      };
-    }
-    // For other account items, require auth
-    return {
-      ...link,
-      disabled: !user,
-    };
-  });
+  const authAccountLinks = accountLinks.map(link => ({
+    ...link,
+    to: user ? link.to : "/login",
+    disabled: false,
+  }));
 
   const close = () => onClose();
 
@@ -346,11 +338,11 @@ export default function MobileMenu({
         <div className="px-5 py-5 border-t border-spruce-border space-y-2 bg-shaded-fern">
           <p className="eyebrow">¿Necesitás asesoramiento?</p>
           <a
-            href="https://wa.me/5491100000000"
-            target="_blank"
-            rel="noreferrer"
-            className="btn btn-primary w-full !rounded-full"
-          >
+  href={getWhatsAppUrl()}
+  target="_blank"
+  rel="noreferrer"
+  className="btn btn-primary w-full !rounded-full"
+>
             Hablar por WhatsApp
           </a>
           <p className="text-[11px] text-sage-gray text-center">

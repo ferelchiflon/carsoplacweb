@@ -1,7 +1,11 @@
 import { initMercadoPago, Wallet } from "@mercadopago/sdk-react";
 
 // Inicializa Mercado Pago con tu Public Key
-initMercadoPago("APP_USR-9015ddba-4779-486d-9fef-7f84ca30b382");
+const mpPublicKey = import.meta.env.VITE_MP_PUBLIC_KEY;
+if (!mpPublicKey) {
+  throw new Error('MercadoPago public key is not defined. Set VITE_MP_PUBLIC_KEY in your .env file');
+}
+initMercadoPago(mpPublicKey);
 
 type Props = {
   preferenceId: string;

@@ -3,7 +3,7 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Search, User, ShoppingCart } from "lucide-react";
 import LOGO from "../../assets/imagenes/LOGO CARSO.png";
 import { useCart } from "../../context/CartContext";
-
+import { useAuth } from "./hooks/useAuth";
 
 const NAV = [
   { label: "Inicio", to: "/" },
@@ -22,6 +22,7 @@ export default function Navbar({ onOpenCart, onOpenSearch, onOpenMobileMenu }: P
   const [scrolled, setScrolled] = useState(false);
   const navigate = useNavigate();
   const { totalItems } = useCart();
+  const { user } = useAuth();
   const raf = useRef<number | null>(null);
   
 
@@ -117,19 +118,21 @@ export default function Navbar({ onOpenCart, onOpenSearch, onOpenMobileMenu }: P
           </button>
 
           <button
-            onClick={() => navigate("/login")}
-            aria-label="Mi cuenta"
-            title="Mi cuenta"
-            className={`${iconBtnBase} hidden sm:grid ${iconBtnState}`}
+            onClick={() => navigate(user ? "/mi-cuenta" : "/login")}
+            aria-label={user ? "Mi cuenta" : "Iniciar sesión"}
+            title={user ? "Mi cuenta" : "Iniciar sesión"}
+            className={`${iconBtnBase} hidden sm:grid ${iconBtnState} ${
+              user ? "text-accent-brand" : iconColor
+            }`}
           >
-            <User size={20} strokeWidth={1.8} className={`transition-colors ${iconColor}`} />
+            <User size={20} strokeWidth={1.8} />
           </button>
 
           <button
             onClick={onOpenCart}
             aria-label="Carrito"
             title="Ver carrito"
-            className="w-10 h-10 place-items-center rounded-full bg-white transition cursor-pointer active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 hover:bg-mist-gray"
+            className="relative grid w-10 h-10 place-items-center rounded-full bg-white transition cursor-pointer active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 hover:bg-mist-gray"
           >
             <ShoppingCart size={20} strokeWidth={1.8} className="transition-colors text-midnight-forest" />
             {totalItems > 0 && (
