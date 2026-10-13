@@ -1,15 +1,21 @@
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import cookieParser from 'cookie-parser';
+import helmet from 'helmet';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const configService = app.get(ConfigService);
   const logger = new Logger('Bootstrap');
 
   app.use(cookieParser());
+  app.use(helmet());
+
+  // Trust proxy for proper IP detection when behind a reverse proxy (e.g., Vercel, Nginx)
+  app.set('trust proxy', 1);
 
   // CORS estricto: solo orígenes explícitos desde env (no usar origin:true)
   const corsOrigins = (configService.get<string>('CORS_ORIGINS') || '')
