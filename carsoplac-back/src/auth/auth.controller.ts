@@ -2,21 +2,25 @@
 import {
   Body,
   Controller,
+  Get,
   Post,
   Res,
   HttpCode,
   UseGuards,
-  //Req,
+  Req,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { Response, Request } from 'express';
 import { AuthService } from './auth.service';
 import { AuthGuard } from './guards/auth.guard';
 import { LoginDto } from './dto/login.dto';
+import { AuthenticatedRequest } from '../types/http';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Post('login')
   @HttpCode(200)
   async login(@Body() dto: LoginDto, @Res() res: Response) {
@@ -49,11 +53,11 @@ export class AuthController {
   //   @HttpCode(200)
   //   @UseGuards(AuthGuard)
   //   async changePassword(
-  //     @Req() req: Request,
+  //     @Req() req: AuthenticatedRequest,
   //     @Res() res: Response,
   //     @Body() body: { currentPassword: string; newPassword: string },
   //   ) {
-  //     const user = req['user'] as { sub: string };
+  //     const user = req.user;
   //     await this.authService.changePassword(
   //       user.sub,
   //       body.currentPassword,
@@ -66,7 +70,7 @@ export class AuthController {
   //   }
   @Get('me')
   @UseGuards(AuthGuard)
-  async me(@Req() req: Request) {
+  async me(@Req() req: AuthenticatedRequest) {
     return req.user;
   }
 }
