@@ -13,6 +13,8 @@ import {
   BadRequestException,
   Logger,
 } from '@nestjs/common';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ProductService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -35,8 +37,9 @@ export class ProductController {
    * - Multer aplica fileFilter (whitelist MIME/extensión) y limits (DoS/OOM).
    * - Se exige al menos una imagen (la lógica de negocio puede relajarlo si quiere).
    */
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('ADMIN')
   @Post()
-  @UseGuards(AuthGuard)
   @UseInterceptors(FilesInterceptor('images', 10, PRODUCT_IMAGES_MULTER_OPTIONS))
   async create(
     @UploadedFiles() files: Express.Multer.File[],
@@ -74,7 +77,8 @@ export class ProductController {
     return this.productService.findOne(id);
   }
 
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, RolesGuard)
+  @Roles('ADMIN')
   @Patch(':id')
   update(
     @Param('id') id: string,
@@ -82,7 +86,8 @@ export class ProductController {
   ) {
     return this.productService.update(id, updateProductDto);
   }
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, RolesGuard)
+  @Roles('ADMIN')
 
   @Delete(':id')
   remove(@Param('id') id: string) {

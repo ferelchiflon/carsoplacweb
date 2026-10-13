@@ -20,5 +20,5 @@
     "noFallthroughCasesInSwitch": false,
     "esModuleInterop": true
   },
-  "exclude": ["node_modules", "dist", "carsoplac-principal"]
+  "exclude": ["node_modules", "dist", "carsoplac-principal", "testing-backup"]
 }
