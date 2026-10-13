@@ -349,7 +349,7 @@ export default function ProductsPage() {
             {/* GRILLA DE PRODUCTOS */}
             {!loading && !error && products.length > 0 && (
               <>
-                <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+                <div className="grid grid-cols-1 min-[420px]:grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
                   {products.map((product) => (
                     <ProductCard
                       key={product.id}
