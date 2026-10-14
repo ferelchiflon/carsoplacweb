@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
 import { useCart } from "../context/CartContext";
+import { getWhatsAppUrl } from "../config/whatsapp";
 import Seo from "../components/Seo";
 import { cloudinaryUrl } from "../lib/cloudinary";
 
@@ -129,6 +130,35 @@ export default function CheckoutPage() {
     e.preventDefault();
     setSubmitted(true);
     setErrors(validate(form));
+  };
+
+  const isValid = Object.keys(validate(form)).length === 0;
+
+  // Pedido por WhatsApp: abre el chat con el resumen del carrito y los datos
+  // del comprador. No vacía el carrito: la confirmación ocurre en el chat.
+  const handleWhatsAppOrder = () => {
+    if (!isValid || !hasItems) return;
+    const lines: string[] = [
+      "¡Hola! Quiero hacer un pedido:",
+      "",
+      ...cart.map(
+        (item) =>
+          `• ${item.quantity} x ${item.name} – ${formatPrice(item.price * item.quantity)}`,
+      ),
+      "",
+      `Total: ${formatPrice(total)}`,
+      "",
+      "Mis datos:",
+      `Nombre: ${form.fullName.trim()}`,
+      `Teléfono: ${form.phone.trim()}`,
+      `Dirección: ${form.street.trim()}, ${form.city.trim()}, ${form.province.trim()} (CP ${form.zip.trim()})`,
+    ];
+    if (form.notes.trim()) {
+      lines.push(`Notas: ${form.notes.trim()}`);
+    }
+    // getWhatsAppUrl ya aplica encodeURIComponent al mensaje.
+    const url = getWhatsAppUrl(lines.join("\n"));
+    window.open(url, "_blank", "noopener,noreferrer");
   };
 
   // Carrito vacío: mensaje con botón "Ver productos", sin formulario.
@@ -274,12 +304,30 @@ export default function CheckoutPage() {
               </p>
             </div>
 
-            <button type="submit" className="btn btn-primary w-full sm:w-auto mt-2">
-              Continuar
+            {/* Botón principal: habilitado solo con formulario válido e ítems. */}
+            <button
+              type="button"
+              onClick={handleWhatsAppOrder}
+              disabled={!isValid || !hasItems}
+              className="btn btn-primary w-full mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Pedir por WhatsApp
             </button>
+
+            {/* Pago online sin conectar: el flujo de preferencias de MercadoPago
+                todavía no está disponible (no hay POST /orders funcional). */}
+            <button
+              type="button"
+              disabled
+              title="Disponible próximamente"
+              className="btn btn-outline w-full mt-3 disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              Pago online: próximamente
+            </button>
+
             <p className="text-xs text-sage-gray">
-              Tus datos se guardan solo en este dispositivo por ahora; no se
-              envían a ningún servidor.
+              Se abre WhatsApp con el resumen de tu pedido. El carrito no se
+              vacía automáticamente.
             </p>
           </form>
         </section>
