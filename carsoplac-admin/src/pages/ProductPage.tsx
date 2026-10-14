@@ -105,6 +105,17 @@ function getApiError(err: any, fallback: string): string {
   return detail || err?.message || fallback;
 }
 
+/**
+ * Igual que getApiError, pero con fallback específico para categorías:
+ * si el backend no envía detalle en un 404, no decimos "producto".
+ */
+function getCategoryApiError(err: any, fallback: string): string {
+  if (err?.response?.status === 404 && !err?.response?.data?.message) {
+    return fallback;
+  }
+  return getApiError(err, fallback);
+}
+
 export default function ProductsPage() {
   const [products, setProducts] = useState<ProductRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -151,6 +162,15 @@ export default function ProductsPage() {
   const [stockStatus, setStockStatus] = useState<
     Record<string, { type: "ok" | "error"; message: string }>
   >({});
+
+  // ── Categorías: edición en línea y eliminación con confirmación ──
+  const [editingCatId, setEditingCatId] = useState<number | null>(null);
+  const [editingCatName, setEditingCatName] = useState("");
+  const [savingCat, setSavingCat] = useState(false);
+  const [catEditError, setCatEditError] = useState<string | null>(null);
+  const [deletingCat, setDeletingCat] = useState<Category | null>(null);
+  const [deletingCatBusy, setDeletingCatBusy] = useState(false);
+  const [catDeleteError, setCatDeleteError] = useState<string | null>(null);
 
   const lowOrOutCount = products.filter(
     (p) => buildStockState(p.stock) !== "ok",
@@ -494,6 +514,102 @@ export default function ProductsPage() {
     }
   }
 
+  /** Conteo de productos por categoría usando la lista ya cargada en el admin. */
+  function countProductsInCategory(categoryId: number | string): number {
+    return products.filter((p) => String(p.category?.id) === String(categoryId))
+      .length;
+  }
+
+  /** Edición en línea: precarga el nombre actual en el input de la fila. */
+  function startEditCategory(cat: Category) {
+    setCatEditError(null);
+    setEditingCatId(cat.id);
+    setEditingCatName(cat.name);
+  }
+
+  function cancelEditCategory() {
+    if (savingCat) return;
+    setEditingCatId(null);
+    setEditingCatName("");
+    setCatEditError(null);
+  }
+
+  /**
+   * PATCH /categories/:id con { name }. Valida: recortado, >= 2 caracteres.
+   * En éxito actualiza chips y las filas de productos (category.name) sin
+   * recargar; en error muestra el mensaje del backend (401/404/400).
+   */
+  async function saveCategory() {
+    if (editingCatId === null || savingCat) return;
+    const trimmed = editingCatName.trim();
+    if (trimmed.length < 2) {
+      setCatEditError(
+        "El nombre debe tener al menos 2 caracteres, sin espacios al inicio ni al final",
+      );
+      return;
+    }
+    const original = categories.find((c) => c.id === editingCatId);
+    if (!original) {
+      setEditingCatId(null);
+      return;
+    }
+    // Sin cambios reales no se dispara ninguna petición.
+    if (trimmed === original.name) {
+      cancelEditCategory();
+      return;
+    }
+    setSavingCat(true);
+    setCatEditError(null);
+    try {
+      const res = await api.patch(`/categories/${editingCatId}`, {
+        name: trimmed,
+      });
+      const newName: string = res.data?.name ?? trimmed;
+      setCategories((prev) =>
+        prev.map((c) => (c.id === editingCatId ? { ...c, name: newName } : c)),
+      );
+      setProducts((prev) =>
+        prev.map((p) => {
+          if (!p.category || String(p.category.id) !== String(editingCatId)) {
+            return p;
+          }
+          return { ...p, category: { id: p.category.id, name: newName } };
+        }),
+      );
+      setEditingCatId(null);
+      setEditingCatName("");
+    } catch (err: any) {
+      setCatEditError(getCategoryApiError(err, "Error al renombrar la categoría"));
+    } finally {
+      setSavingCat(false);
+    }
+  }
+
+  /** Abre el modal de confirmación (muestra el conteo de productos asociados). */
+  function openDeleteCategory(cat: Category) {
+    setCatDeleteError(null);
+    setDeletingCat(cat);
+  }
+
+  /**
+   * DELETE /categories/:id. No reasigna productos ni hace borrados en cascada:
+   * tras eliminar, recarga productos y categorías desde el backend.
+   */
+  async function confirmDeleteCategory() {
+    if (!deletingCat || deletingCatBusy) return;
+    setDeletingCatBusy(true);
+    setCatDeleteError(null);
+    try {
+      await api.delete(`/categories/${deletingCat.id}`);
+      setDeletingCat(null);
+      setReloadKey((k) => k + 1);
+    } catch (err: any) {
+      setCatDeleteError(getCategoryApiError(err, "Error al eliminar la categoría"));
+    } finally {
+      setDeletingCatBusy(false);
+    }
+  }
+
   if (loading)
     return (
       <div className={styles.page}>
@@ -601,11 +717,102 @@ export default function ProductsPage() {
         </div>
 
         <div className={styles.categoryList}>
-          {categories.map((cat) => (
-            <span key={cat.id} className={styles.categoryChip}>
-              {cat.name}
-            </span>
-          ))}
+          {categories.map((cat) => {
+            const isEditing = editingCatId === cat.id;
+            const catBusy = savingCat || deletingCatBusy;
+            return (
+              <div
+                key={cat.id}
+                className={styles.categoryChip}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  flexWrap: "wrap",
+                }}
+              >
+                {isEditing ? (
+                  <>
+                    <input
+                      value={editingCatName}
+                      onChange={(e) => setEditingCatName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          saveCategory();
+                        }
+                        if (e.key === "Escape") {
+                          e.preventDefault();
+                          cancelEditCategory();
+                        }
+                      }}
+                      disabled={savingCat}
+                      aria-label="Nuevo nombre de la categoría"
+                      style={{
+                        border: "1px solid #d0d0d0",
+                        borderRadius: 6,
+                        padding: "0.15rem 0.4rem",
+                        fontSize: "0.8rem",
+                        width: "10rem",
+                      }}
+                    />
+                    <button
+                      type="button"
+                      className={styles.btnSecondary}
+                      onClick={saveCategory}
+                      disabled={savingCat || editingCatName.trim().length < 2}
+                      style={{ padding: "0.15rem 0.5rem", fontSize: "0.72rem" }}
+                    >
+                      {savingCat ? "..." : "Guardar"}
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.btnSecondary}
+                      onClick={cancelEditCategory}
+                      disabled={savingCat}
+                      style={{ padding: "0.15rem 0.5rem", fontSize: "0.72rem" }}
+                    >
+                      Cancelar
+                    </button>
+                    {catEditError && (
+                      <span
+                        role="alert"
+                        style={{
+                          color: "#b3261e",
+                          fontSize: "0.72rem",
+                          width: "100%",
+                        }}
+                      >
+                        {catEditError}
+                      </span>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <span>{cat.name}</span>
+                    <button
+                      type="button"
+                      className={styles.btnSecondary}
+                      onClick={() => startEditCategory(cat)}
+                      disabled={catBusy}
+                      style={{ padding: "0.1rem 0.45rem", fontSize: "0.72rem" }}
+                    >
+                      Editar
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.btnSecondary}
+                      onClick={() => openDeleteCategory(cat)}
+                      disabled={catBusy}
+                      style={{ padding: "0.1rem 0.45rem", fontSize: "0.72rem" }}
+                    >
+                      Eliminar
+                    </button>
+                  </>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
       {/* ─────────────── LISTADO DE PRODUCTOS ─────────────── */}
@@ -1135,6 +1342,80 @@ export default function ProductsPage() {
                 disabled={deletingBusy}
               >
                 {deletingBusy ? "Eliminando..." : "Eliminar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─────────────── MODAL: CONFIRMAR ELIMINACIÓN DE CATEGORÍA ─────────────── */}
+      {deletingCat && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-cat-modal-title"
+          style={overlayStyles}
+          onClick={(e) => {
+            if (e.target === e.currentTarget && !deletingCatBusy) {
+              setDeletingCat(null);
+            }
+          }}
+        >
+          <div
+            style={{
+              background: "#fff",
+              borderRadius: 10,
+              padding: "1.5rem",
+              maxWidth: 440,
+              width: "100%",
+            }}
+          >
+            <h3 id="delete-cat-modal-title" style={{ marginTop: 0 }}>
+              Eliminar categoría
+            </h3>
+            <p>
+              ¿Seguro que querés eliminar la categoría{" "}
+              <strong>{deletingCat.name}</strong>? Esta acción no se puede
+              deshacer.
+            </p>
+            {countProductsInCategory(deletingCat.id) > 0 && (
+              <p
+                style={{
+                  background: "#fff8e1",
+                  border: "1px solid #f0e0a0",
+                  borderRadius: 8,
+                  padding: "0.6rem 0.75rem",
+                }}
+              >
+                ⚠ Esta categoría tiene{" "}
+                <strong>{countProductsInCategory(deletingCat.id)}</strong>{" "}
+                {countProductsInCategory(deletingCat.id) === 1
+                  ? "producto asociado"
+                  : "productos asociados"}
+                . Los productos NO se eliminan ni se reasignan.
+              </p>
+            )}
+            {catDeleteError && (
+              <p role="alert" style={{ color: "red", margin: "0.5rem 0" }}>
+                {catDeleteError}
+              </p>
+            )}
+            <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
+              <button
+                type="button"
+                className={styles.btnSecondary}
+                onClick={() => setDeletingCat(null)}
+                disabled={deletingCatBusy}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                className={styles.btnPrimary}
+                onClick={confirmDeleteCategory}
+                disabled={deletingCatBusy}
+              >
+                {deletingCatBusy ? "Eliminando..." : "Eliminar categoría"}
               </button>
             </div>
           </div>
