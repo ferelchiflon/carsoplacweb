@@ -1,11 +1,112 @@
 import { useEffect, useState } from "react";
-import ProductCard from "../components/ProductCard";
+import type { CSSProperties } from "react";
 import type { Product, Category } from "../types";
 import styles from "./ProductPage.module.css";
 import api from "../services/api";
 
+/**
+ * Fila de la tabla de productos. Extiende Product con los campos que el
+ * backend devuelve hoy (active, category) sin modificar el tipo compartido
+ * (ProductCard y Catalog siguen consumiéndolo sin cambios).
+ * Nota: el backend usa ObjectId (string) como id; el tipo compartido lo
+ * declara como number por compatibilidad histórica con el resto del panel.
+ */
+type ProductRow = Product & {
+  active?: boolean;
+  category?: { id: string; name: string } | null;
+};
+
+/** Estilos compartidos de la tabla de productos y los modales (Bloque E). */
+const thStyles: CSSProperties = {
+  textAlign: "left",
+  padding: "0.5rem 0.75rem",
+  fontWeight: 600,
+  borderBottom: "2px solid #d0d0d0",
+  whiteSpace: "nowrap",
+};
+
+const tdStyles: CSSProperties = {
+  padding: "0.5rem 0.75rem",
+  verticalAlign: "middle",
+};
+
+const overlayStyles: CSSProperties = {
+  position: "fixed",
+  inset: 0,
+  background: "rgba(0, 0, 0, 0.55)",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  zIndex: 1000,
+  padding: "1rem",
+};
+
+/** Estados posibles de stock para insignias, colores y filtros (Bloque E). */
+export type StockState = "out" | "low" | "ok";
+
+/** Umbral de stock bajo (configurable). */
+export const LOW_STOCK_THRESHOLD = 5;
+
+/**
+ * Normaliza el estado de stock de un producto.
+ * Regla de la tarea: stock null o undefined se trata como 0 (sin stock),
+ * SIN modificar los datos originales.
+ */
+export function buildStockState(
+  stock: number | null | undefined,
+): StockState {
+  const value = stock ?? 0;
+  if (value <= 0) return "out";
+  if (value < LOW_STOCK_THRESHOLD) return "low";
+  return "ok";
+}
+
+/** Devuelve el valor de stock tratando null/undefined como 0 (solo lectura). */
+export function stockValue(stock: number | null | undefined): number {
+  return stock ?? 0;
+}
+
+
+/** Normaliza un producto crudo del backend a ProductRow. */
+function normalizeProduct(raw: any): ProductRow {
+  return {
+    ...raw,
+    price: Number(raw?.price ?? 0),
+    stock: raw?.stock ?? null,
+    active: raw?.active ?? true,
+    category: raw?.category ?? null,
+  };
+}
+
+/** Acepta tanto un array directo como el wrapper { data, total, ... } del backend. */
+function normalizeList(payload: any): ProductRow[] {
+  const list = Array.isArray(payload) ? payload : payload?.data;
+  return Array.isArray(list) ? list.map(normalizeProduct) : [];
+}
+
+/** Extrae un mensaje de error legible de una respuesta Axios/Nest (400/401/404/otros). */
+function getApiError(err: any, fallback: string): string {
+  const status = err?.response?.status;
+  const msg = err?.response?.data?.message;
+  const detail = Array.isArray(msg)
+    ? msg.join(" · ")
+    : typeof msg === "string"
+      ? msg
+      : "";
+  if (status === 401) {
+    return detail || "Sesión expirada o no autorizada. Volvé a iniciar sesión.";
+  }
+  if (status === 404) {
+    return detail || "El producto no existe (o ya fue eliminado).";
+  }
+  if (status === 400) {
+    return detail || "Datos inválidos: revisá los campos e intentá de nuevo.";
+  }
+  return detail || err?.message || fallback;
+}
+
 export default function ProductsPage() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<ProductRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,6 +122,28 @@ export default function ProductsPage() {
   const [newCategory, setNewCategory] = useState("");
   const [submittingCategory, setSubmittingCategory] = useState(false);
 
+  // Recarga de la lista: se incrementa para volver a pedir los productos.
+  const [reloadKey, setReloadKey] = useState(0);
+
+  // ── Edición (modal) ──
+  const [editing, setEditing] = useState<ProductRow | null>(null);
+  const [editForm, setEditForm] = useState({
+    name: "",
+    brand: "",
+    price: "",
+    stock: "",
+    description: "",
+  });
+  const [savingEdit, setSavingEdit] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
+
+  // ── Eliminación (modal de confirmación) ──
+  const [deleting, setDeleting] = useState<ProductRow | null>(null);
+  const [deletingBusy, setDeletingBusy] = useState(false);
+  const [activeBusyId, setActiveBusyId] = useState<number | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -30,7 +153,7 @@ export default function ProductsPage() {
           api.get("/categories"),
         ]);
         if (cancelled) return;
-        setProducts(resProducts.data);
+        setProducts(normalizeList(resProducts.data));
         setCategories(resCategories.data);
       } catch (err: any) {
         if (cancelled) return;
@@ -46,7 +169,7 @@ export default function ProductsPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [reloadKey]);
 
   async function handleAdd() {
     if (!newName || !newPrice) return;
@@ -72,9 +195,7 @@ export default function ProductsPage() {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      const created: Product = res.data;
-
-      setProducts((prev) => [...prev, created]);
+      setProducts((prev) => [...prev, normalizeProduct(res.data)]);
 
       setNewName("");
       setNewPrice("");
@@ -154,37 +275,134 @@ export default function ProductsPage() {
     setNewImages(updated);
   }
 
-  async function handleEdit(product: Product) {
-    const name = window.prompt("Nuevo nombre:", product.name);
+  /** Abre el modal de edición con los datos precargados del producto. */
+  function openEdit(product: ProductRow) {
+    setEditing(product);
+    setEditForm({
+      name: product.name ?? "",
+      brand: product.brand ?? "",
+      price: String(product.price ?? ""),
+      stock:
+        product.stock === null || product.stock === undefined
+          ? ""
+          : String(product.stock),
+      description: product.description ?? "",
+    });
+    setEditError(null);
+  }
 
-    const price = window.prompt("Nuevo precio:", String(product.price));
+  function closeEdit() {
+    if (savingEdit) return;
+    setEditing(null);
+    setEditError(null);
+  }
 
-    if (!name || !price) return;
+  /**
+   * Guarda la edición con PATCH /products/:id enviando SOLO los campos
+   * modificados (el backend acepta name, brand, price, stock y description).
+   * Las imágenes no se pueden cambiar por PATCH (el endpoint es solo JSON):
+   * se muestran las existentes en modo lectura.
+   */
+  async function saveEdit() {
+    if (!editing || savingEdit) return;
 
-    const updated = {
-      name,
-      price: Number(price),
-    };
+    const payload: Record<string, unknown> = {};
+    if (editForm.name.trim() !== (editing.name ?? "")) {
+      payload.name = editForm.name.trim();
+    }
+    if (editForm.brand.trim() !== (editing.brand ?? "")) {
+      payload.brand = editForm.brand.trim();
+    }
+    const priceNum = Number(editForm.price);
+    if (
+      editForm.price !== "" &&
+      Number.isFinite(priceNum) &&
+      priceNum !== Number(editing.price)
+    ) {
+      payload.price = priceNum;
+    }
+    const stockNum = Number(editForm.stock);
+    if (
+      editForm.stock !== "" &&
+      Number.isInteger(stockNum) &&
+      stockNum >= 0 &&
+      stockNum !== Number(editing.stock ?? 0)
+    ) {
+      payload.stock = stockNum;
+    }
+    if (editForm.description !== (editing.description ?? "")) {
+      payload.description = editForm.description;
+    }
 
+    // Sin cambios no se dispara ninguna petición.
+    if (Object.keys(payload).length === 0) {
+      setEditing(null);
+      return;
+    }
+
+    setSavingEdit(true);
+    setEditError(null);
     try {
-      await api.patch(`/products/${product.id}`, updated);
+      const res = await api.patch(`/products/${editing.id}`, payload);
       setProducts((prev) =>
-        prev.map((p) => (p.id === product.id ? { ...p, ...updated } : p)),
+        prev.map((p) => (p.id === editing.id ? normalizeProduct(res.data) : p)),
       );
+      setEditing(null);
     } catch (err: any) {
-      alert(err.response?.data?.message || err.message || "Error al editar");
+      setEditError(getApiError(err, "Error al guardar los cambios"));
+    } finally {
+      setSavingEdit(false);
     }
   }
 
-  async function handleDelete(id: number) {
-    if (!window.confirm("¿Eliminar producto?")) return;
-
+  /** Confirma la eliminación y recarga la lista completa desde el backend. */
+  async function confirmDelete() {
+    if (!deleting || deletingBusy) return;
+    setDeletingBusy(true);
+    setDeleteError(null);
     try {
-      await api.delete(`/products/${id}`);
-      setProducts((prev) => prev.filter((p) => p.id !== id));
+      await api.delete(`/products/${deleting.id}`);
+      setDeleting(null);
+      setReloadKey((k) => k + 1); // dispara la recarga de la lista
     } catch (err: any) {
-      alert(err.response?.data?.message || err.message || "Error al eliminar");
+      setDeleteError(getApiError(err, "Error al eliminar el producto"));
+    } finally {
+      setDeletingBusy(false);
     }
+  }
+
+  /**
+   * Activa/desactiva un producto con PATCH /products/:id enviando solo
+   * { active }. Deshabilitado por fila mientras hay una petición en vuelo
+   * (activeBusyId) para evitar dobles clics.
+   */
+  async function toggleActive(product: ProductRow) {
+    if (activeBusyId) return;
+    setActiveBusyId(product.id);
+    setActionError(null);
+    try {
+      const res = await api.patch(`/products/${product.id}`, {
+        active: !product.active,
+      });
+      setProducts((prev) =>
+        prev.map((p) => (p.id === product.id ? normalizeProduct(res.data) : p)),
+      );
+    } catch (err: any) {
+      setActionError(getApiError(err, "Error al cambiar el estado del producto"));
+    } finally {
+      setActiveBusyId(null);
+    }
+  }
+
+  /** Abre el modal de edición (usado por la acción "Editar" de cada fila). */
+  function handleEdit(product: ProductRow) {
+    openEdit(product);
+  }
+
+  /** Abre el modal de confirmación de eliminación de una fila. */
+  function handleDelete(product: ProductRow) {
+    setActionError(null);
+    setDeleting(product);
   }
 
   async function handleAddCategory() {
@@ -316,17 +534,352 @@ export default function ProductsPage() {
           ))}
         </div>
       </div>
-      <h1 className={styles.title}>LISTA DE PRODUCTOS</h1>
-      <div className={styles.grid}>
-        {products.map((product) => (
-          <ProductCard
-            key={product.id}
-            product={product}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
-        ))}
-      </div>
+      {/* ─────────────── LISTADO DE PRODUCTOS ─────────────── */}
+      <section className={styles.sectionHeader} style={{ marginTop: "2.5rem" }}>
+        <h2 className={styles.sectionTitle}>PRODUCTOS</h2>
+      </section>
+
+      {actionError && (
+        <p role="alert" style={{ color: "red", margin: "0.75rem 0" }}>
+          {actionError}
+        </p>
+      )}
+
+      {products.length === 0 ? (
+        <p className={styles.emptyStateText}>No hay productos cargados.</p>
+      ) : (
+        <div style={{ overflowX: "auto" }}>
+          <table
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+              fontSize: "0.9rem",
+              color: "#222",
+            }}
+          >
+            <thead>
+              <tr>
+                <th style={thStyles}>Imagen</th>
+                <th style={thStyles}>Nombre</th>
+                <th style={thStyles}>Categoría</th>
+                <th style={thStyles}>Precio</th>
+                <th style={thStyles}>Stock</th>
+                <th style={thStyles}>Estado</th>
+                <th style={thStyles}>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {products.map((p) => (
+                <tr key={p.id} style={{ borderTop: "1px solid #e2e2e2" }}>
+                  <td style={tdStyles}>
+                    {p.images?.[0] ? (
+                      <img
+                        src={p.images[0]}
+                        alt={p.name}
+                        width={44}
+                        height={44}
+                        loading="lazy"
+                        decoding="async"
+                        style={{
+                          width: 44,
+                          height: 44,
+                          objectFit: "cover",
+                          borderRadius: 6,
+                          display: "block",
+                        }}
+                      />
+                    ) : (
+                      <span aria-hidden>—</span>
+                    )}
+                  </td>
+                  <td style={tdStyles}>{p.name}</td>
+                  <td style={tdStyles}>{p.category?.name ?? "—"}</td>
+                  <td style={tdStyles}>${p.price}</td>
+                  <td style={tdStyles}>
+                    {p.stock === null || p.stock === undefined ? "—" : p.stock}
+                  </td>
+                  <td style={tdStyles}>
+                    <label
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "0.45rem",
+                        cursor: activeBusyId ? "wait" : "pointer",
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        role="switch"
+                        checked={p.active}
+                        disabled={activeBusyId !== null}
+                        onChange={() => toggleActive(p)}
+                        aria-label={
+                          p.active ? `Desactivar ${p.name}` : `Activar ${p.name}`
+                        }
+                      />
+                      <span
+                        style={{
+                          color: p.active ? "#1a7f37" : "#888",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {p.active ? "Activo" : "Inactivo"}
+                      </span>
+                    </label>
+                  </td>
+                  <td style={tdStyles}>
+                    <div style={{ display: "flex", gap: "0.5rem" }}>
+                      <button
+                        type="button"
+                        className={styles.btnSecondary}
+                        onClick={() => handleEdit(p)}
+                        disabled={activeBusyId !== null}
+                      >
+                        Editar
+                      </button>
+                      <button
+                        type="button"
+                        className={styles.btnSecondary}
+                        onClick={() => handleDelete(p)}
+                        disabled={activeBusyId !== null}
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* ─────────────── MODAL: EDITAR PRODUCTO ─────────────── */}
+      {editing && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="edit-modal-title"
+          style={overlayStyles}
+          onClick={(e) => {
+            if (e.target === e.currentTarget && !savingEdit) closeEdit();
+          }}
+        >
+          <div
+            style={{
+              background: "#fff",
+              borderRadius: 10,
+              padding: "1.5rem",
+              maxWidth: 480,
+              width: "100%",
+              maxHeight: "90vh",
+              overflowY: "auto",
+            }}
+          >
+            <h3 id="edit-modal-title" style={{ marginTop: 0 }}>
+              Editar producto
+            </h3>
+
+            {/* PATCH /products/:id es solo JSON: no acepta archivos. Las
+                imágenes existentes se muestran en modo lectura. */}
+            {editing.images.length > 0 ? (
+              <div style={{ marginBottom: "1rem" }}>
+                <p style={{ margin: "0 0 0.35rem", fontWeight: 600 }}>
+                  Imágenes actuales
+                </p>
+                <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                  {editing.images.map((src) => (
+                    <img
+                      key={src}
+                      src={src}
+                      alt={`Imagen actual de ${editing.name}`}
+                      width={64}
+                      height={64}
+                      loading="lazy"
+                      style={{
+                        width: 64,
+                        height: 64,
+                        objectFit: "cover",
+                        borderRadius: 6,
+                      }}
+                    />
+                  ))}
+                </div>
+                <p style={{ margin: "0.35rem 0 0", fontSize: "0.8em", color: "#777" }}>
+                  Las imágenes no se pueden cambiar desde acá: la edición por
+                  PATCH solo acepta datos (JSON).
+                </p>
+              </div>
+            ) : (
+              <p style={{ margin: "0 0 1rem", fontSize: "0.85em", color: "#777" }}>
+                Este producto no tiene imágenes cargadas.
+              </p>
+            )}
+
+            <div className={styles.field} style={{ marginBottom: "0.75rem" }}>
+              <label className={styles.label} htmlFor="edit-name">
+                Nombre
+              </label>
+              <input
+                id="edit-name"
+                className={styles.input}
+                type="text"
+                value={editForm.name}
+                onChange={(e) =>
+                  setEditForm((f) => ({ ...f, name: e.target.value }))
+                }
+              />
+            </div>
+
+            <div className={styles.field} style={{ marginBottom: "0.75rem" }}>
+              <label className={styles.label} htmlFor="edit-brand">
+                Marca
+              </label>
+              <input
+                id="edit-brand"
+                className={styles.input}
+                type="text"
+                value={editForm.brand}
+                onChange={(e) =>
+                  setEditForm((f) => ({ ...f, brand: e.target.value }))
+                }
+              />
+            </div>
+
+            <div className={styles.field} style={{ marginBottom: "0.75rem" }}>
+              <label className={styles.label} htmlFor="edit-price">
+                Precio
+              </label>
+              <input
+                id="edit-price"
+                className={styles.input}
+                type="number"
+                min="0"
+                step="0.01"
+                inputMode="decimal"
+                value={editForm.price}
+                onChange={(e) =>
+                  setEditForm((f) => ({ ...f, price: e.target.value }))
+                }
+              />
+            </div>
+
+            <div className={styles.field} style={{ marginBottom: "0.75rem" }}>
+              <label className={styles.label} htmlFor="edit-stock">
+                Stock
+              </label>
+              <input
+                id="edit-stock"
+                className={styles.input}
+                type="number"
+                min="0"
+                step="1"
+                inputMode="numeric"
+                value={editForm.stock}
+                onChange={(e) =>
+                  setEditForm((f) => ({ ...f, stock: e.target.value }))
+                }
+              />
+            </div>
+
+            <div className={styles.field} style={{ marginBottom: "0.75rem" }}>
+              <label className={styles.label} htmlFor="edit-description">
+                Descripción
+              </label>
+              <textarea
+                id="edit-description"
+                className={styles.textarea}
+                rows={3}
+                value={editForm.description}
+                onChange={(e) =>
+                  setEditForm((f) => ({ ...f, description: e.target.value }))
+                }
+              />
+            </div>
+
+            {editError && (
+              <p role="alert" style={{ color: "red", margin: "0.5rem 0" }}>
+                {editError}
+              </p>
+            )}
+
+            <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
+              <button
+                type="button"
+                className={styles.btnSecondary}
+                onClick={closeEdit}
+                disabled={savingEdit}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                className={styles.btnPrimary}
+                onClick={saveEdit}
+                disabled={savingEdit}
+              >
+                {savingEdit ? "Guardando..." : "Guardar cambios"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
+      {/* ─────────────── MODAL: CONFIRMAR ELIMINACIÓN ─────────────── */}
+      {deleting && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-modal-title"
+          style={overlayStyles}
+          onClick={(e) => {
+            if (e.target === e.currentTarget && !deletingBusy) setDeleting(null);
+          }}
+        >
+          <div
+            style={{
+              background: "#fff",
+              borderRadius: 10,
+              padding: "1.5rem",
+              maxWidth: 420,
+              width: "100%",
+            }}
+          >
+            <h3 id="delete-modal-title" style={{ marginTop: 0 }}>
+              Eliminar producto
+            </h3>
+            <p>
+              ¿Seguro que querés eliminar <strong>{deleting.name}</strong>?
+              Esta acción no se puede deshacer.
+            </p>
+            {deleteError && (
+              <p role="alert" style={{ color: "red", margin: "0.5rem 0" }}>
+                {deleteError}
+              </p>
+            )}
+            <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
+              <button
+                type="button"
+                className={styles.btnSecondary}
+                onClick={() => setDeleting(null)}
+                disabled={deletingBusy}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                className={styles.btnPrimary}
+                onClick={confirmDelete}
+                disabled={deletingBusy}
+              >
+                {deletingBusy ? "Eliminando..." : "Eliminar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <h1 className={styles.title}>VENTAS EFECTUADAS</h1>
     </div>
   );
