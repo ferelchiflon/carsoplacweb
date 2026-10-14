@@ -1,0 +1,11 @@
+.env*
+node_modules
+dist
+.git
+carsoplac-principal
+_backup
+testing-backup
+tmp
+*.bak
+*.backup
+*.py
