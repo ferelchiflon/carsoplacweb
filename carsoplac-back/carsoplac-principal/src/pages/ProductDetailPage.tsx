@@ -6,6 +6,7 @@ import { Heart, MessageCircle } from "lucide-react";
 import { API_URL } from "../config/api";
 import { fetchWithTimeout, getFetchErrorMsg } from "../utils/fetchWithTimeout";
 import { WHATSAPP_CONFIG } from "../config/whatsapp";
+import { cloudinaryUrl } from "../lib/cloudinary";
 
 type Product = {
   id: string;
@@ -110,9 +111,11 @@ export default function ProductDetailPage() {
           <div className="flex aspect-square w-full items-center justify-center overflow-hidden rounded-xl border border-spruce-border bg-deep-lichen">
             {product.images?.[activeImage] ? (
               <img
-                src={product.images[activeImage]}
+                src={cloudinaryUrl(product.images[activeImage], 900)}
                 alt={product.name}
                 className="h-full w-full object-cover"
+                loading="eager"
+                fetchPriority="high"
               />
             ) : (
               <div className="text-sm text-sage-gray">Sin imagen</div>
@@ -131,7 +134,11 @@ export default function ProductDetailPage() {
                   }`}
                   onClick={() => setActiveImage(idx)}
                 >
-                  <img src={img} alt={`Vista ${idx + 1}`} className="h-full w-full object-cover" />
+                  <img
+                    src={cloudinaryUrl(img, 150)}
+                    alt={`Vista ${idx + 1}`}
+                    className="h-full w-full object-cover"
+                  />
                 </button>
               ))}
             </div>

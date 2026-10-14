@@ -6,7 +6,8 @@ import { useState, useRef, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
 import { Heart, Eye, ShoppingBag, Check, X } from "lucide-react";
 import { API_URL } from "../../config/api";
-
+import React from "react";
+import { cloudinaryUrl, cloudinarySrcSet } from "../../lib/cloudinary";
 type ProductCardProps = {
   id: string;
   img: string;
@@ -17,6 +18,7 @@ type ProductCardProps = {
   onClick?: () => void;
   badge?: string;        // "NUEVO" | "OFERTA" | "-15%"
   oldPrice?: string;
+  priority?: boolean;
   installments?: number;
 };
 
@@ -102,6 +104,9 @@ export default function ProductCard(props: ProductCardProps) {
     }
   };
 
+  const urlFinal = getImageUrl(props.img);
+  const src = cloudinaryUrl(urlFinal, 400);
+  const srcSet = cloudinarySrcSet(urlFinal);
   return (
     <article className="group relative flex flex-col w-full bg-deep-lichen rounded-xl overflow-hidden border border-spruce-border hover:border-accent-brand/50 transition-colors duration-300">
       {/* Imagen: contenedor 4:3. Los botones son HERMANOS del área clickeable. */}
@@ -117,9 +122,15 @@ export default function ProductCard(props: ProductCardProps) {
           {/* object-cover recorta para que todas las fotos se vean parejas.
               Si alguna placa queda cortada, cambiá a "object-contain p-2". */}
           <img
-            src={getImageUrl(props.img)}
+            src={src}
+            srcSet={srcSet}
+            sizes="(max-width: 419px) 100vw, (max-width: 1023px) 50vw, 25vw"
+            decoding="async"
+            width={400}
+            height={300}
             alt={props.name}
-            loading="lazy"
+            loading={props.priority ? "eager" : "lazy"}
+            fetchPriority={props.priority ? "high" : undefined}
             onError={(e) => {
               const t = e.currentTarget as HTMLImageElement;
               if (t.dataset.fallback === "1") return;
