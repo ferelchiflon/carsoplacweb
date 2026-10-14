@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/sitemap.xml",
+      "destination": "REEMPLAZAR_CON_URL_BACKEND/sitemap.xml"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
