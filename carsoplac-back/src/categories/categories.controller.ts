@@ -39,14 +39,14 @@ export class CategoryController {
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('ADMIN')
   @Patch(':id')
-  update(@Param('id') id: string, updateCategoryDto: UpdateCategoryDto) {
+  update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
     return this.categoryService.update(id, updateCategoryDto);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('ADMIN')
   @Delete(':id')
-  remove(@Param(':id') id: string) {
+  remove(@Param('id') id: string) {
     return this.categoryService.remove(id);
   }
 }

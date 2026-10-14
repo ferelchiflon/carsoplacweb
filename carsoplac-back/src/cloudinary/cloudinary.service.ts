@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { v2 as cloudinary } from 'cloudinary';
 import { Readable } from 'stream';
-import { fileTypeFromBuffer } from 'file-type';
+import { fromBuffer } from 'file-type';
 
 /**
  * Forma mínima de un archivo de Multer en memoria. Evita depender del
@@ -83,7 +83,7 @@ export class CloudinaryService {
       );
     }
 
-    const detected = await fileTypeFromBuffer(file.buffer);
+    const detected = await fromBuffer(file.buffer);
 
     if (!detected) {
       throw new BadRequestException(
