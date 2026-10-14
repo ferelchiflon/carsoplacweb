@@ -16,6 +16,7 @@ RUN npm ci && npm cache clean --force
 
 # Copiar código
 COPY . .
+RUN apk add --no-cache openssl
 
 # Generar Prisma Client
 RUN npx prisma generate
@@ -32,7 +33,7 @@ FROM node:20-alpine
 WORKDIR /app
 
 # Instalar curl para healthcheck
-RUN apk add --no-cache curl
+RUN apk add --no-cache curl openssl
 
 # Crear usuario no root
 RUN addgroup -g 1001 -S nodejs && \
