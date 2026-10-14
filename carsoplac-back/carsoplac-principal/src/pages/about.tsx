@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import Seo from "../components/Seo";
 import { Link as LinkIcon } from "lucide-react";
 import SectionHeader from "../components/ui/SectionHeader";
 import fotoFabrica from "../assets/imagenes/foto-fabrica.jpeg";
@@ -49,6 +50,11 @@ const categories = [
 export default function AboutPage() {
   return (
     <div className="bg-midnight-forest text-white">
+      <Seo
+        title="Sobre nosotros"
+        description="Conocé Carsoplac: más de 15 años fabricando mesadas, revestimientos y muebles en nuestra propia planta. Diseño industrial directo de fábrica."
+        url="/nosotros"
+      />
       {/* ─────────────── HERO ─────────────── */}
       <section className="relative isolate overflow-hidden">
         <div

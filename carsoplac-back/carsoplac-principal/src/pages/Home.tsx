@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Seo from "../components/Seo";
 
 import hero1 from "../assets/imagenes/slider/foto.jpg";
 import hero2 from "../assets/imagenes/slider/foto2.jpg";
@@ -142,6 +143,11 @@ export default function Home() {
 
   return (
     <main>
+      <Seo
+        title="Inicio"
+        description="Carsoplac: fábrica argentina de mesadas, revestimientos y muebles de diseño industrial. Calidad directo de fábrica con envíos a todo el país."
+        url="/"
+      />
       <HeroSlider slides={slides} intervalMs={5000} />
 
       {/* Productos destacados */}

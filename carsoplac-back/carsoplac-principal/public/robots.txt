@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /checkout
+Disallow: /mi-cuenta
+Disallow: /cuenta
+Disallow: /payment/
+
+Sitemap: REEMPLAZAR_CON_DOMINIO/sitemap.xml

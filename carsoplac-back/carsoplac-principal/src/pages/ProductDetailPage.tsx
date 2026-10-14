@@ -6,6 +6,7 @@ import { Heart, MessageCircle } from "lucide-react";
 import { API_URL } from "../config/api";
 import { fetchWithTimeout, getFetchErrorMsg } from "../utils/fetchWithTimeout";
 import { WHATSAPP_CONFIG } from "../config/whatsapp";
+import Seo from "../components/Seo";
 import { cloudinaryUrl } from "../lib/cloudinary";
 
 type Product = {
@@ -89,8 +90,45 @@ export default function ProductDetailPage() {
       ? product.category.name
       : (product.category ?? "General");
 
+  const seoDescription =
+    product.description && product.description.length > 155
+      ? `${product.description.slice(0, 155)}…`
+      : product.description ||
+        `${product.name} de fabricación propia. Calidad Carsoplac directo de fábrica con envíos a todo el país.`;
+
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: seoDescription,
+    image: (product.images ?? []).map((img) => cloudinaryUrl(img, 800)),
+    ...(product.brand ? { brand: { "@type": "Brand", name: product.brand } } : {}),
+    sku: product.id,
+    offers: {
+      "@type": "Offer",
+      priceCurrency: "ARS",
+      price: product.price,
+      availability:
+        product.stock === undefined || product.stock > 0
+          ? "https://schema.org/InStock"
+          : "https://schema.org/OutOfStock",
+      url: `${window.location.origin}/productos/${product.id}`,
+    },
+  };
+
   return (
     <div className="container-x py-4 pb-12">
+      <Seo
+        title={product.name}
+        description={seoDescription}
+        image={product.images?.[0] ? cloudinaryUrl(product.images[0], 800) : undefined}
+        url={`/productos/${product.id}`}
+        type="product"
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
       <nav
         aria-label="Navegación de migas"
         className="mb-6 flex flex-wrap items-center gap-2 text-sm text-sage-gray"

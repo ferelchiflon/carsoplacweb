@@ -1,3 +1,4 @@
+import Seo from "../components/Seo";
 import { useState } from "react";
 import {
   Phone,
@@ -132,6 +133,11 @@ export default function ContactPage() {
 
   return (
     <div className="bg-midnight-forest text-white">
+      <Seo
+        title="Contacto"
+        description="Contactate con Carsoplac por WhatsApp, email o visitá nuestro showroom. Presupuestos sin compromiso y atención personalizada."
+        url="/contacto"
+      />
       {/* ─────────────── HERO ─────────────── */}
       <section className="relative isolate overflow-hidden bg-shaded-fern text-white">
         <div className="absolute inset-0 -z-10 bg-gradient-to-br from-shaded-fern via-mossy-edge to-shaded-fern opacity-95" />

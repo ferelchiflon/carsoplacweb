@@ -1,6 +1,7 @@
 // src/pages/ProductsPage.tsx
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import Seo from "../components/Seo";
 import ProductCard from "../components/ui/ProductCard";
 import SectionHeader from "../components/ui/SectionHeader";
 import FaqSection from "../components/ui/FaqSection";
@@ -189,6 +190,11 @@ export default function ProductsPage() {
 
   return (
     <div className="min-h-screen bg-midnight-forest text-white pb-16">
+      <Seo
+        title="Catálogo de productos"
+        description="Explorá el catálogo completo de mesadas, revestimientos y muebles de Carsoplac. Filtrá por categoría, marca y precio."
+        url="/productos"
+      />
       {/* HEADER */}
       <div className="container-x pt-12 md:pt-16">
         <SectionHeader title="DIRECTO DE FÁBRICA" subtitle="NUESTRO CATÁLOGO" />
