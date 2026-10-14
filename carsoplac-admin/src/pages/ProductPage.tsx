@@ -144,6 +144,22 @@ export default function ProductsPage() {
   const [actionError, setActionError] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
+  // ── Stock: banner, filtro y edición rápida ──
+  const [stockFilter, setStockFilter] = useState<StockState | "all">("all");
+  const [stockDrafts, setStockDrafts] = useState<Record<string, string>>({});
+  const [stockBusyId, setStockBusyId] = useState<string | null>(null);
+  const [stockStatus, setStockStatus] = useState<
+    Record<string, { type: "ok" | "error"; message: string }>
+  >({});
+
+  const lowOrOutCount = products.filter(
+    (p) => buildStockState(p.stock) !== "ok",
+  ).length;
+  const visibleProducts =
+    stockFilter === "all"
+      ? products
+      : products.filter((p) => buildStockState(p.stock) === stockFilter);
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -394,6 +410,64 @@ export default function ProductsPage() {
     }
   }
 
+  /**
+   * Edición rápida de stock: PATCH /products/:id enviando SOLO { stock }.
+   * Se confirma con el botón "Guardar" o con Enter (NUNCA en onBlur).
+   * En error se restaura el valor anterior; en éxito se actualiza la fila
+   * (insignia y banner incluidos) sin recargar toda la página.
+   */
+  async function saveStock(product: ProductRow) {
+    const key = String(product.id);
+    const draft = stockDrafts[key];
+    const current = String(stockValue(product.stock));
+    if (draft === undefined || draft === current || stockBusyId !== null) return;
+
+    // Validación en el frontend: entero >= 0 (el backend revalida).
+    const parsed = Number(draft);
+    if (draft === "" || !Number.isInteger(parsed) || parsed < 0) {
+      setStockStatus((s) => ({
+        ...s,
+        [key]: { type: "error", message: "El stock debe ser un entero mayor o igual a 0" },
+      }));
+      return;
+    }
+
+    setStockBusyId(key);
+    setStockStatus((s) => {
+      const next = { ...s };
+      delete next[key];
+      return next;
+    });
+    try {
+      const res = await api.patch(`/products/${product.id}`, { stock: parsed });
+      setProducts((prev) =>
+        prev.map((p) => (String(p.id) === key ? normalizeProduct(res.data) : p)),
+      );
+      setStockDrafts((d) => {
+        const next = { ...d };
+        delete next[key];
+        return next;
+      });
+      setStockStatus((s) => ({
+        ...s,
+        [key]: { type: "ok", message: "Stock actualizado" },
+      }));
+    } catch (err: any) {
+      // Restaurar el valor anterior: descartamos el borrador de la fila.
+      setStockDrafts((d) => {
+        const next = { ...d };
+        delete next[key];
+        return next;
+      });
+      setStockStatus((s) => ({
+        ...s,
+        [key]: { type: "error", message: getApiError(err, "Error al actualizar el stock") },
+      }));
+    } finally {
+      setStockBusyId(null);
+    }
+  }
+
   /** Abre el modal de edición (usado por la acción "Editar" de cada fila). */
   function handleEdit(product: ProductRow) {
     openEdit(product);
@@ -545,8 +619,56 @@ export default function ProductsPage() {
         </p>
       )}
 
+      {/* ─────────────── BANNER DE STOCK BAJO + FILTRO ─────────────── */}
+      {products.length > 0 && (
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "0.75rem",
+            alignItems: "center",
+            justifyContent: "space-between",
+            margin: "0.75rem 0",
+            padding: "0.6rem 0.9rem",
+            border: "1px solid #e2e2e2",
+            borderRadius: 8,
+            background: lowOrOutCount > 0 ? "#fff8e1" : "#fafafa",
+          }}
+        >
+          <span
+            style={{
+              fontWeight: 600,
+              color: lowOrOutCount > 0 ? "#7a5b00" : "#555",
+            }}
+          >
+            {lowOrOutCount > 0
+              ? `⚠ ${lowOrOutCount} ${
+                  lowOrOutCount === 1 ? "producto" : "productos"
+                } con stock bajo (menos de ${LOW_STOCK_THRESHOLD} unidades, incluye sin stock)`
+              : "Todo el stock está en niveles normales"}
+          </span>
+          <label style={{ fontSize: "0.85rem" }}>
+            Filtrar por stock:{" "}
+            <select
+              value={stockFilter}
+              onChange={(e) =>
+                setStockFilter(e.target.value as StockState | "all")
+              }
+            >
+              <option value="all">Todos</option>
+              <option value="low">Stock bajo</option>
+              <option value="out">Sin stock</option>
+            </select>
+          </label>
+        </div>
+      )}
+
       {products.length === 0 ? (
         <p className={styles.emptyStateText}>No hay productos cargados.</p>
+      ) : visibleProducts.length === 0 ? (
+        <p className={styles.emptyStateText}>
+          No hay productos que coincidan con el filtro de stock.
+        </p>
       ) : (
         <div style={{ overflowX: "auto" }}>
           <table
@@ -569,7 +691,19 @@ export default function ProductsPage() {
               </tr>
             </thead>
             <tbody>
-              {products.map((p) => (
+              {visibleProducts.map((p) => {
+                const stockState = buildStockState(p.stock);
+                const rowKey = String(p.id);
+                const currentStock = String(stockValue(p.stock));
+                const draft = stockDrafts[rowKey];
+                const stockChanged = draft !== undefined && draft !== currentStock;
+                const parsedStock = Number(draft);
+                const canSaveStock =
+                  stockChanged &&
+                  draft !== "" &&
+                  Number.isInteger(parsedStock) &&
+                  parsedStock >= 0;
+                return (
                 <tr key={p.id} style={{ borderTop: "1px solid #e2e2e2" }}>
                   <td style={tdStyles}>
                     {p.images?.[0] ? (
@@ -596,7 +730,133 @@ export default function ProductsPage() {
                   <td style={tdStyles}>{p.category?.name ?? "—"}</td>
                   <td style={tdStyles}>${p.price}</td>
                   <td style={tdStyles}>
-                    {p.stock === null || p.stock === undefined ? "—" : p.stock}
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "0.25rem",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "0.35rem",
+                          alignItems: "center",
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontWeight: 700,
+                            color: stockState === "ok" ? "#222" : "#b3261e",
+                          }}
+                        >
+                          {stockValue(p.stock)}
+                        </span>
+                        {stockState === "low" && (
+                          <span
+                            style={{
+                              background: "#fdecea",
+                              color: "#b3261e",
+                              borderRadius: 999,
+                              padding: "0.1rem 0.5rem",
+                              fontSize: "0.7rem",
+                              fontWeight: 600,
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            Stock bajo
+                          </span>
+                        )}
+                        {stockState === "out" && (
+                          <span
+                            style={{
+                              background: "#b3261e",
+                              color: "#fff",
+                              borderRadius: 999,
+                              padding: "0.1rem 0.5rem",
+                              fontSize: "0.7rem",
+                              fontWeight: 600,
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            Sin stock
+                          </span>
+                        )}
+                      </div>
+                      {/* Edición rápida de stock: se confirma con "Guardar"
+                          o con Enter. NUNCA se guarda en onBlur. */}
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "0.25rem",
+                          alignItems: "center",
+                        }}
+                      >
+                        <input
+                          type="number"
+                          min={0}
+                          step={1}
+                          inputMode="numeric"
+                          aria-label={`Stock de ${p.name}`}
+                          value={draft ?? currentStock}
+                          disabled={stockBusyId !== null}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            setStockDrafts((d) => ({ ...d, [rowKey]: value }));
+                            setStockStatus((s) => {
+                              const next = { ...s };
+                              delete next[rowKey];
+                              return next;
+                            });
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" && canSaveStock) {
+                              e.preventDefault();
+                              saveStock(p);
+                            }
+                          }}
+                          style={{
+                            width: 72,
+                            padding: "0.2rem 0.4rem",
+                            border: "1px solid #d0d0d0",
+                            borderRadius: 6,
+                          }}
+                        />
+                        <button
+                          type="button"
+                          className={styles.btnSecondary}
+                          onClick={() => saveStock(p)}
+                          disabled={!canSaveStock || stockBusyId !== null}
+                          style={{
+                            padding: "0.2rem 0.5rem",
+                            fontSize: "0.75rem",
+                          }}
+                        >
+                          {stockBusyId === rowKey ? "..." : "Guardar"}
+                        </button>
+                      </div>
+                      {stockStatus[rowKey] && (
+                        <span
+                          role={
+                            stockStatus[rowKey].type === "error"
+                              ? "alert"
+                              : "status"
+                          }
+                          style={{
+                            fontSize: "0.72rem",
+                            color:
+                              stockStatus[rowKey].type === "error"
+                                ? "#b3261e"
+                                : "#1a7f37",
+                          }}
+                        >
+                          {stockStatus[rowKey].type === "error"
+                            ? stockStatus[rowKey].message
+                            : `✓ ${stockStatus[rowKey].message}`}
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td style={tdStyles}>
                     <label
@@ -648,7 +908,8 @@ export default function ProductsPage() {
                     </div>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>
