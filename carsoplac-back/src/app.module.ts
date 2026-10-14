@@ -9,6 +9,7 @@ import { CategoriesModule } from './categories/categories.module';
 import { AuthModule } from './auth/auth.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { SitemapModule } from './sitemap/sitemap.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { APP_GUARD } from '@nestjs/core';
     PaymentsModule,
     ProductsModule,
     CategoriesModule,
+    SitemapModule,
     ThrottlerModule.forRoot([
       {
         ttl: 60000,
