@@ -4,6 +4,7 @@ type SeoProps = {
   image?: string;
   url?: string;
   type?: "website" | "product";
+  noindex?: boolean;
 };
 
 const SITE_NAME = "Carsoplac";
@@ -18,6 +19,7 @@ export default function Seo({
   image,
   url,
   type = "website",
+  noindex = false,
 }: SeoProps) {
   const fullTitle = `${title} | ${SITE_NAME}`;
 
@@ -32,6 +34,7 @@ export default function Seo({
       <meta property="og:type" content={type} />
       <meta property="og:locale" content="es_AR" />
       <meta name="twitter:card" content="summary_large_image" />
+      {noindex && <meta name="robots" content="noindex" />}
       {url && <link rel="canonical" href={url} />}
     </>
   );
