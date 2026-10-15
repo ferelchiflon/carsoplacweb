@@ -13,6 +13,24 @@ export class UserService {
     return user;
   }
 
+  async findByIdentifier(identifier: string): Promise<any> {
+    // First try by username (case-sensitive, trimmed)
+    const username = identifier.trim();
+    let user = await this.prisma.user.findUnique({
+      where: { username },
+    });
+    if (user) return user;
+    
+    // Then try by email (case-insensitive, trimmed and lowercased)
+    const email = identifier.trim().toLowerCase();
+    user = await this.prisma.user.findFirst({
+      where: {
+        email
+      }
+    });
+    return user ?? null;
+  }
+
   async updatePassword(username: string, hashedPassword: string) {
     const user = await this.prisma.user.update({
       where: { username },
@@ -35,6 +53,9 @@ export class UserService {
     return result;
   }
 
+  // TODO(bug 4): updateProfile() es un stub — no persiste ningún cambio del dto.
+  // Implementarlo requiere agregar name/phone/address al modelo User en
+  // prisma/schema.prisma (y completar UpdateProfileDto); decisión pendiente.
   async updateProfile(userId: string, dto: UpdateProfileDto) {
     // The User model does not have the fields in dto (name, phone, address).
     // We will not update anything. We'll just return the user as is.
