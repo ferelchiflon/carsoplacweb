@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -7,6 +7,8 @@ import { ProductsQueryDto } from './dto/products-query.dto';
 
 @Injectable()
 export class ProductService {
+  private readonly logger = new Logger(ProductService.name);
+
   constructor(
     private prisma: PrismaService,
     private cloudinaryService: CloudinaryService,
@@ -19,13 +21,13 @@ export class ProductService {
     const imageUrls: string[] = [];
 
     for (const file of files) {
-      console.log('Subiendo:', file.originalname);
+      this.logger.debug(`Subiendo: ${file.originalname}`);
 
       const imageUrl = await this.cloudinaryService.uploadFile(file);
 
       imageUrls.push(imageUrl);
 
-      console.log('Upload completado');
+      this.logger.debug('Upload completado');
     }
 
     createProductDto.images = imageUrls;
@@ -142,8 +144,8 @@ export class ProductService {
     return {
       data,
       total,
-      page: 1,
-      limit: 10,
+      page,
+      limit,
       totalPages,
     };
   }
