@@ -1,0 +1,593 @@
+import { Injectable, BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service';
+import { CreateOrderDto } from './dto/create-order.dto';
+import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
+import { OrderStatus } from '@prisma/client';
+import { MercadoPagoService } from '../payments/mercadopago/mercadopago.service';
+import { ConfigService } from '@nestjs/config';
+import { Cron } from '@nestjs/schedule';
+
+// Datos de pago que expone la API de MercadoPago (PaymentResponse del SDK).
+// Tipo estructural local: el SDK no exporta PaymentResponse desde la raiz y
+// su clase Payment (cliente HTTP) no contiene los campos de datos.
+type MercadoPagoPayment = {
+  id?: number;
+  status?: string;
+  transaction_amount?: number;
+  currency_id?: string;
+  external_reference?: string;
+};
+
+class InsufficientStockError extends BadRequestException {
+  constructor(message: string) {
+    super(message);
+    this.name = 'InsufficientStockError';
+  }
+}
+
+@Injectable()
+export class OrdersService {
+  constructor(
+    private prisma: PrismaService,
+    private mercadopagoSvc: MercadoPagoService,
+    private configService: ConfigService,
+  ) {}
+
+
+
+    async create(createOrderDto: CreateOrderDto, userId?: string) {
+    // Validate items array not empty
+    if (!createOrderDto.items || createOrderDto.items.length === 0) {
+      throw new BadRequestException('Order must have at least one item');
+    }
+
+    // Determine buyer info: prefer DTO values, otherwise fallback to user data if available
+    let buyerEmail = createOrderDto.buyerEmail ?? '';
+    let buyerPhone = createOrderDto.buyerPhone ?? '';
+    let shippingAddress = createOrderDto.shippingAddress ?? '';
+
+    if (userId) {
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { email: true },
+      });
+      if (user) {
+        buyerEmail = user.email ?? buyerEmail;
+      }
+    }
+
+    // Sort items by productId to avoid deadlocks when updating stock
+    const sortedItems = [...createOrderDto.items].sort((a, b) =>
+      a.productId.localeCompare(b.productId),
+    );
+
+    // Get reservation TTL from config (default 30 minutes)
+    const reservationTtlMinutes =
+      this.configService.get<number>('RESERVATION_TTL_MINUTES') ?? 30;
+    const expiresAt = new Date(Date.now() + reservationTtlMinutes * 60 * 1000);
+     const currency = this.configService.get<string>('CURRENCY_ID') ?? 'ARS';
+
+    // Start transaction: reserve stock and create order PENDING
+    const order = await this.prisma.$transaction(async (tx) => {
+      // Reserve stock for each item
+      const itemsSnapshot: Array<{
+        productId: string;
+        name: string;
+        quantity: number;
+        unitPrice: number;
+      }> = [];
+      let total = 0;
+
+      for (const itemDto of sortedItems) {
+        const product = await tx.product.findUnique({
+          where: { id: itemDto.productId },
+          select: { id: true, name: true, price: true, stock: true },
+        });
+
+        if (!product) {
+          throw new BadRequestException(
+            `Product with id ${itemDto.productId} not found`,
+          );
+        }
+
+        // Reserve stock atomically: decrement only if sufficient stock exists
+        const updateResult = await tx.product.updateMany({
+          where: {
+            id: itemDto.productId,
+            stock: {
+              gte: itemDto.quantity,
+            },
+          },
+          data: {
+            stock: {
+              decrement: itemDto.quantity,
+            },
+          },
+        });
+
+        if (updateResult.count === 0) {
+          throw new BadRequestException(
+            `Insufficient stock for product ${product.name}. Available: ${product.stock}, requested: ${itemDto.quantity}`,
+          );
+        }
+
+        itemsSnapshot.push({
+          productId: product.id,
+          name: product.name,
+          quantity: itemDto.quantity,
+          unitPrice: Number(product.price),
+        });
+
+        total += Number(product.price) * itemDto.quantity;
+      }
+
+      // Create order with PENDING status and set expiration
+      const orderData: any = {
+        items: itemsSnapshot,
+        total,
+        buyerEmail,
+        buyerPhone,
+        shippingAddress,
+        expiresAt,
+         currency: currency,
+      };
+
+      if (userId) {
+        orderData.userId = userId;
+      }
+
+      return await tx.order.create({
+        data: orderData,
+      });
+    });
+
+    // Outside transaction: create Mercado Pago preference with expiration and payment method exclusion
+    try {
+      const preferenceItems = (order.items as any[]).map((item) => ({
+        id: item.productId,
+        title: item.name,
+        quantity: item.quantity,
+        unit_price: item.unitPrice,
+        // Moneda explícita (CURRENCY_ID, sin default de schema): la preferencia
+        // se crea siempre con la moneda del entorno, igual que la orden.
+        currency_id: currency,
+      }));
+
+      // Calculate preference expiration: expiresAt minus 1 minute (small margin)
+      const preferenceExpiration = new Date(order.expiresAt.getTime() - 60 * 1000);
+
+      const preference = await this.mercadopagoSvc.createPreference({
+        items: preferenceItems,
+        payerEmail: order.buyerEmail,
+        externalReference: order.id,
+        additionalPreferenceParams: {
+          expiration_date_from: new Date().toISOString(),
+          expiration_date_to: preferenceExpiration.toISOString(),
+          payment_methods: {
+            excluded_payment_types: [
+              { id: 'ticket' },
+              { id: 'atm' },
+            ],
+          },
+        },
+      });
+
+      // Update order with preferenceId
+      await this.prisma.order.update({
+        where: { id: order.id },
+        data: { preferenceId: preference.id },
+      });
+
+      // Return init_point and orderId to frontend
+      return {
+        initPoint: preference.init_point,
+        orderId: order.id,
+      };
+    } catch (error) {
+      // If preference creation fails, cancel the order and release stock
+      await this.releaseOrder(order.id, 'CANCELLED');
+      throw new BadRequestException(
+        `Failed to create payment preference: ${error.message}`,
+      );
+    }
+  }
+  /**
+   * Libera el stock y marca la orden EXPIRED o CANCELLED.
+   * CORRECTITVA (idempotencia): la liberación de stock SOLO ocurre si la
+   * transición atómica PENDING -> targetStatus matchea exactamente un
+   * documento (count === 1). Antes se hacía findUnique -> chequear status ->
+   * update -> increment: dos ejecuciones concurrentes (cron + webhook, o dos
+   * corridas del cron) leían ambas status='PENDING' y liberaban el stock DOS
+   * VECES. Con updateMany condicional, la segunda ejecución ve count === 0 y
+   * no libera nada.
+   */
+  async releaseOrder(orderId: string, targetStatus: 'EXPIRED' | 'CANCELLED') {
+    return this.prisma.$transaction(async (tx) => {
+      // Transición atómica PENDING -> target: solo el ganador libera stock
+      const transition = await tx.order.updateMany({
+        where: {
+          id: orderId,
+          status: OrderStatus.PENDING,
+        },
+        data: {
+          status: targetStatus as OrderStatus,
+        },
+      });
+
+      if (transition.count !== 1) {
+        // Otra ejecución (cron o webhook) ya la procesó: NUNCA liberar dos veces
+        return;
+      }
+
+      const order = await tx.order.findUnique({
+        where: { id: orderId },
+      });
+      if (!order) {
+        return;
+      }
+
+      // Release stock for each item (ordenado por productId para evitar deadlocks).
+      // updateMany: si el producto fue borrado, count === 0 y no revienta la tx.
+      const sortedItems = [...(order.items as any[])].sort((a, b) =>
+        String(a.productId).localeCompare(String(b.productId)),
+      );
+      for (const item of sortedItems) {
+        await tx.product.updateMany({
+          where: { id: item.productId },
+          data: {
+            stock: {
+              increment: item.quantity,
+            },
+          },
+        });
+      }
+    });
+  }
+
+  async findAll() {
+    return this.prisma.order.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async findByUserId(userId: string) {
+    return this.prisma.order.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      include: {}, // we don't need to include anything extra? The Order model doesn't have relations to expand.
+    });
+  }
+
+  async findOne(id: string) {
+    return this.prisma.order.findUnique({
+      where: { id },
+    });
+  }
+
+  async updateStatus(id: string, updateOrderStatusDto: UpdateOrderStatusDto) {
+    // Verify order exists
+    const order = await this.prisma.order.findUnique({
+      where: { id },
+    });
+    if (!order) {
+      throw new BadRequestException(`Order with id ${id} not found`);
+    }
+
+    // If status is same as current, return early
+    if (order.status === updateOrderStatusDto.status) {
+      return order;
+    }
+
+    // Update status
+    return this.prisma.order.update({
+      where: { id },
+      data: { status: updateOrderStatusDto.status as OrderStatus },
+    });
+  }
+
+  async remove(id: string) {
+    // Verify order exists
+    const order = await this.prisma.order.findUnique({
+      where: { id },
+    });
+    if (!order) {
+      throw new BadRequestException(`Order with id ${id} not found`);
+    }
+
+    return this.prisma.order.delete({
+      where: { id },
+    });
+  }
+
+  /**
+   * Cron cada minuto: expira órdenes PENDING cuya reserva venció (RESERVATION_TTL).
+   * Solo libera stock vía releaseOrder, cuya transición atómica PENDING -> EXPIRED
+   * (count === 1) garantiza que ni una doble corrida del cron ni una carrera con el
+   * webhook liberen el stock dos veces. Desactivable con EXPIRATION_JOB_ENABLED.
+   */
+  @Cron('* * * * *')
+  async checkExpiredOrders() {
+    const enabled = this.configService.get<boolean>('EXPIRATION_JOB_ENABLED', false);
+    if (!enabled) {
+      return;
+    }
+    const now = new Date();
+    const expiredOrders = await this.prisma.order.findMany({
+      where: {
+        status: 'PENDING',
+        expiresAt: {
+          lt: now,
+        },
+      },
+      select: { id: true },
+    });
+
+    for (const order of expiredOrders) {
+      await this.releaseOrder(order.id, 'EXPIRED');
+    }
+  }
+   async upsertPaymentRecord(data: {
+     mpPaymentId: string;
+     orderId: string;
+     status: string;
+     amountCents: number;
+     currency: string;
+   }) {
+     return this.prisma.$transaction(async (tx) => {
+       // Try to create the payment record
+       try {
+         await tx.paymentRecord.create({
+           data: {
+             mpPaymentId: data.mpPaymentId,
+             orderId: data.orderId,
+             status: data.status,
+             amountCents: data.amountCents,
+             currency: data.currency,
+           },
+         });
+       } catch (error) {
+         // Duplicado del índice único de mpPaymentId (P2002, incluso a nivel
+         // commit de otra transacción concurrente): actualizar el existente.
+         const isDuplicateKey =
+           (error as { code?: string })?.code === 'P2002' ||
+           /duplicate key|E11000/i.test(String((error as Error)?.message ?? ''));
+         if (isDuplicateKey) {
+           await tx.paymentRecord.update({
+             where: { mpPaymentId: data.mpPaymentId },
+             data: {
+               status: data.status,
+               amountCents: data.amountCents,
+               currency: data.currency,
+             },
+           });
+         } else {
+           throw error;
+         }
+       }
+     });
+   }
+
+
+  // Called from payment webhook when payment is approved
+  async confirmPayment(orderId: string, payment: MercadoPagoPayment) {
+    // CORRECTIVA: el reembolso (llamada HTTP a MercadoPago) se ejecuta FUERA
+    // de la $transaction, despues del commit. Antes se llamaba DENTRO: la tx
+    // de BD quedaba abierta durante una llamada de red (hasta ~21s con los
+    // reintentos del SDK), reteniendo locks/snapshot; en MongoDB ademas puede
+    // exceder transactionLifetimeLimitSeconds y abortar todo el flujo.
+    const pendingRefunds: Array<{ reason: string }> = [];
+    const result = await this.prisma.$transaction(async (tx) => {
+      // Fetch the order to verify it exists and get its current state
+      const order = await tx.order.findUnique({
+        where: { id: orderId },
+      });
+
+      if (!order) {
+        throw new BadRequestException(`Order not found: ${orderId}`);
+      }
+
+      // Upsert PaymentRecord with the latest payment data
+      await tx.paymentRecord.upsert({
+        where: { mpPaymentId: String(payment.id) },
+        update: {
+          status: payment.status ?? 'unknown',
+          amountCents: Math.round((payment.transaction_amount ?? 0) * 100),
+          currency: payment.currency_id ?? '',
+          // We do not update refundId/refundStatus here; they are set only on successful refund
+        },
+        create: {
+          mpPaymentId: String(payment.id),
+          orderId: orderId,
+          status: payment.status ?? 'unknown',
+          amountCents: Math.round((payment.transaction_amount ?? 0) * 100),
+          currency: payment.currency_id ?? '',
+        },
+      });
+
+      // If payment is not approved, we only record it and do nothing else
+      if (payment.status !== 'approved') {
+        return order;
+      }
+
+      // Estado efectivo de la orden: resuelve la carrera con el cron u otro
+      // webhook re-leyendo el estado actual si la transicion condicional pierde.
+      let effective = order;
+
+      // Payment is approved: handle according to order status
+      if (order.status === OrderStatus.PENDING) {
+        // Transicion ATOMICA PENDING -> PAID: solo un ganador
+        const updateResult = await tx.order.updateMany({
+          where: {
+            id: orderId,
+            status: OrderStatus.PENDING,
+          },
+          data: {
+            status: OrderStatus.PAID,
+            paymentId: String(payment.id),
+            paidAt: new Date(),
+          },
+        });
+
+        if (updateResult.count === 1) {
+          // Successfully updated to PAID
+          return await tx.order.findUnique({
+            where: { id: orderId },
+          });
+        }
+
+        // Perdimos la carrera (cron expiro la orden u otro webhook pago):
+        // re-leer el estado ACTUAL y continuar con ese
+        const currentOrder = await tx.order.findUnique({
+          where: { id: orderId },
+        });
+        if (currentOrder) {
+          effective = currentOrder;
+        }
+      }
+
+      // If order is PAID, check for duplicate payment
+      if (effective.status === OrderStatus.PAID) {
+        if (effective.paymentId === String(payment.id)) {
+          // Same payment, duplicate notification: do nothing
+          return effective;
+        }
+        // Different paymentId: duplicate payment -> refund the new payment.
+        // Se encola: la llamada HTTP se hace DESPUES del commit de la tx.
+        pendingRefunds.push({ reason: 'duplicate payment' });
+        // Order remains PAID; we refund the duplicate payment
+        return effective;
+      }
+
+      // If order is EXPIRED or CANCELLED, attempt to re-reserve stock and transition to PAID
+      if (
+        effective.status === OrderStatus.EXPIRED ||
+        effective.status === OrderStatus.CANCELLED
+      ) {
+        // Parse order.items (stored as Json) to get product IDs and quantities
+        const items = effective.items as Array<{ productId: string; quantity: number }>;
+        // Sort by productId to avoid deadlocks
+        const sortedItems = [...items].sort((a, b) =>
+          a.productId.localeCompare(b.productId)
+        );
+
+        // Descuento condicional por item; 'reserved' permite compensar si algo
+        // falla mas adelante (NUNCA commitear stock decrementado a medias).
+        const reserved: Array<{ productId: string; quantity: number }> = [];
+        for (const item of sortedItems) {
+          const updateResult = await tx.product.updateMany({
+            where: {
+              id: item.productId,
+              stock: {
+                gte: item.quantity,
+              },
+            },
+            data: {
+              stock: {
+                decrement: item.quantity,
+              },
+            },
+          });
+
+          if (updateResult.count === 0) {
+            // Sin stock: compensar lo ya reservado en ESTA tx y reembolsar el
+            // pago tardio. La orden queda EXPIRED/CANCELLED.
+            for (const r of reserved) {
+              await tx.product.updateMany({
+                where: { id: r.productId },
+                data: { stock: { increment: r.quantity } },
+              });
+            }
+            pendingRefunds.push({ reason: 'failed re-reservation' });
+            console.error(
+              `Re-reservation failed for order ${orderId}: insufficient stock for product ${item.productId}. ` +
+                `Payment ${payment.id} will be refunded (if refunds enabled), order stays ${effective.status}.`,
+            );
+            return effective;
+          }
+          reserved.push(item);
+        }
+
+        // Transicion ATOMICA EXPIRED/CANCELLED -> PAID: si otro webhook con un
+        // pago distinto gano la carrera, se compensa NUESTRA reserva (el stock
+        // nunca se decrementa dos veces) y se reembolsa este pago duplicado.
+        const transition = await tx.order.updateMany({
+          where: {
+            id: orderId,
+            status: {
+              in: [OrderStatus.EXPIRED, OrderStatus.CANCELLED],
+            },
+          },
+          data: {
+            status: OrderStatus.PAID,
+            paymentId: String(payment.id),
+            paidAt: new Date(),
+          },
+        });
+
+        if (transition.count === 0) {
+          for (const r of reserved) {
+            await tx.product.updateMany({
+              where: { id: r.productId },
+              data: { stock: { increment: r.quantity } },
+            });
+          }
+          pendingRefunds.push({ reason: 'duplicate payment on re-reservation' });
+          return effective;
+        }
+
+        return await tx.order.findUnique({
+          where: { id: orderId },
+        });
+      }
+
+      // For any other order status (should not happen), just return the order
+      return effective;
+    });
+
+    // DESPUES del commit: reembolsos encolados. La llamada HTTP a MP ya no
+    // retiene la transacción de BD.
+    for (const refund of pendingRefunds) {
+      await this.refundAfterCommit(payment, refund.reason);
+    }
+    return result;
+  }
+
+  /**
+   * Reembolso ejecutado FUERA de la $transaction (llamada HTTP a MercadoPago):
+   * se invoca después del commit de confirmPayment. La actualización del
+   * PaymentRecord (refundId/refundStatus) se hace con una operación simple,
+   * sin reabrir una transacción interactiva.
+   */
+  private async refundAfterCommit(
+    payment: MercadoPagoPayment,
+    reason: string
+  ): Promise<void> {
+    const refundsEnabled = this.configService.get<boolean>('REFUNDS_ENABLED', false);
+    if (!refundsEnabled) {
+      // CORRECTIVA: antes se lanzaba InternalServerErrorException -> 500 ->
+      // MercadoPago reintentaba la notificación infinitamente por un estado de
+      // configuración permanente. Ahora se deja traza para conciliar manualmente
+      // y el webhook responde 200.
+      console.error(`Refunds disabled. Refund for payment ${payment.id} skipped due to: ${reason}`);
+      return;
+    }
+
+    try {
+      // IdempotencyKey determinística: refund-<mpPaymentId>
+      const refund = await this.mercadopagoSvc.refundPayment(
+        String(payment.id),
+        `refund-${payment.id}`,
+      );
+      await this.prisma.paymentRecord.update({
+        where: { mpPaymentId: String(payment.id) },
+        data: {
+          refundId: refund.id?.toString(),
+          refundStatus: refund.status,
+        },
+      });
+    } catch (error) {
+      console.error(`Failed to refund payment ${payment.id}: ${error.message}`);
+      throw new InternalServerErrorException(`Refund failed: ${error.message}`);
+    }
+  }
+}
