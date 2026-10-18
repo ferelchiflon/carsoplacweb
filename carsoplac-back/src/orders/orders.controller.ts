@@ -13,6 +13,8 @@ import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
 import { Request } from 'express';
 import { AuthService } from 'src/auth/auth.service';
 import { AuthenticatedRequest } from '../types/http';
@@ -34,7 +36,8 @@ export class OrdersController {
     return this.ordersService.create(createOrderDto, userId);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('ADMIN')
   @Get()
   findAll() {
     return this.ordersService.findAll();
@@ -48,22 +51,41 @@ export class OrdersController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.ordersService.findOne(id);
+  async findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    let userId: string | undefined;
+    if (req.user && req.user.sub) {
+      userId = req.user.sub;
+    }
+    return this.ordersService.findOne(id, userId);
   }
 
   @UseGuards(AuthGuard)
   @Patch(':id')
-  updateStatus(
+  async updateStatus(
     @Param('id') id: string,
     @Body() updateOrderStatusDto: UpdateOrderStatusDto,
+    @Req() req: AuthenticatedRequest,
   ) {
-    return this.ordersService.updateStatus(id, updateOrderStatusDto);
+    // If user is admin, bypass ownership check
+    if (req.user && req.user.role === 'ADMIN') {
+      return this.ordersService.updateStatus(id, updateOrderStatusDto);
+    }
+    
+    // For non-admin users, enforce ownership check
+    const userId = req.user?.sub;
+    return this.ordersService.updateStatus(id, updateOrderStatusDto, userId);
   }
 
   @UseGuards(AuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.ordersService.remove(id);
+  async remove(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    // If user is admin, bypass ownership check
+    if (req.user && req.user.role === 'ADMIN') {
+      return this.ordersService.remove(id);
+    }
+    
+    // For non-admin users, enforce ownership check
+    const userId = req.user?.sub;
+    return this.ordersService.remove(id, userId);
   }
 }

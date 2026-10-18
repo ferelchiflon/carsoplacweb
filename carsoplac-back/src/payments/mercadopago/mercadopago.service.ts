@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { Preference } from "mercadopago";
 import { MercadoPagoClient } from "./mercadopago.client";
+import { PaymentRefund } from "mercadopago";
 
 @Injectable()
 export class MercadoPagoService {
@@ -22,6 +23,13 @@ export class MercadoPagoService {
     successUrl?: string;
     failureUrl?: string;
     pendingUrl?: string;
+    additionalPreferenceParams?: {
+      expiration_date_from?: string;
+      expiration_date_to?: string;
+      payment_methods?: {
+        excluded_payment_types?: { id: string }[];
+      };
+    };
   }) {
     const baseUrls = {
       success: "https://carsoplac-ts.vercel.app/payment/success",
@@ -52,6 +60,9 @@ export class MercadoPagoService {
       },
       // Añadir flag de sandbox explícitamente
       additional_info: "sandbox_mode=true",
+      // Overrides opcionales del llamador (expiracion, exclusion de medios
+      // de pago, etc.): al final para que tengan precedencia.
+      ...(params.additionalPreferenceParams ?? {}),
     };
 
     console.log(
@@ -61,6 +72,14 @@ export class MercadoPagoService {
 
     return this.preference.create({
       body: preferenceBody,
+    });
+  }
+
+  async refundPayment(paymentId: string, idempotencyKey: string): Promise<any> {
+    const paymentRefund = new PaymentRefund(this.mpClient.getClient());
+    return paymentRefund.total({
+      payment_id: paymentId,
+      requestOptions: { idempotencyKey },
     });
   }
 }

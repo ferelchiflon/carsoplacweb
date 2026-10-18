@@ -63,7 +63,7 @@ type NavItem = {
 const navItems: NavItem[] = [
   { label: "Nosotros", to: "/nosotros", Icon: User },
   { label: "Catálogo", to: "/productos", Icon: Tag },
-  { label: "Servicios", to: "/servicios", Icon: Wrench, disabled: true },
+  { label: "Servicios", to: "/servicios", Icon: Wrench },
   { label: "Contacto", to: "/contacto", Icon: Phone },
 ];
 

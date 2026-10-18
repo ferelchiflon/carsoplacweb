@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  brand       String
+  description String?
+  price       Float
+  stock       Int?
+  images      String[]
+  active      Boolean  @default(true)
+
+  categoryId  String?        @db.ObjectId
+  category    Category?      @relation(fields: [categoryId], references: [id])
+  favoritedBy UserFavorite[] @relation("UserFavorites")
+
+  createdAt DateTime @default(now())
+}
+
+model UserFavorite {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  user      User    @relation("UserFavorites", fields: [userId], references: [id])
+  userId    String  @db.ObjectId
+  product   Product @relation("UserFavorites", fields: [productId], references: [id])
+  productId String  @db.ObjectId
+
+  @@unique([userId, productId], map: "userfavorite_user_product_unique")
+}
+
+model Category {
+  id       String    @id @default(auto()) @map("_id") @db.ObjectId
+  name     String
+  products Product[]
+}
+
+model User {
+  id        String         @id @default(auto()) @map("_id") @db.ObjectId
+  email     String         @unique
+  username  String         @unique
+  name      String?
+  phone     String?
+  address   String?
+  password  String
+  role      Role           @default(ADMIN)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  orders    Order[]        @relation("UserOrders")
+  favorites UserFavorite[] @relation("UserFavorites")
+}
+
+enum Role {
+  ADMIN
+  CUSTOMER
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  EXPIRED
+  CANCELLED
+  REFUND_PENDING
+  REFUNDED
+  SHIPPED
+  DELIVERED
+}
+
+model Order {
+  id              String      @id @default(auto()) @map("_id") @db.ObjectId
+  items           Json
+  total           Float
+  currency        String
+  status          OrderStatus @default(PENDING)
+  paymentId       String?
+  buyerEmail      String
+  buyerPhone      String
+  shippingAddress String
+  preferenceId    String?
+  expiresAt       DateTime
+  paidAt          DateTime?
+  createdAt       DateTime    @default(now())
+  userId          String?     @db.ObjectId
+  user            User?       @relation("UserOrders", fields: [userId], references: [id])
+
+  @@index([status, expiresAt])
+}
+
+model PaymentRecord {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  mpPaymentId  String   @unique
+  orderId      String
+  status       String
+  amountCents  Int
+  currency     String
+  refundId     String?
+  refundStatus String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}

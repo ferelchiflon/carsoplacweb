@@ -11,6 +11,9 @@ if (!import.meta.env.VITE_API_URL) {
 const api = axios.create({
   baseURL: apiBaseUrl,
   withCredentials: true, // httpOnly cookie jwt
+  // Si la API no responde en 20s (caída, red, etc.), corta y muestra
+  // error en vez de dejar el spinner girando para siempre.
+  timeout: 20000,
 });
 
 api.interceptors.response.use(

@@ -65,17 +65,18 @@ export class OrdersService {
     const reservationTtlMinutes =
       this.configService.get<number>('RESERVATION_TTL_MINUTES') ?? 30;
     const expiresAt = new Date(Date.now() + reservationTtlMinutes * 60 * 1000);
-     const currency = this.configService.get<string>('CURRENCY_ID') ?? 'ARS';
+    const currency = this.configService.get<string>('CURRENCY_ID') ?? 'ARS';
+    let itemsSnapshot: Array<{
+      productId: string;
+      name: string;
+      quantity: number;
+      unitPrice: number;
+    }> = [];
 
     // Start transaction: reserve stock and create order PENDING
     const order = await this.prisma.$transaction(async (tx) => {
-      // Reserve stock for each item
-      const itemsSnapshot: Array<{
-        productId: string;
-        name: string;
-        quantity: number;
-        unitPrice: number;
-      }> = [];
+      // Reserve stock for each item. itemsSnapshot se declara FUERA de la tx:
+      // despues del commit se usa para armar la preferencia de MercadoPago.
       let total = 0;
 
       for (const itemDto of sortedItems) {
@@ -143,7 +144,7 @@ export class OrdersService {
 
     // Outside transaction: create Mercado Pago preference with expiration and payment method exclusion
     try {
-      const preferenceItems = (order.items as any[]).map((item) => ({
+      const preferenceItems = itemsSnapshot.map((item) => ({
         id: item.productId,
         title: item.name,
         quantity: item.quantity,
@@ -154,11 +155,13 @@ export class OrdersService {
       }));
 
       // Calculate preference expiration: expiresAt minus 1 minute (small margin)
-      const preferenceExpiration = new Date(order.expiresAt.getTime() - 60 * 1000);
+      // expiresAt is optional in the schema, use default if not set
+      const expiresAt = order.expiresAt ?? new Date(Date.now() + 30 * 60 * 1000);
+      const preferenceExpiration = new Date(expiresAt.getTime() - 60 * 1000);
 
       const preference = await this.mercadopagoSvc.createPreference({
         items: preferenceItems,
-        payerEmail: order.buyerEmail,
+        payerEmail: order.buyerEmail ?? '',
         externalReference: order.id,
         additionalPreferenceParams: {
           expiration_date_from: new Date().toISOString(),
@@ -221,6 +224,7 @@ export class OrdersService {
 
       const order = await tx.order.findUnique({
         where: { id: orderId },
+        select: { items: true },
       });
       if (!order) {
         return;
@@ -258,19 +262,32 @@ export class OrdersService {
     });
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, userId?: string) {
+    const where: any = { id };
+    
+    // If userId is provided, add ownership check (unless user is admin, but admin check is done in controller)
+    if (userId) {
+      where.userId = userId;
+    }
+    
     return this.prisma.order.findUnique({
-      where: { id },
+      where,
     });
   }
 
-  async updateStatus(id: string, updateOrderStatusDto: UpdateOrderStatusDto) {
-    // Verify order exists
+  async updateStatus(id: string, updateOrderStatusDto: UpdateOrderStatusDto, userId?: string) {
+    // Build where clause for ownership check if userId is provided
+    const where: any = { id };
+    if (userId) {
+      where.userId = userId;
+    }
+
+    // Verify order exists and (if userId provided) that it belongs to the user
     const order = await this.prisma.order.findUnique({
-      where: { id },
+      where,
     });
     if (!order) {
-      throw new BadRequestException(`Order with id ${id} not found`);
+      throw new BadRequestException(`Order with id ${id} not found or access denied`);
     }
 
     // If status is same as current, return early
@@ -285,13 +302,19 @@ export class OrdersService {
     });
   }
 
-  async remove(id: string) {
-    // Verify order exists
+  async remove(id: string, userId?: string) {
+    // Build where clause for ownership check if userId is provided
+    const where: any = { id };
+    if (userId) {
+      where.userId = userId;
+    }
+
+    // Verify order exists and (if userId provided) that it belongs to the user
     const order = await this.prisma.order.findUnique({
-      where: { id },
+      where,
     });
     if (!order) {
-      throw new BadRequestException(`Order with id ${id} not found`);
+      throw new BadRequestException(`Order with id ${id} not found or access denied`);
     }
 
     return this.prisma.order.delete({
@@ -334,17 +357,17 @@ export class OrdersService {
      currency: string;
    }) {
      return this.prisma.$transaction(async (tx) => {
-       // Try to create the payment record
-       try {
-         await tx.paymentRecord.create({
-           data: {
-             mpPaymentId: data.mpPaymentId,
-             orderId: data.orderId,
-             status: data.status,
-             amountCents: data.amountCents,
-             currency: data.currency,
-           },
-         });
+        // Try to create the payment record
+        try {
+          await tx.paymentRecord.create({
+            data: {
+              mpPaymentId: data.mpPaymentId,
+              orderId: data.orderId,
+              status: data.status,
+              amount: data.amountCents / 100, // Convert cents to amount
+              currency: data.currency,
+            },
+          });
        } catch (error) {
          // Duplicado del índice único de mpPaymentId (P2002, incluso a nivel
          // commit de otra transacción concurrente): actualizar el existente.
@@ -356,7 +379,7 @@ export class OrdersService {
              where: { mpPaymentId: data.mpPaymentId },
              data: {
                status: data.status,
-               amountCents: data.amountCents,
+               amount: data.amountCents / 100, // Convert cents to amount
                currency: data.currency,
              },
            });
@@ -378,8 +401,11 @@ export class OrdersService {
     const pendingRefunds: Array<{ reason: string }> = [];
     const result = await this.prisma.$transaction(async (tx) => {
       // Fetch the order to verify it exists and get its current state
+      // include (no select): se necesitan los escalares (status, paymentId)
+      // Y los items. En Prisma 6 el fetch por defecto no trae relaciones.
       const order = await tx.order.findUnique({
         where: { id: orderId },
+        include: { items: true },
       });
 
       if (!order) {
@@ -391,7 +417,7 @@ export class OrdersService {
         where: { mpPaymentId: String(payment.id) },
         update: {
           status: payment.status ?? 'unknown',
-          amountCents: Math.round((payment.transaction_amount ?? 0) * 100),
+          amount: payment.transaction_amount ?? 0,
           currency: payment.currency_id ?? '',
           // We do not update refundId/refundStatus here; they are set only on successful refund
         },
@@ -399,7 +425,7 @@ export class OrdersService {
           mpPaymentId: String(payment.id),
           orderId: orderId,
           status: payment.status ?? 'unknown',
-          amountCents: Math.round((payment.transaction_amount ?? 0) * 100),
+          amount: payment.transaction_amount ?? 0,
           currency: payment.currency_id ?? '',
         },
       });
@@ -439,6 +465,7 @@ export class OrdersService {
         // re-leer el estado ACTUAL y continuar con ese
         const currentOrder = await tx.order.findUnique({
           where: { id: orderId },
+          include: { items: true },
         });
         if (currentOrder) {
           effective = currentOrder;
@@ -463,12 +490,19 @@ export class OrdersService {
         effective.status === OrderStatus.EXPIRED ||
         effective.status === OrderStatus.CANCELLED
       ) {
-        // Parse order.items (stored as Json) to get product IDs and quantities
-        const items = effective.items as Array<{ productId: string; quantity: number }>;
+        // Items de la orden (relacion OrderItem): productId es nullable
+        // (onDelete: SetNull si el producto fue borrado) -> se excluyen, no
+        // hay stock que reservar de un producto inexistente.
+        const items = effective.items as Array<{
+          productId: string | null;
+          quantity: number;
+        }>;
         // Sort by productId to avoid deadlocks
-        const sortedItems = [...items].sort((a, b) =>
-          a.productId.localeCompare(b.productId)
-        );
+        const sortedItems = items
+          .filter((item): item is { productId: string; quantity: number } =>
+            Boolean(item.productId),
+          )
+          .sort((a, b) => a.productId.localeCompare(b.productId));
 
         // Descuento condicional por item; 'reserved' permite compensar si algo
         // falla mas adelante (NUNCA commitear stock decrementado a medias).

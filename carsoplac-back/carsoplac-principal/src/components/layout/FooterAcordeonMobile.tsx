@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import {
   ChevronDown,
   Instagram,
@@ -28,7 +29,7 @@ const sections: Item[] = [
     content: [
       { label: "Productos", href: "#productos" },
       { label: "Nosotros", href: "#nosotros" },
-      { label: "Servicios", href: "#servicios" },
+      { label: "Servicios", href: "/servicios" },
       { label: "Cambios y devoluciones", href: "#cambios" },
       { label: "Contacto", href: "#contacto" },
     ],
@@ -209,12 +210,22 @@ export default function FooterAcordeonMobile() {
               <ul className="pb-4 space-y-3">
                 {item.content.map((c, idx) => (
                   <li key={idx}>
-                    <a
-                      href={c.href || "#"}
-                      className="text-sm text-sage-gray hover:text-white transition"
-                    >
-                      {c.label}
-                    </a>
+                    {c.href && !c.href.startsWith("#") ? (
+                      // Ruta interna de la app => <Link> (navegación SPA).
+                      <Link
+                        to={c.href}
+                        className="text-sm text-sage-gray hover:text-white transition"
+                      >
+                        {c.label}
+                      </Link>
+                    ) : (
+                      <a
+                        href={c.href || "#"}
+                        className="text-sm text-sage-gray hover:text-white transition"
+                      >
+                        {c.label}
+                      </a>
+                    )}
                   </li>
                 ))}
               </ul>

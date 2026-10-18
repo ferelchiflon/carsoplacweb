@@ -1,63 +1,53 @@
 // prisma/seed/admin.seed.ts
-import { Logger } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+import { Logger } from '@nestjs/common';
+import { assertExpectedDb } from '../../scripts/lib/guard';
+
 require('dotenv').config();
 
 const logger = new Logger('AdminSeed');
 
 async function main() {
-  const adminEmail = process.env.ADMIN_EMAIL;
+  // Aborta si DATABASE_URL no apunta a EXPECTED_DB (el .env local apunta a producción)
+  assertExpectedDb();
+
+  const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
   const adminUsername = process.env.ADMIN_USERNAME;
   const adminPassword = process.env.ADMIN_INITIAL_PASSWORD;
   const adminResetPassword = process.env.ADMIN_RESET_PASSWORD === 'true';
 
-  if (!adminEmail) {
-    throw new Error('ADMIN_EMAIL debe estar definida en .env');
-  }
-  if (!adminUsername) {
-    throw new Error('ADMIN_USERNAME debe estar definida en .env');
-  }
-  if (!adminPassword) {
-    throw new Error('ADMIN_INITIAL_PASSWORD debe estar definida en .env');
-  }
+  if (!adminEmail) throw new Error('ADMIN_EMAIL debe estar definida');
+  if (!adminUsername) throw new Error('ADMIN_USERNAME debe estar definida');
+  if (!adminPassword) throw new Error('ADMIN_INITIAL_PASSWORD debe estar definida');
   if (adminPassword.length < 12) {
     throw new Error('ADMIN_INITIAL_PASSWORD debe tener al menos 12 caracteres');
   }
-  // Optional: validate email format (basic)
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(adminEmail)) {
-    throw new Error('ADMIN_EMAIL debe ser una dirección de correo electrónico válida');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(adminEmail)) {
+    throw new Error('ADMIN_EMAIL debe ser una dirección de correo válida');
   }
 
   const prisma = new PrismaClient();
   try {
-    const hashed = await bcrypt.hash(adminPassword, 12);
+    const existing = await prisma.user.findUnique({ where: { username: adminUsername } });
 
-    const existingAdmin = await prisma.user.findUnique({
-      where: { username: adminUsername },
-    });
+    if (existing) {
+      const data: { email?: string; password?: string } = {};
+      if (existing.email !== adminEmail) data.email = adminEmail;
+      if (adminResetPassword) data.password = await bcrypt.hash(adminPassword, 12);
 
-    if (existingAdmin) {
-      // Admin already exists
-      if (adminResetPassword) {
-        // Update password only if ADMIN_RESET_PASSWORD is true
-        await prisma.user.update({
-          where: { username: adminUsername },
-          data: {
-            password: hashed,
-          },
-        });
-        logger.log(`Admin '${adminUsername}' password reseteado`);
+      if (Object.keys(data).length > 0) {
+        await prisma.user.update({ where: { username: adminUsername }, data });
+        logger.log(`Admin '${adminUsername}' actualizado (${Object.keys(data).join(', ')})`);
       } else {
-        logger.log(`Admin '${adminUsername}' ya existe`);
+        logger.log(`Admin '${adminUsername}' ya existe, sin cambios`);
       }
     } else {
-      // Create new admin
       await prisma.user.create({
         data: {
           username: adminUsername,
-          password: hashed,
+          email: adminEmail,
+          password: await bcrypt.hash(adminPassword, 12),
           role: 'ADMIN',
         },
       });
@@ -69,6 +59,6 @@ async function main() {
 }
 
 main().catch((err) => {
-  logger.error('Error en seed:', err);
+  logger.error(`Error en seed: ${err instanceof Error ? err.message : err}`);
   process.exit(1);
 });

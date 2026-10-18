@@ -35,8 +35,15 @@ export default function Login() {
         // Auth failed but no error was set - show generic message
         setError('Credenciales inválidas');
       }
-    } catch {
-      setError('Error al conectar con el servidor');
+    } catch (err) {
+      // useAuth lanza el error con el mensaje correcto según el caso:
+      // credenciales inválidas (401), error del servidor (5xx) o
+      // API inaccesible (timeout/red). Lo mostramos tal cual.
+      setError(
+        err instanceof Error && err.message
+          ? err.message
+          : 'Error al conectar con el servidor',
+      );
     } finally {
       setLoading(false);
     }

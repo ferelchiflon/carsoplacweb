@@ -5,7 +5,9 @@
   "scripts": {
     "dev:admin": "npm run dev --prefix carsoplac-admin",
     "dev:principal": "npm run dev --prefix carsoplac-back/carsoplac-principal",
-    "dev:back": "npm run start:dev --prefix carsoplac-back"
+    "dev:back": "npm run start:dev --prefix carsoplac-back",
+    "db:generate": "prisma generate",
+    "db:push:test": "ts-node scripts/assert-db.ts && prisma db push"
   },
   "devDependencies": {
     "live-server": "^1.2.2"

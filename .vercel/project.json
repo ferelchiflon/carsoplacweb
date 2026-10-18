@@ -1,0 +1,16 @@
+{
+  "projectId": "prj_q0YCd4DiELVjmEEt5dRePTIav0qP",
+  "orgId": "team_VWdhh9gv2lXuFF2N3tfVtWSx",
+  "projectName": "carsoplacv1.0",
+  "settings": {
+    "createdAt": 1791504542707,
+    "framework": "container",
+    "devCommand": null,
+    "installCommand": null,
+    "buildCommand": null,
+    "outputDirectory": null,
+    "rootDirectory": null,
+    "directoryListing": false,
+    "nodeVersion": "24.x"
+  }
+}

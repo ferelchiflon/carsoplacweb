@@ -18,9 +18,17 @@ export const useAuth = () => {
       }
     } catch (err: unknown) {
       const axiosErr = err as { response?: { data?: { message?: string } } };
-      const message =
-        axiosErr.response?.data?.message ||
-        (err instanceof Error ? err.message : 'Credenciales inválidas');
+      let message: string;
+      if (axiosErr.response) {
+        // El servidor respondió (401, 500, etc.): usar su mensaje.
+        message =
+          axiosErr.response.data?.message ||
+          (err instanceof Error ? err.message : 'Credenciales inválidas');
+      } else {
+        // Sin respuesta: timeout, red caída o API inaccesible.
+        message =
+          'No se pudo conectar con el servidor. Verificá tu conexión e intentá de nuevo en unos minutos.';
+      }
       setError(message);
       const typedErr = err instanceof Error ? err : undefined;
       const loginErr = new Error(message, { cause: typedErr });

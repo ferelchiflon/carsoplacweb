@@ -46,6 +46,7 @@ export class SitemapService {
       this.buildUrlEntry(`${frontendUrl}/`),
       this.buildUrlEntry(`${frontendUrl}/productos`),
       this.buildUrlEntry(`${frontendUrl}/nosotros`),
+      this.buildUrlEntry(`${frontendUrl}/servicios`),
       this.buildUrlEntry(`${frontendUrl}/contacto`),
     ];
 

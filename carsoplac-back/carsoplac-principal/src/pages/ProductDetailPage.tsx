@@ -2,12 +2,17 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useFavorites } from "../context/FavoritesContext";
-import { Heart, MessageCircle } from "lucide-react";
+import { ArrowRight, Hammer, Heart, MessageCircle } from "lucide-react";
 import { API_URL } from "../config/api";
 import { fetchWithTimeout, getFetchErrorMsg } from "../utils/fetchWithTimeout";
 import { WHATSAPP_CONFIG } from "../config/whatsapp";
 import Seo from "../components/Seo";
 import { cloudinaryUrl } from "../lib/cloudinary";
+import {
+  getServicesForCategory,
+  type Service,
+} from "../config/services";
+import { trackEvent } from "../lib/analytics";
 
 type Product = {
   id: string;
@@ -16,9 +21,51 @@ type Product = {
   images: string[];
   brand?: string;
   description?: string;
-  category?: { name: string } | string;
+  category?: { id?: string; name: string } | string;
   stock?: number;
 };
+
+/**
+ * Bloque "¿Necesitás quien lo coloque?" — aparece solo cuando la categoría
+ * del producto matchea algún servicio activo y disponible. La relación
+ * servicio↔categoría vive en src/config/services.ts (relatedCategories).
+ */
+function ServiceCtaBox({
+  service,
+  productId,
+  categoryName,
+}: {
+  service: Service;
+  productId: string;
+  categoryName: string;
+}) {
+  return (
+    <div className="rounded-xl border border-spruce-border bg-deep-lichen p-4">
+      <p className="flex items-center gap-2 text-sm font-semibold text-white">
+        <Hammer size={16} aria-hidden className="shrink-0 text-accent-brand" />
+        ¿Necesitás quien lo coloque?
+      </p>
+      <p className="mt-1.5 text-sm leading-relaxed text-sage-gray">
+        Contamos con equipo propio de colocación: {service.name.toLowerCase()}.
+      </p>
+      <Link
+        to={`/servicios#${service.id}`}
+        className="btn btn-outline mt-3 w-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-brand sm:w-auto"
+        onClick={() =>
+          trackEvent("service_cta_from_product", {
+            service_id: service.id,
+            service_name: service.name,
+            product_id: productId,
+            product_category: categoryName,
+          })
+        }
+      >
+        Pedir presupuesto de colocación
+        <ArrowRight size={16} aria-hidden />
+      </Link>
+    </div>
+  );
+}
 
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -89,6 +136,9 @@ export default function ProductDetailPage() {
     typeof product.category === "object" && product.category
       ? product.category.name
       : (product.category ?? "General");
+
+  // Servicios activos y disponibles que cubren esta categoría (fuente: services.ts).
+  const relatedServices = getServicesForCategory(categoryName);
 
   const seoDescription =
     product.description && product.description.length > 155
@@ -275,6 +325,16 @@ export default function ProductDetailPage() {
               <Heart size={20} fill={isFav ? "currentColor" : "none"} />
             </button>
           </div>
+
+          {/* Servicios relacionados: solo si la categoría matchea (services.ts) */}
+          {relatedServices.map((s) => (
+            <ServiceCtaBox
+              key={s.id}
+              service={s}
+              productId={product.id}
+              categoryName={categoryName}
+            />
+          ))}
 
           {/* Botón directo de consulta rápida por WhatsApp para este producto */}
           <a

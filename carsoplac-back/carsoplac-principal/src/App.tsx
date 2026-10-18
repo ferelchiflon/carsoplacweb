@@ -9,6 +9,7 @@ const PaymentFailure = lazy(() => import("./pages/PaymentFailure"));
 const PaymentPending = lazy(() => import("./pages/PaymentPending"));
 const AboutPage = lazy(() => import("./pages/about"));
 const ContactPage = lazy(() => import("./pages/contact"));
+const ServicesPage = lazy(() => import("./pages/servicios"));
 const Login = lazy(() => import("./pages/Login"));
 const CheckoutPage = lazy(() => import("./pages/CheckoutPage"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
@@ -22,6 +23,7 @@ function App() {
           <Route path="/productos" element={<ProductsPage />} />
           <Route path="/productos/:id" element={<ProductDetailPage />} />
           <Route path="/nosotros" element={<AboutPage />} />
+          <Route path="/servicios" element={<ServicesPage />} />
           <Route path="/contacto" element={<ContactPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/mi-cuenta" element={<ProfilePage />} />
