@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/sitemap.xml",
-      "destination": "REEMPLAZAR_CON_URL_BACKEND/sitemap.xml"
+      "destination": "https://parsoplac-back.onrender.com/sitemap.xml"
     },
     {
       "source": "/(.*)",
